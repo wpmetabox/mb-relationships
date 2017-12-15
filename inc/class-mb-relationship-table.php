@@ -15,7 +15,14 @@ class MB_Relationship_Table {
 	 *
 	 * @var wpdb
 	 */
-	private $db;
+	protected $db;
+
+	/**
+	 * The table name for shared relationships.
+	 *
+	 * @var string
+	 */
+	protected $shared_table_name = 'mb_relationship';
 
 	/**
 	 * Constructor.
@@ -24,6 +31,7 @@ class MB_Relationship_Table {
 	 */
 	public function __construct( $wpdb ) {
 		$this->db = $wpdb;
+		$this->shared_table_name = $this->db->prefix . $this->shared_table_name;
 	}
 
 	/**
@@ -33,8 +41,7 @@ class MB_Relationship_Table {
 		if ( ! $this->is_shared() ) {
 			return;
 		}
-		$table = $this->db->prefix . 'mb_relationship';
-		MB_Custom_Table_API::create( $table, array(
+		MB_Custom_Table_API::create( $this->shared_table_name, array(
 			'from' => 'bigint(20) unsigned NOT NULL',
 			'to'   => 'bigint(20) unsigned NOT NULL',
 			'type' => 'varchar(44) NOT NULL default \'\'',
@@ -58,11 +65,20 @@ class MB_Relationship_Table {
 	}
 
 	/**
+	 * Get the shared table name.
+	 *
+	 * @return string
+	 */
+	public function get_shared_table_name() {
+		return $this->shared_table_name;
+	}
+
+	/**
 	 * Check if relationship tables are shared.
 	 *
 	 * @return bool
 	 */
-	private function is_shared() {
+	protected function is_shared() {
 		return apply_filters( 'mb_relationship_shared', true );
 	}
 }

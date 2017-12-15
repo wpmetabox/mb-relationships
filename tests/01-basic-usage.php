@@ -1,6 +1,6 @@
 <?php
-add_action( 'mb_relationship_init', function () {
-	MB_Relationship_API::register( array(
+add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
+	$api->register( array(
 		'id'    => 'id0',
 		'from'  => 'post',
 		'to'    => 'page',

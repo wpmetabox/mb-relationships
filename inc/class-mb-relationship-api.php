@@ -11,14 +11,30 @@
  */
 class MB_Relationship_API {
 	/**
+	 * The table object for creating relationship table(s).
+	 *
+	 * @var MB_Relationship_Table
+	 */
+	protected $table;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param MB_Relationship_Table $table The table object for creating relationship table(s).
+	 */
+	public function __construct( MB_Relationship_Table $table ) {
+		$this->table = $table;
+	}
+
+	/**
 	 * Register a relationship type.
 	 *
 	 * @param array $args Relationship parameters.
 	 *
 	 * @return MB_Relationship_Type
 	 */
-	public static function register( $args ) {
-		return new MB_Relationship_Type( $args );
+	public function register( $args ) {
+		return new MB_Relationship_Type( $args, $this->table );
 	}
 
 	/**
@@ -31,7 +47,7 @@ class MB_Relationship_API {
 	 *
 	 * @return array
 	 */
-	public static function get_connected( $args ) {
+	public function get_connected( $args ) {
 		$args = array(
 			'relationship' => 'id',
 			'direction'    => 'to',

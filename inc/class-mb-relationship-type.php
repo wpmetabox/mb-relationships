@@ -18,12 +18,21 @@ class MB_Relationship_Type {
 	protected $args;
 
 	/**
+	 * The table object for creating relationship table(s).
+	 *
+	 * @var MB_Relationship_Table
+	 */
+	protected $table;
+
+	/**
 	 * Register a relationship type.
 	 *
-	 * @param array $args Type settings.
+	 * @param array                 $args  Type settings.
+	 * @param MB_Relationship_Table $table The table object for creating relationship table(s).
 	 */
-	public function __construct( $args ) {
-		$this->args = $this->normalize( $args );
+	public function __construct( $args, $table ) {
+		$this->args  = $this->normalize( $args );
+		$this->table = $table;
 
 		$this->setup_hooks();
 	}
@@ -125,14 +134,22 @@ class MB_Relationship_Type {
 	protected function parse_to_meta_box() {
 		$to       = $this->args['to'];
 		$meta_box = array(
-			'id'       => "{$this->args['id']}_relationship_to",
-			'title'    => $to['label'],
-			'context'  => $this->args['to']['context'],
-			'priority' => $this->args['to']['priority'],
-			'fields'   => array(),
+			'id'           => "{$this->args['id']}_relationship_to",
+			'title'        => $to['label'],
+			'context'      => $this->args['to']['context'],
+			'priority'     => $this->args['to']['priority'],
+			'storage_type' => 'custom_table',
+			'table'        => $this->table->get_shared_table_name(),
+			'fields'       => array(
+				array(
+					'id'   => 'from',
+					'type' => 'hidden',
+					'std'  => $this->get_current_object_id(),
+				),
+			),
 		);
 		$field    = array(
-			'id'         => '_relationship_to',
+			'id'         => 'to',
 			'clone'      => true,
 			'sort_clone' => true,
 		);
@@ -163,5 +180,62 @@ class MB_Relationship_Type {
 	 */
 	public function get_connected_from() {
 		return 'So good';
+	}
+
+	/**
+	 * Get current object ID.
+	 *
+	 * @return int|false
+	 */
+	protected function get_current_object_id() {
+		switch ( $this->args['to']['object_type'] ) {
+			case 'post':
+				return $this->get_current_post_id();
+			case 'taxonomy':
+				return $this->get_current_term_id();
+			case 'user':
+				return $this->get_current_user_id();
+		}
+		return false;
+	}
+
+	/**
+	 * Get current post ID.
+	 *
+	 * @return int|false Post ID if successful. False on failure.
+	 */
+	protected function get_current_post_id() {
+		$post_id = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
+		if ( ! $post_id ) {
+			$post_id = filter_input( INPUT_POST, 'post_ID', FILTER_SANITIZE_NUMBER_INT );
+		}
+		return is_numeric( $post_id ) ? absint( $post_id ) : false;
+	}
+
+	/**
+	 * Get current term id.
+	 *
+	 * @return int|string
+	 */
+	protected function get_current_term_id() {
+		return filter_input( INPUT_GET, 'tag_ID', FILTER_SANITIZE_NUMBER_INT );
+	}
+
+
+	/**
+	 * Get editing user ID.
+	 *
+	 * @return bool|int
+	 */
+	protected function get_current_user_id() {
+		$user_id = false;
+		$screen  = get_current_screen();
+		if ( 'profile' === $screen->id ) {
+			$user_id = get_current_user_id();
+		} elseif ( 'user-edit' === $screen->id ) {
+			$user_id = isset( $_REQUEST['user_id'] ) ? absint( $_REQUEST['user_id'] ) : false;
+		}
+
+		return $user_id;
 	}
 }

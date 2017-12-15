@@ -20,7 +20,6 @@ defined( 'ABSPATH' ) || exit;
 if ( ! function_exists( 'mb_relationship_load' ) ) {
 	// Hook to 'init' with priority 5 to make sure all actions are registered before Meta Box runs.
 	add_action( 'init', 'mb_relationship_load', 5 );
-
 	/**
 	 * Load plugin files after Meta Box is loaded.
 	 */
@@ -32,11 +31,14 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-type.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-api.php';
 
-		// All registration code goes here.
-		do_action( 'mb_relationship_init' );
+		do_action( 'mb_relationship_pre_init' );
 
 		global $wpdb;
 		$table = new MB_Relationship_Table( $wpdb );
 		$table->create_shared();
+		$api = new MB_Relationship_API( $table );
+
+		// All registration code goes here.
+		do_action( 'mb_relationship_init', $api );
 	}
 }
