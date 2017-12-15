@@ -17,24 +17,26 @@
 // Prevent loading this file directly.
 defined( 'ABSPATH' ) || exit;
 
-if ( function_exists( 'mb_relationship_load' ) ) {
-	return;
-}
+if ( ! function_exists( 'mb_relationship_load' ) ) {
+	// Hook to 'init' with priority 5 to make sure all actions are registered before Meta Box runs.
+	add_action( 'init', 'mb_relationship_load', 5 );
 
+	/**
+	 * Load plugin files after Meta Box is loaded.
+	 */
+	function mb_relationship_load() {
+		if ( ! defined( 'RWMB_VER' ) || class_exists( 'MB_Relationship_Table' ) ) {
+			return;
+		}
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-table.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-type.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-api.php';
 
-// Hook to 'init' with priority 5 to make sure all actions are registered before Meta Box runs.
-add_action( 'init', 'mb_relationship_load', 5 );
+		// All registration code goes here.
+		do_action( 'mb_relationship_init' );
 
-/**
- * Load plugin files after Meta Box is loaded.
- */
-function mb_custom_table_load() {
-	if ( ! defined( 'RWMB_VER' ) || class_exists( 'MB_Relationship_Table' ) ) {
-		return;
+		global $wpdb;
+		$table = new MB_Relationship_Table( $wpdb );
+		$table->create_shared();
 	}
-	require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-table.php';
-
-	global $wpdb;
-	$table = new MB_Relationship_Table( $wpdb );
-	$table->create_shared();
 }

@@ -1,4 +1,11 @@
 <?php
+add_action( 'mb_relationship_init', function () {
+	MB_Relationship_API::register( array(
+		'id'    => 'id0',
+		'from'  => 'post',
+		'to'    => 'page',
+	) );
+} );
 function prefix_register_relationship() {
 	$args = array(
 		'id'    => 'id0',
