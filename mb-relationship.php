@@ -28,8 +28,10 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 			return;
 		}
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-table.php';
+		require_once dirname( __FILE__ ) . '/inc/class-rwmb-relationship-table-storage.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-type.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-api.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-loader.php';
 
 		do_action( 'mb_relationship_pre_init' );
 
@@ -37,6 +39,9 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		$table = new MB_Relationship_Table( $wpdb );
 		$table->create_shared();
 		$api = new MB_Relationship_API( $table );
+
+		$loader = new MB_Relationship_Loader();
+		$loader->init();
 
 		// All registration code goes here.
 		do_action( 'mb_relationship_init', $api );

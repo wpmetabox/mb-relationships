@@ -138,15 +138,9 @@ class MB_Relationship_Type {
 			'title'        => $to['label'],
 			'context'      => $this->args['to']['context'],
 			'priority'     => $this->args['to']['priority'],
-			'storage_type' => 'custom_table',
+			'storage_type' => 'relationship_table',
 			'table'        => $this->table->get_shared_table_name(),
-			'fields'       => array(
-				array(
-					'id'   => 'from',
-					'type' => 'hidden',
-					'std'  => $this->get_current_object_id(),
-				),
-			),
+			'fields'       => array(),
 		);
 		$field    = array(
 			'id'         => 'to',

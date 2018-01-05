@@ -30,7 +30,7 @@ class MB_Relationship_Table {
 	 * @param wpdb $wpdb The WordPress global database connector.
 	 */
 	public function __construct( $wpdb ) {
-		$this->db = $wpdb;
+		$this->db                = $wpdb;
 		$this->shared_table_name = $this->db->prefix . $this->shared_table_name;
 	}
 
@@ -41,11 +41,19 @@ class MB_Relationship_Table {
 		if ( ! $this->is_shared() ) {
 			return;
 		}
-		MB_Custom_Table_API::create( $this->shared_table_name, array(
-			'from' => 'bigint(20) unsigned NOT NULL',
-			'to'   => 'bigint(20) unsigned NOT NULL',
-			'type' => 'varchar(44) NOT NULL default \'\'',
-		), array( 'from', 'to', 'type' ) );
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		$sql = "
+			CREATE TABLE {$this->shared_table_name} (
+				`ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+				`from` bigint(20) unsigned NOT NULL,
+				`to` bigint(20) unsigned NOT NULL,
+				`type` varchar(44) NOT NULL default '',
+				PRIMARY KEY  (`ID`),
+				KEY `from` (`from`),
+				KEY `to` (`to`)
+			) COLLATE {$this->db->collate};
+		";
+		dbDelta( $sql );
 	}
 
 	/**
