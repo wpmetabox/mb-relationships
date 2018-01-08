@@ -33,7 +33,7 @@ class MB_Relationship_Loader {
 		static $relationship_storage = null;
 		if ( null === $relationship_storage && $meta_box && $this->is_relationship( $meta_box ) ) {
 			$relationship_storage = new RWMB_Relationship_Table_Storage();
-			$relationship_storage->set_table( $meta_box->table );
+			$relationship_storage->set_table( MB_Relationship_Table::get_shared_name() );
 
 			$storage = $relationship_storage;
 		}
@@ -49,7 +49,7 @@ class MB_Relationship_Loader {
 	 * @return bool
 	 */
 	protected function is_relationship( $meta_box ) {
-		return 'relationship_table' === $meta_box->storage_type && ! empty( $meta_box->meta_box['table'] );
+		return 'relationship_table' === $meta_box->storage_type;
 	}
 
 	/**

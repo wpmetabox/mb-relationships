@@ -1,40 +1,37 @@
 <?php
 add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
 	$api->register( array(
-		'id'    => 'id0',
-		'from'  => 'post',
-		'to'    => 'page',
+		'id'   => 'id0',
+		'from' => 'post',
+		'to'   => 'page',
 	) );
 } );
 function prefix_register_relationship() {
 	$args = array(
-		'id'    => 'id0',
-		'table' => 'table_name',
-		'from'  => 'post',
-		'to'    => 'page',
+		'id'   => 'id0',
+		'from' => 'post',
+		'to'   => 'page',
 	);
 	$args = array(
-		'id'    => 'id1',
-		'table' => 'table_name',
-		'from'  => array(
+		'id'   => 'id1',
+		'from' => array(
 			'object_type' => 'post',
 			'post_type'   => 'post',
 			'label'       => 'Connected From',
 		),
-		'to'    => array(
+		'to'   => array(
 			'object_type' => 'post',
 			'post_type'   => 'page',
 			'label'       => 'Connected To',
 		),
 	);
 	$args = array(
-		'id'    => 'id2',
-		'table' => 'table_name',
-		'from'  => array(
+		'id'   => 'id2',
+		'from' => array(
 			'object_type' => 'user',
 			'label'       => 'Managed By',
 		),
-		'to'    => array(
+		'to'   => array(
 			'object_type' => 'post',
 			'post_type'   => 'page',
 			'label'       => 'Manages',
@@ -46,7 +43,6 @@ function prefix_register_relationship() {
 			'show'    => 'any', // 'any', 'from', 'to'.
 			'context' => 'side',
 		),
-		'table'     => 'table_name',
 		'from'      => array(
 			'object_type' => 'taxonomy',
 			'taxonomy'    => 'country',

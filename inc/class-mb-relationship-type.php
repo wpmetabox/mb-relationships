@@ -18,21 +18,12 @@ class MB_Relationship_Type {
 	protected $args;
 
 	/**
-	 * The table object for creating relationship table(s).
-	 *
-	 * @var MB_Relationship_Table
-	 */
-	protected $table;
-
-	/**
 	 * Register a relationship type.
 	 *
-	 * @param array                 $args  Type settings.
-	 * @param MB_Relationship_Table $table The table object for creating relationship table(s).
+	 * @param array $args Type settings.
 	 */
-	public function __construct( $args, $table ) {
-		$this->args  = $this->normalize( $args );
-		$this->table = $table;
+	public function __construct( $args ) {
+		$this->args = $this->normalize( $args );
 
 		$this->setup_hooks();
 	}
@@ -139,7 +130,6 @@ class MB_Relationship_Type {
 			'context'      => $this->args['to']['context'],
 			'priority'     => $this->args['to']['priority'],
 			'storage_type' => 'relationship_table',
-			'table'        => $this->table->get_shared_table_name(),
 			'fields'       => array(),
 		);
 		$field    = array(
