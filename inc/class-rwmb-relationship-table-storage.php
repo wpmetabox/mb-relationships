@@ -58,8 +58,9 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 */
 		public function get( $object_id, $meta_key, $args = false ) {
 			return $this->db->get_col( $this->db->prepare(
-				"SELECT `to` FROM {$this->table} WHERE `from`=%d",
-				$object_id
+				"SELECT `to` FROM {$this->table} WHERE `from`='%d' AND `type`='%s'",
+				$object_id,
+				$this->get_connection_type( $meta_key )
 			) );
 		}
 
@@ -89,18 +90,21 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool
 		 */
 		public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
-			$this->delete( $object_id );
+			$this->delete( $object_id, $meta_key );
 			$meta_value = array_filter( (array) $meta_value );
+			$type       = $this->get_connection_type( $meta_key );
 			foreach ( $meta_value as $value ) {
 				$this->db->insert(
 					$this->table,
 					array(
 						'from' => $object_id,
 						'to'   => $value,
+						'type' => $type,
 					),
 					array(
 						'%d',
 						'%d',
+						'%s',
 					)
 				);
 			}
@@ -124,10 +128,23 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool True on successful delete, false on failure.
 		 */
 		public function delete( $object_id, $meta_key = '', $meta_value = '', $delete_all = false ) {
+			$type = $this->get_connection_type( $meta_key );
 			$this->db->delete( $this->table, array(
 				'from' => $object_id,
+				'type' => $type,
 			) );
 			return true;
+		}
+
+		/**
+		 * Get connection type from submitted field name "{$type}_to".
+		 *
+		 * @param string $name Submitted field name.
+		 *
+		 * @return string
+		 */
+		protected function get_connection_type( $name ) {
+			return substr( $name, 0, '-3' );
 		}
 	}
 }

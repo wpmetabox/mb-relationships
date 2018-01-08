@@ -5,6 +5,11 @@ add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
 		'from' => 'post',
 		'to'   => 'page',
 	) );
+	$api->register( array(
+		'id'   => 'id1',
+		'from' => 'post',
+		'to'   => 'post',
+	) );
 } );
 function prefix_register_relationship() {
 	$args = array(

@@ -133,7 +133,7 @@ class MB_Relationship_Type {
 			'fields'       => array(),
 		);
 		$field    = array(
-			'id'         => 'to',
+			'id'         => "{$this->args['id']}_to",
 			'clone'      => true,
 			'sort_clone' => true,
 		);

@@ -31,12 +31,15 @@ class MB_Relationship_Loader {
 	 */
 	public function filter_storage( $storage, $object_type, $meta_box ) {
 		static $relationship_storage = null;
-		if ( null === $relationship_storage && $meta_box && $this->is_relationship( $meta_box ) ) {
+		if ( ! $meta_box || $this->is_relationship( $meta_box ) ) {
+			return $storage;
+		}
+		if ( null === $relationship_storage ) {
 			$relationship_storage = new RWMB_Relationship_Table_Storage();
 			$relationship_storage->set_table( MB_Relationship_Table::get_shared_name() );
-
-			$storage = $relationship_storage;
 		}
+
+		$storage = $relationship_storage;
 
 		return $storage;
 	}
