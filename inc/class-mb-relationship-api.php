@@ -27,31 +27,31 @@ class MB_Relationship_API {
 	/**
 	 * Reference to object factory.
 	 *
-	 * @var MB_Relationship_Object_Factory
+	 * @var MB_Relationship_Connection_Factory
 	 */
 	public $factory;
 
 	/**
 	 * Constructor
 	 *
-	 * @param wpdb                           $wpdb    Database object.
-	 * @param MB_Relationship_Object_Factory $factory The object factory.
+	 * @param wpdb                               $wpdb    Database object.
+	 * @param MB_Relationship_Connection_Factory $factory The object factory.
 	 */
-	public function __construct( wpdb $wpdb, MB_Relationship_Object_Factory $factory ) {
+	public function __construct( wpdb $wpdb, MB_Relationship_Connection_Factory $factory ) {
 		$this->db      = $wpdb;
 		$this->table   = MB_Relationship_Table::get_shared_name();
 		$this->factory = $factory;
 	}
 
 	/**
-	 * Register a relationship type.
+	 * Register a connection.
 	 *
-	 * @param array $args Relationship parameters.
+	 * @param array $settings Connection parameters.
 	 *
-	 * @return MB_Relationship_Type
+	 * @return MB_Relationship_Connection
 	 */
-	public function register( $args ) {
-		return new MB_Relationship_Type( $args, $this );
+	public function register( $settings ) {
+		return $this->factory->build( $settings );
 	}
 
 	/**
@@ -65,7 +65,7 @@ class MB_Relationship_API {
 	public function get_connected_from( $type, $object_id = null ) {
 		$object_id = empty( $object_id ) ? get_queried_object_id() : $object_id;
 		return $this->db->get_col( $this->db->prepare(
-			"SELECT `to` FROM {$this->table} WHERE `from`='%d' AND `type`='%s'",
+			"SELECT `to` FROM {$this->table} WHERE `from`=%d AND `type`=%s",
 			$object_id,
 			$type
 		) );
@@ -82,7 +82,7 @@ class MB_Relationship_API {
 	public function get_connected_to( $type, $object_id = null ) {
 		$object_id = empty( $object_id ) ? get_queried_object_id() : $object_id;
 		return $this->db->get_col( $this->db->prepare(
-			"SELECT `from` FROM {$this->table} WHERE `to`='%d' AND `type`='%s'",
+			"SELECT `from` FROM {$this->table} WHERE `to`=%d AND `type`=%s",
 			$object_id,
 			$type
 		) );

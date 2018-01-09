@@ -18,8 +18,9 @@ add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
 			'object_type' => 'post',
 			'post_type'   => 'post',
 			'meta_box'    => array(
-				'label'   => 'Managed By',
-				'context' => 'side',
+				'label'         => 'Managed By',
+				'context'       => 'side',
+				'empty_message' => 'No users',
 			),
 		),
 	) );

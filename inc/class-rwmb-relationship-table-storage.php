@@ -58,7 +58,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 */
 		public function get( $object_id, $meta_key, $args = false ) {
 			return $this->db->get_col( $this->db->prepare(
-				"SELECT `to` FROM {$this->table} WHERE `from`='%d' AND `type`='%s'",
+				"SELECT `to` FROM {$this->table} WHERE `from`=%d AND `type`=%s",
 				$object_id,
 				$this->get_connection_type( $meta_key )
 			) );

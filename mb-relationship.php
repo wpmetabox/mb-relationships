@@ -36,9 +36,11 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-user.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-object-factory.php';
 
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-type.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-connection-factory.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-connection.php';
+
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-api.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-loader.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-storage-handler.php';
 
 		do_action( 'mb_relationship_pre_init' );
 
@@ -46,10 +48,12 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		$table = new MB_Relationship_Table( $wpdb );
 		$table->create_shared();
 
-		$factory = new MB_Relationship_Object_Factory();
-		$api     = new MB_Relationship_API( $wpdb, $factory );
+		$object_factory     = new MB_Relationship_Object_Factory();
+		$connection_factory = new MB_Relationship_Connection_Factory( $object_factory );
 
-		$loader = new MB_Relationship_Loader();
+		$api = new MB_Relationship_API( $wpdb, $connection_factory );
+
+		$loader = new MB_Relationship_Storage_Handler( $connection_factory );
 		$loader->init();
 
 		// All registration code goes here.
