@@ -29,9 +29,13 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		}
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-table.php';
 		require_once dirname( __FILE__ ) . '/inc/class-rwmb-relationship-table-storage.php';
+
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-object-interface.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-post.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-term.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-user.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-object-factory.php';
+
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-type.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-api.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-loader.php';

@@ -11,13 +11,22 @@
  */
 interface MB_Relationship_Object_Interface {
 	/**
-	 * Get query arguments.
+	 * Get meta box settings.
 	 *
-	 * @param array $settings Connection settings.
+	 * @param array $args Connection settings.
 	 *
 	 * @return array
 	 */
-	public function get_query_args( $settings );
+	public function get_meta_box_settings( $args );
+
+	/**
+	 * Get query arguments.
+	 *
+	 * @param array $args Connection settings.
+	 *
+	 * @return array
+	 */
+	public function get_field_settings( $args );
 
 	/**
 	 * Get current object ID.

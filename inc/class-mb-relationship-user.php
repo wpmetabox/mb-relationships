@@ -11,18 +11,32 @@
  */
 class MB_Relationship_User implements MB_Relationship_Object_Interface {
 	/**
-	 * Get query arguments.
+	 * Get meta box settings.
 	 *
-	 * @param array $settings Connection settings.
+	 * @param array $args Connection settings.
 	 *
 	 * @return array
 	 */
-	public function get_query_args( $settings ) {
+	public function get_meta_box_settings( $args ) {
+		$settings = array(
+			'type' => 'user',
+		);
+		return $settings;
+	}
+
+	/**
+	 * Get query arguments.
+	 *
+	 * @param array $args Connection settings.
+	 *
+	 * @return array
+	 */
+	public function get_field_settings( $args ) {
 		return array(
 			'type'       => 'user',
 			'clone'      => true,
 			'sort_clone' => true,
-			'query_args' => $settings['query_args'],
+			'query_args' => $args['query_args'],
 		);
 	}
 

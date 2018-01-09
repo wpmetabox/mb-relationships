@@ -31,7 +31,7 @@ class MB_Relationship_Loader {
 	 */
 	public function filter_storage( $storage, $object_type, $meta_box ) {
 		static $relationship_storage = null;
-		if ( ! $meta_box || $this->is_relationship( $meta_box ) ) {
+		if ( ! $meta_box || ! $this->is_relationship( $meta_box ) ) {
 			return $storage;
 		}
 		if ( null === $relationship_storage ) {

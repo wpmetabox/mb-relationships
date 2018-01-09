@@ -1,14 +1,27 @@
 <?php
 add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
+//	$api->register( array(
+//		'id'   => 'id0',
+//		'from' => 'post',
+//		'to'   => 'page',
+//	) );
 	$api->register( array(
-		'id'   => 'id0',
-		'from' => 'post',
-		'to'   => 'page',
-	) );
-	$api->register( array(
-		'id'   => 'id1',
-		'from' => 'post',
-		'to'   => 'post',
+		'id'   => 'id2',
+		'from' => array(
+			'object_type' => 'user',
+			'meta_box'    => array(
+				'label'       => 'Manages',
+				'field_title' => 'Select Posts',
+			),
+		),
+		'to'   => array(
+			'object_type' => 'post',
+			'post_type'   => 'post',
+			'meta_box'    => array(
+				'label'   => 'Managed By',
+				'context' => 'side',
+			),
+		),
 	) );
 } );
 function prefix_register_relationship() {

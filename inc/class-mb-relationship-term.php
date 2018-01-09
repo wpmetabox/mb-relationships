@@ -11,19 +11,33 @@
  */
 class MB_Relationship_Term implements MB_Relationship_Object_Interface {
 	/**
-	 * Get query arguments.
+	 * Get meta box settings.
 	 *
-	 * @param array $settings Connection settings.
+	 * @param array $args Connection settings.
 	 *
 	 * @return array
 	 */
-	public function get_query_args( $settings ) {
+	public function get_meta_box_settings( $args ) {
+		$settings = array(
+			'taxonomies' => $args['taxonomy'],
+		);
+		return $settings;
+	}
+
+	/**
+	 * Get query arguments.
+	 *
+	 * @param array $args Connection settings.
+	 *
+	 * @return array
+	 */
+	public function get_field_settings( $args ) {
 		return array(
 			'type'       => 'taxonomy_advanced',
 			'clone'      => true,
 			'sort_clone' => true,
-			'taxonomy'   => $settings['taxonomy'],
-			'query_args' => $settings['query_args'],
+			'taxonomy'   => $args['taxonomy'],
+			'query_args' => $args['query_args'],
 		);
 	}
 

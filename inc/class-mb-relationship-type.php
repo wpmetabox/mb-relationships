@@ -54,6 +54,50 @@ class MB_Relationship_Type {
 	}
 
 	/**
+	 * Normalize type settings.
+	 *
+	 * @param array $args Type settings.
+	 *
+	 * @return array
+	 */
+	protected function normalize( $args ) {
+		$args               = wp_parse_args( $args, array(
+			'id'   => '',
+			'from' => '',
+			'to'   => '',
+		) );
+		$connection_default = array(
+			'object_type' => 'post',
+			'post_type'   => 'post',
+			'query_args'  => array(),
+			'meta_box'    => array(
+				'hidden'      => false,
+				'context'     => 'side',
+				'priority'    => 'low',
+				'field_title' => '',
+			),
+		);
+		// "From" settings.
+		if ( is_string( $args['from'] ) ) {
+			$args['from'] = array(
+				'post_type' => $args['from'],
+			);
+		}
+		$args['from']             = array_merge( $connection_default, $args['from'] );
+		$args['from']['meta_box'] = array_merge( $connection_default['meta_box'], $args['from']['meta_box'] );
+
+		// "To" settings.
+		if ( is_string( $args['to'] ) ) {
+			$args['to'] = array(
+				'post_type' => $args['to'],
+			);
+		}
+		$args['to']             = array_merge( $connection_default, $args['to'] );
+		$args['to']['meta_box'] = array_merge( $connection_default['meta_box'], $args['to']['meta_box'] );
+		return $args;
+	}
+
+	/**
 	 * Setup hooks to create meta boxes for relationship, using Meta Box API.
 	 */
 	protected function setup_hooks() {
@@ -68,98 +112,55 @@ class MB_Relationship_Type {
 	 * @return array
 	 */
 	public function register_meta_boxes( $meta_boxes ) {
-		if ( ! $this->args['from']['hide_meta_box'] ) {
-			$meta_boxes[] = $this->parse_from_meta_box();
+		if ( ! $this->args['from']['meta_box']['hidden'] ) {
+			$meta_boxes[] = $this->parse_meta_box_from();
 		}
-		if ( ! $this->args['to']['hide_meta_box'] ) {
-			$meta_boxes[] = $this->parse_to_meta_box();
+		if ( ! $this->args['to']['meta_box']['hidden'] ) {
+			$meta_boxes[] = $this->parse_meta_box_to();
 		}
 
 		return $meta_boxes;
 	}
 
 	/**
-	 * Normalize type settings.
-	 *
-	 * @param array $args Type settings.
+	 * Parse meta box for "from" object.
 	 *
 	 * @return array
 	 */
-	protected function normalize( $args ) {
-		$args               = wp_parse_args( $args, array(
-			'id'   => '',
-			'from' => '',
-			'to'   => '',
-		) );
-		$connection_default = array(
-			'object_type'   => 'post',
-			'post_type'     => 'post',
-			'query_args'    => array(),
-			'hide_meta_box' => false,
-			'context'       => 'side',
-			'priority'      => 'low',
+	protected function parse_meta_box_from() {
+		$field         = $this->to_object->get_field_settings( $this->args['to'] );
+		$field['id']   = "{$this->args['id']}_to";
+		$field['name'] = $this->args['from']['meta_box']['field_title'];
+
+		$meta_box = array(
+			'id'           => "{$this->args['id']}_relationship_to",
+			'title'        => $this->args['from']['meta_box']['label'],
+			'storage_type' => 'relationship_table',
+			'fields'       => array( $field ),
 		);
-		// Short form.
-		if ( is_string( $args['from'] ) ) {
-			$args['from'] = array(
-				'post_type' => $args['from'],
-			);
-		}
-		$args['from'] = array_merge( $connection_default, array(
-			'label' => __( 'Connected From', 'mb-relationship' ),
-		), $args['from'] );
-		// Short form.
-		if ( is_string( $args['to'] ) ) {
-			$args['to'] = array(
-				'post_type' => $args['to'],
-			);
-		}
-		$args['to'] = array_merge( $connection_default, array(
-			'label' => __( 'Connect To', 'mb-relationship' ),
-		), $args['to'] );
-		return $args;
+		$meta_box = array_merge( $meta_box, $this->from_object->get_meta_box_settings( $this->args['from'] ) );
+		return $meta_box;
 	}
 
 	/**
-	 * Parse "from" meta box.
+	 * Parse meta box for "to" object.
 	 *
 	 * @return array
 	 */
-	protected function parse_from_meta_box() {
+	protected function parse_meta_box_to() {
 		$meta_box = array(
-			'id'       => "{$this->args['id']}_relationship_from",
-			'title'    => $this->args['from']['label'],
-			'context'  => $this->args['from']['context'],
-			'priority' => $this->args['from']['priority'],
-			'fields'   => array(
+			'id'     => "{$this->args['id']}_relationship_from",
+			'title'  => $this->args['to']['meta_box']['label'],
+			'fields' => array(
 				array(
+					'name'     => $this->args['to']['meta_box']['field_title'],
 					'type'     => 'custom_html',
 					'callback' => array( $this, 'get_connected_from' ),
 				),
 			),
 		);
+		$meta_box = array_merge( $meta_box, $this->to_object->get_meta_box_settings( $this->args['to'] ) );
 		return $meta_box;
-	}
-
-	/**
-	 * Parse "to" meta box.
-	 *
-	 * @return array
-	 */
-	protected function parse_to_meta_box() {
-		$to = $this->args['to'];
-
-		$field       = $this->to_object->get_query_args( $to );
-		$field['id'] = "{$this->args['id']}_to";
-
-		return array(
-			'id'           => "{$this->args['id']}_relationship_to",
-			'title'        => $to['label'],
-			'context'      => $this->args['to']['context'],
-			'priority'     => $this->args['to']['priority'],
-			'storage_type' => 'relationship_table',
-			'fields'       => array( $field ),
-		);
 	}
 
 	/**
