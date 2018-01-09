@@ -29,6 +29,9 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		}
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-table.php';
 		require_once dirname( __FILE__ ) . '/inc/class-rwmb-relationship-table-storage.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-object-interface.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-post.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-object-factory.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-type.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-api.php';
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationship-loader.php';
@@ -38,7 +41,9 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 		global $wpdb;
 		$table = new MB_Relationship_Table( $wpdb );
 		$table->create_shared();
-		$api = new MB_Relationship_API( $table );
+
+		$factory = new MB_Relationship_Object_Factory();
+		$api     = new MB_Relationship_API( $wpdb, $factory );
 
 		$loader = new MB_Relationship_Loader();
 		$loader->init();

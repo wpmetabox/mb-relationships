@@ -18,12 +18,37 @@ class MB_Relationship_Type {
 	protected $args;
 
 	/**
+	 * Store the API object.
+	 *
+	 * @var MB_Relationship_API
+	 */
+	protected $api;
+
+	/**
+	 * The object that connects "from".
+	 *
+	 * @var MB_Relationship_Object_Interface
+	 */
+	protected $from_object;
+
+	/**
+	 * The object that connects "to".
+	 *
+	 * @var MB_Relationship_Object_Interface
+	 */
+	protected $to_object;
+
+	/**
 	 * Register a relationship type.
 	 *
-	 * @param array $args Type settings.
+	 * @param array               $args Type settings.
+	 * @param MB_Relationship_API $api  The instance of the API class.
 	 */
-	public function __construct( $args ) {
-		$this->args = $this->normalize( $args );
+	public function __construct( $args, MB_Relationship_API $api ) {
+		$this->args        = $this->normalize( $args );
+		$this->api         = $api;
+		$this->from_object = $this->api->factory->build( $this->args['from']['object_type'] );
+		$this->to_object   = $this->api->factory->build( $this->args['to']['object_type'] );
 
 		$this->setup_hooks();
 	}
@@ -62,10 +87,9 @@ class MB_Relationship_Type {
 	 */
 	protected function normalize( $args ) {
 		$args               = wp_parse_args( $args, array(
-			'id'    => '',
-			'table' => '',
-			'from'  => '',
-			'to'    => '',
+			'id'   => '',
+			'from' => '',
+			'to'   => '',
 		) );
 		$connection_default = array(
 			'object_type'   => 'post',
@@ -123,38 +147,19 @@ class MB_Relationship_Type {
 	 * @return array
 	 */
 	protected function parse_to_meta_box() {
-		$to       = $this->args['to'];
-		$meta_box = array(
+		$to = $this->args['to'];
+
+		$field       = $this->to_object->get_query_args( $to );
+		$field['id'] = "{$this->args['id']}_to";
+
+		return array(
 			'id'           => "{$this->args['id']}_relationship_to",
 			'title'        => $to['label'],
 			'context'      => $this->args['to']['context'],
 			'priority'     => $this->args['to']['priority'],
 			'storage_type' => 'relationship_table',
-			'fields'       => array(),
+			'fields'       => array( $field ),
 		);
-		$field    = array(
-			'id'         => "{$this->args['id']}_to",
-			'clone'      => true,
-			'sort_clone' => true,
-		);
-		switch ( $to['object_type'] ) {
-			case 'post':
-				$field['type']       = 'post';
-				$field['post_type']  = $to['post_type'];
-				$field['query_args'] = $to['query_args'];
-				break;
-			case 'taxonomy':
-				$field['type']       = 'taxonomy_advanced';
-				$field['taxonomy']   = $to['taxonomy'];
-				$field['query_args'] = $to['query_args'];
-				break;
-			case 'user':
-				$field['type']       = 'user';
-				$field['query_args'] = $to['query_args'];
-				break;
-		}
-		$meta_box['fields'][] = $field;
-		return $meta_box;
 	}
 
 	/**
@@ -163,63 +168,15 @@ class MB_Relationship_Type {
 	 * @return string
 	 */
 	public function get_connected_from() {
-		return 'So good';
-	}
-
-	/**
-	 * Get current object ID.
-	 *
-	 * @return int|false
-	 */
-	protected function get_current_object_id() {
-		switch ( $this->args['to']['object_type'] ) {
-			case 'post':
-				return $this->get_current_post_id();
-			case 'taxonomy':
-				return $this->get_current_term_id();
-			case 'user':
-				return $this->get_current_user_id();
+		$items = $this->api->get_connected_to( $this->args['id'], $this->to_object->get_current_id() );
+		if ( empty( $items ) ) {
+			return '';
 		}
-		return false;
-	}
-
-	/**
-	 * Get current post ID.
-	 *
-	 * @return int|false Post ID if successful. False on failure.
-	 */
-	protected function get_current_post_id() {
-		$post_id = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
-		if ( ! $post_id ) {
-			$post_id = filter_input( INPUT_POST, 'post_ID', FILTER_SANITIZE_NUMBER_INT );
+		$output = '<ul class="mb-relationship-from-items">';
+		foreach ( $items as $item ) {
+			$output .= '<li class="mb-relationship-from-item">' . $this->from_object->get_link( $item ) . '</li>';
 		}
-		return is_numeric( $post_id ) ? absint( $post_id ) : false;
-	}
-
-	/**
-	 * Get current term id.
-	 *
-	 * @return int|string
-	 */
-	protected function get_current_term_id() {
-		return filter_input( INPUT_GET, 'tag_ID', FILTER_SANITIZE_NUMBER_INT );
-	}
-
-
-	/**
-	 * Get editing user ID.
-	 *
-	 * @return bool|int
-	 */
-	protected function get_current_user_id() {
-		$user_id = false;
-		$screen  = get_current_screen();
-		if ( 'profile' === $screen->id ) {
-			$user_id = get_current_user_id();
-		} elseif ( 'user-edit' === $screen->id ) {
-			$user_id = isset( $_REQUEST['user_id'] ) ? absint( $_REQUEST['user_id'] ) : false;
-		}
-
-		return $user_id;
+		$output .= '</ul>';
+		return $output;
 	}
 }
