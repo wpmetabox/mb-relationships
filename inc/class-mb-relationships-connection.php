@@ -4,13 +4,13 @@
  * Registers meta boxes and custom fields for objects, displays and handles data.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * The connection class.
  */
-class MB_Relationship_Connection {
+class MB_Relationships_Connection {
 	/**
 	 * The connection settings.
 	 *
@@ -21,14 +21,14 @@ class MB_Relationship_Connection {
 	/**
 	 * The object that connects "from".
 	 *
-	 * @var MB_Relationship_Object_Interface
+	 * @var MB_Relationships_Object_Interface
 	 */
 	protected $from_object;
 
 	/**
 	 * The object that connects "to".
 	 *
-	 * @var MB_Relationship_Object_Interface
+	 * @var MB_Relationships_Object_Interface
 	 */
 	protected $to_object;
 
@@ -36,16 +36,16 @@ class MB_Relationship_Connection {
 	 * Register a connection.
 	 *
 	 * @param array                          $settings       Connection settings.
-	 * @param MB_Relationship_Object_Factory $object_factory The instance of the API class.
+	 * @param MB_Relationships_Object_Factory $object_factory The instance of the API class.
 	 */
-	public function __construct( $settings, MB_Relationship_Object_Factory $object_factory ) {
+	public function __construct( $settings, MB_Relationships_Object_Factory $object_factory ) {
 		$this->settings    = $settings;
 		$this->from_object = $object_factory->build( $this->from['object_type'] );
 		$this->to_object   = $object_factory->build( $this->to['object_type'] );
 	}
 
 	/**
-	 * Setup hooks to create meta boxes for relationship, using Meta Box API.
+	 * Setup hooks to create meta boxes for relationships, using Meta Box API.
 	 */
 	public function init() {
 		add_filter( 'rwmb_meta_boxes', array( $this, 'register_meta_boxes' ) );
@@ -80,9 +80,9 @@ class MB_Relationship_Connection {
 		$field['name'] = $this->from['meta_box']['field_title'];
 
 		$meta_box = array(
-			'id'           => "{$this->id}_relationship_to",
+			'id'           => "{$this->id}_relationships_to",
 			'title'        => $this->from['meta_box']['label'],
-			'storage_type' => 'relationship_table',
+			'storage_type' => 'relationships_table',
 			'fields'       => array( $field ),
 		);
 		$meta_box = array_merge( $meta_box, $this->from_object->get_meta_box_settings( $this->from ) );
@@ -96,7 +96,7 @@ class MB_Relationship_Connection {
 	 */
 	protected function parse_meta_box_to() {
 		$meta_box = array(
-			'id'     => "{$this->id}_relationship_from",
+			'id'     => "{$this->id}_relationships_from",
 			'title'  => $this->to['meta_box']['label'],
 			'fields' => array(
 				array(
@@ -125,9 +125,9 @@ class MB_Relationship_Connection {
 		if ( empty( $items ) ) {
 			return $this->to['meta_box']['empty_message'];
 		}
-		$output = '<ul class="mb-relationship-from-items">';
+		$output = '<ul class="mb-relationships-from-items">';
 		foreach ( $items as $item ) {
-			$output .= '<li class="mb-relationship-from-item">' . $this->from_object->get_link( $item ) . '</li>';
+			$output .= '<li class="mb-relationships-from-item">' . $this->from_object->get_link( $item ) . '</li>';
 		}
 		$output .= '</ul>';
 		return $output;

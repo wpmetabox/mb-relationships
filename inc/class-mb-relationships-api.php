@@ -3,13 +3,13 @@
  * Public API helper functions.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * The API class.
  */
-class MB_Relationship_API {
+class MB_Relationships_API {
 	/**
 	 * The reference to WordPress global database object.
 	 *
@@ -20,7 +20,7 @@ class MB_Relationship_API {
 	/**
 	 * Reference to object factory.
 	 *
-	 * @var MB_Relationship_Connection_Factory
+	 * @var MB_Relationships_Connection_Factory
 	 */
 	public $factory;
 
@@ -28,9 +28,9 @@ class MB_Relationship_API {
 	 * Constructor
 	 *
 	 * @param wpdb                               $wpdb    Database object.
-	 * @param MB_Relationship_Connection_Factory $factory The object factory.
+	 * @param MB_Relationships_Connection_Factory $factory The object factory.
 	 */
-	public function __construct( wpdb $wpdb, MB_Relationship_Connection_Factory $factory ) {
+	public function __construct( wpdb $wpdb, MB_Relationships_Connection_Factory $factory ) {
 		$this->db      = $wpdb;
 		$this->factory = $factory;
 	}
@@ -40,7 +40,7 @@ class MB_Relationship_API {
 	 *
 	 * @param array $settings Connection parameters.
 	 *
-	 * @return MB_Relationship_Connection
+	 * @return MB_Relationships_Connection
 	 */
 	public function register( $settings ) {
 		return $this->factory->build( $settings );

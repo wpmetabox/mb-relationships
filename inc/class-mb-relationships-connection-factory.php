@@ -3,17 +3,17 @@
  * The simple connection factory.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * Connection factory class.
  */
-class MB_Relationship_Connection_Factory {
+class MB_Relationships_Connection_Factory {
 	/**
 	 * Reference to object factory.
 	 *
-	 * @var MB_Relationship_Object_Factory
+	 * @var MB_Relationships_Object_Factory
 	 */
 	protected $object_factory;
 
@@ -27,9 +27,9 @@ class MB_Relationship_Connection_Factory {
 	/**
 	 * Constructor.
 	 *
-	 * @param MB_Relationship_Object_Factory $object_factory Reference to object factory.
+	 * @param MB_Relationships_Object_Factory $object_factory Reference to object factory.
 	 */
-	public function __construct( MB_Relationship_Object_Factory $object_factory ) {
+	public function __construct( MB_Relationships_Object_Factory $object_factory ) {
 		$this->object_factory = $object_factory;
 	}
 
@@ -38,12 +38,12 @@ class MB_Relationship_Connection_Factory {
 	 *
 	 * @param array $settings Connection settings.
 	 *
-	 * @return MB_Relationship_Connection
+	 * @return MB_Relationships_Connection
 	 */
 	public function build( $settings ) {
 		$settings = $this->normalize( $settings );
 
-		$connection = new MB_Relationship_Connection( $settings, $this->object_factory );
+		$connection = new MB_Relationships_Connection( $settings, $this->object_factory );
 		$connection->init();
 
 		$this->data[ $settings['id'] ] = $connection;

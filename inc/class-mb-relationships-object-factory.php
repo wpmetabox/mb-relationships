@@ -3,13 +3,13 @@
  * The simple object factory.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * Object factory class.
  */
-class MB_Relationship_Object_Factory {
+class MB_Relationships_Object_Factory {
 	/**
 	 * For storing instances.
 	 *
@@ -22,14 +22,14 @@ class MB_Relationship_Object_Factory {
 	 *
 	 * @param string $type Object type.
 	 *
-	 * @return MB_Relationship_Object_Interface
+	 * @return MB_Relationships_Object_Interface
 	 */
 	public function build( $type ) {
 		if ( isset( $this->data[ $type ] ) ) {
 			return $this->data[ $type ];
 		}
 
-		$class               = 'MB_Relationship_' . ucfirst( $type );
+		$class               = 'MB_Relationships_' . ucfirst( $type );
 		$this->data[ $type ] = new $class();
 
 		return $this->data[ $type ];

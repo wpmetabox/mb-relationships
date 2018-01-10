@@ -3,13 +3,13 @@
  * The post object that handle query arguments for "to" and list for "from" connections.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * The post object.
  */
-class MB_Relationship_Post implements MB_Relationship_Object_Interface {
+class MB_Relationships_Post implements MB_Relationships_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *

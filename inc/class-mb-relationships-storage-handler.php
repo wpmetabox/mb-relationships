@@ -9,16 +9,16 @@
 /**
  * Storage handler class.
  */
-class MB_Relationship_Storage_Handler {
+class MB_Relationships_Storage_Handler {
 	/**
 	 * Reference to connection factory.
 	 *
-	 * @var MB_Relationship_Connection_Factory
+	 * @var MB_Relationships_Connection_Factory
 	 */
 	protected $factory;
 
 	/**
-	 * The storage object for relationship table.
+	 * The storage object for relationships table.
 	 *
 	 * @var RWMB_Storage_Interface
 	 */
@@ -27,9 +27,9 @@ class MB_Relationship_Storage_Handler {
 	/**
 	 * Constructor.
 	 *
-	 * @param MB_Relationship_Connection_Factory $factory Reference to connection factory.
+	 * @param MB_Relationships_Connection_Factory $factory Reference to connection factory.
 	 */
-	public function __construct( MB_Relationship_Connection_Factory $factory ) {
+	public function __construct( MB_Relationships_Connection_Factory $factory ) {
 		$this->factory = $factory;
 	}
 
@@ -53,11 +53,11 @@ class MB_Relationship_Storage_Handler {
 	 * @return mixed
 	 */
 	public function filter_storage( $storage, $object_type, $meta_box ) {
-		if ( ! $meta_box || ! $this->is_relationship( $meta_box ) ) {
+		if ( ! $meta_box || ! $this->is_relationships( $meta_box ) ) {
 			return $storage;
 		}
 		if ( ! $this->storage ) {
-			$this->storage = new RWMB_Relationship_Table_Storage();
+			$this->storage = new RWMB_Relationships_Table_Storage();
 			$this->storage->set_table( $this->storage->db->mb_relationships );
 		}
 
@@ -65,14 +65,14 @@ class MB_Relationship_Storage_Handler {
 	}
 
 	/**
-	 * Check if meta box is relationship.
+	 * Check if meta box is relationships.
 	 *
 	 * @param RW_Meta_Box $meta_box Meta box object.
 	 *
 	 * @return bool
 	 */
-	protected function is_relationship( $meta_box ) {
-		return 'relationship_table' === $meta_box->storage_type;
+	protected function is_relationships( $meta_box ) {
+		return 'relationships_table' === $meta_box->storage_type;
 	}
 
 	/**

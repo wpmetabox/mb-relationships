@@ -10,7 +10,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 	/**
 	 * Class RWMB_Table_Storage
 	 */
-	class RWMB_Relationship_Table_Storage implements RWMB_Storage_Interface {
+	class RWMB_Relationships_Table_Storage implements RWMB_Storage_Interface {
 		/**
 		 * Table name.
 		 *
@@ -79,7 +79,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		}
 
 		/**
-		 * Update object relationship.
+		 * Update object relationships.
 		 *
 		 * @param int    $object_id  ID of the object metadata is for.
 		 * @param string $meta_key   Metadata key.
@@ -112,7 +112,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		}
 
 		/**
-		 * Delete object relationship.
+		 * Delete object relationships.
 		 *
 		 * @param int    $object_id  ID of the object metadata is for.
 		 * @param string $meta_key   Metadata key. If empty, delete row.

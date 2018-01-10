@@ -1,5 +1,5 @@
 <?php
-add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
+add_action( 'mb_relationships_init', function ( MB_Relationships_API $api ) {
 //	$api->register( array(
 //		'id'   => 'id0',
 //		'from' => 'post',
@@ -25,7 +25,7 @@ add_action( 'mb_relationship_init', function ( MB_Relationship_API $api ) {
 		),
 	) );
 } );
-function prefix_register_relationship() {
+function prefix_register_relationships() {
 	$args = array(
 		'id'   => 'id0',
 		'from' => 'post',

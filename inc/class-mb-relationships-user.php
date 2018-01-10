@@ -3,13 +3,13 @@
  * The user object that handle query arguments for "to" and list for "from" connections.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * The user object.
  */
-class MB_Relationship_User implements MB_Relationship_Object_Interface {
+class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *

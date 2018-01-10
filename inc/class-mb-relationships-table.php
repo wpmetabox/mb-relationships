@@ -3,13 +3,13 @@
  * Create tables for the plugin.
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * The tables class
  */
-class MB_Relationship_Table {
+class MB_Relationships_Table {
 	/**
 	 * Store the global database connector.
 	 *
@@ -40,13 +40,14 @@ class MB_Relationship_Table {
 		// Create new table.
 		$sql = "
 			CREATE TABLE {$this->db->$name} (
-				`ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				`from` bigint(20) unsigned NOT NULL,
 				`to` bigint(20) unsigned NOT NULL,
 				`type` varchar(44) NOT NULL default '',
 				PRIMARY KEY  (`ID`),
 				KEY `from` (`from`),
-				KEY `to` (`to`)
+				KEY `to` (`to`),
+				KEY `type` (`type`)
 			) COLLATE {$this->db->collate};
 		";
 		dbDelta( $sql );

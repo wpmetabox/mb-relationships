@@ -3,13 +3,13 @@
  * The interface for objects (posts, terms, users, etc.).
  *
  * @package    Meta Box
- * @subpackage MB Relationship
+ * @subpackage MB Relationships
  */
 
 /**
  * Object interface.
  */
-interface MB_Relationship_Object_Interface {
+interface MB_Relationships_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *
