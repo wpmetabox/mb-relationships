@@ -23,7 +23,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 *
 		 * @var wpdb
 		 */
-		protected $db;
+		public $db;
 
 		/**
 		 * RWMB_Table_Storage constructor.

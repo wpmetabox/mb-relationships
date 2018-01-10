@@ -46,7 +46,7 @@ if ( ! function_exists( 'mb_relationship_load' ) ) {
 
 		global $wpdb;
 		$table = new MB_Relationship_Table( $wpdb );
-		$table->create_shared();
+		$table->create();
 
 		$object_factory     = new MB_Relationship_Object_Factory();
 		$connection_factory = new MB_Relationship_Connection_Factory( $object_factory );

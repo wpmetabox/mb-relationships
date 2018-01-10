@@ -22,21 +22,24 @@ class MB_Relationship_Table {
 	 *
 	 * @param wpdb $wpdb The WordPress global database connector.
 	 */
-	public function __construct( $wpdb ) {
+	public function __construct( wpdb $wpdb ) {
 		$this->db = $wpdb;
 	}
 
 	/**
 	 * Create shared table for all relationships.
 	 */
-	public function create_shared() {
-		if ( ! $this->is_shared() ) {
-			return;
-		}
+	public function create() {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		$table = self::get_shared_name();
-		$sql   = "
-			CREATE TABLE {$table} (
+
+		// Register new table.
+		$name               = 'mb_relationships';
+		$this->db->tables[] = $name;
+		$this->db->$name    = $this->db->prefix . $name;
+
+		// Create new table.
+		$sql = "
+			CREATE TABLE {$this->db->$name} (
 				`ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 				`from` bigint(20) unsigned NOT NULL,
 				`to` bigint(20) unsigned NOT NULL,
@@ -47,24 +50,5 @@ class MB_Relationship_Table {
 			) COLLATE {$this->db->collate};
 		";
 		dbDelta( $sql );
-	}
-
-	/**
-	 * Get the shared table name.
-	 *
-	 * @return string
-	 */
-	public static function get_shared_name() {
-		global $wpdb;
-		return $wpdb->prefix . 'mb_relationship';
-	}
-
-	/**
-	 * Check if relationship tables are shared.
-	 *
-	 * @return bool
-	 */
-	protected function is_shared() {
-		return apply_filters( 'mb_relationship_shared', true );
 	}
 }

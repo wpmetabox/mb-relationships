@@ -117,9 +117,8 @@ class MB_Relationship_Connection {
 	 */
 	public function get_connected_to() {
 		global $wpdb;
-		$table = MB_Relationship_Table::get_shared_name();
 		$items = $wpdb->get_col( $wpdb->prepare(
-			"SELECT `from` FROM $table WHERE `to`=%d AND `type`=%s",
+			"SELECT `from` FROM $wpdb->mb_relationships WHERE `to`=%d AND `type`=%s",
 			$this->to_object->get_current_id(),
 			$this->id
 		) );

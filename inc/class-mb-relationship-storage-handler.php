@@ -58,7 +58,7 @@ class MB_Relationship_Storage_Handler {
 		}
 		if ( ! $this->storage ) {
 			$this->storage = new RWMB_Relationship_Table_Storage();
-			$this->storage->set_table( MB_Relationship_Table::get_shared_name() );
+			$this->storage->set_table( $this->storage->db->mb_relationships );
 		}
 
 		return $this->storage;
@@ -97,9 +97,8 @@ class MB_Relationship_Storage_Handler {
 	 */
 	protected function delete_object_connections( $object_id, $type ) {
 		global $wpdb;
-		$table = MB_Relationship_Table::get_shared_name();
 		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM $table WHERE `type`=%s AND (`from`=%d OR `to`=%d)",
+			"DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)",
 			$type,
 			$object_id,
 			$object_id
