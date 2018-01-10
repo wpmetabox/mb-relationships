@@ -25,6 +25,13 @@ class MB_Relationships_Connection_Factory {
 	protected $data = array();
 
 	/**
+	 * Temporary filter type.
+	 *
+	 * @var array
+	 */
+	private $filter_type;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param MB_Relationships_Object_Factory $object_factory Reference to object factory.
@@ -52,24 +59,26 @@ class MB_Relationships_Connection_Factory {
 	}
 
 	/**
-	 * Get connections under some conditions.
+	 * Filter connections by object type.
 	 *
-	 * @param array $args Custom argument to get meta boxes by.
+	 * @param string $type Object type.
 	 *
 	 * @return array
 	 */
-	public function get_by( $args ) {
-		$types = $this->data;
-		foreach ( $types as $index => $type ) {
-			foreach ( $args as $key => $value ) {
-				if ( $type->from[ $key ] !== $value && $type->to[ $key ] !== $value ) {
-					unset( $types[ $index ] );
-					continue 2; // Skip the meta box loop.
-				}
-			}
-		}
+	public function filter_by( $type ) {
+		$this->filter_type = $type;
+		return array_filter( $this->data, array( $this, 'is_filtered' ) );
+	}
 
-		return $types;
+	/**
+	 * Check if connection has an object type on either side.
+	 *
+	 * @param MB_Relationships_Connection $connection Connection object.
+	 *
+	 * @return bool
+	 */
+	protected function is_filtered( MB_Relationships_Connection $connection ) {
+		return $connection->has_object_type( $this->filter_type );
 	}
 
 	/**
@@ -80,12 +89,26 @@ class MB_Relationships_Connection_Factory {
 	 * @return array
 	 */
 	protected function normalize( $settings ) {
-		$settings = wp_parse_args( $settings, array(
+		$settings         = wp_parse_args( $settings, array(
 			'id'   => '',
 			'from' => '',
 			'to'   => '',
 		) );
-		$default  = array(
+		$settings['from'] = $this->normalize_side( $settings['from'] );
+		$settings['to']   = $this->normalize_side( $settings['to'] );
+
+		return $settings;
+	}
+
+	/**
+	 * Normalize settings for a "from" or "to" side.
+	 *
+	 * @param array|string $settings Array of settings or post type (string) for short.
+	 *
+	 * @return array
+	 */
+	protected function normalize_side( $settings ) {
+		$default = array(
 			'object_type' => 'post',
 			'post_type'   => 'post',
 			'query_args'  => array(),
@@ -98,23 +121,14 @@ class MB_Relationships_Connection_Factory {
 			),
 		);
 
-		// "From" settings.
-		if ( is_string( $settings['from'] ) ) {
-			$settings['from'] = array(
-				'post_type' => $settings['from'],
+		if ( is_string( $settings ) ) {
+			$settings = array(
+				'post_type' => $settings,
 			);
 		}
-		$settings['from']             = array_merge( $default, $settings['from'] );
-		$settings['from']['meta_box'] = array_merge( $default['meta_box'], $settings['from']['meta_box'] );
+		$settings             = array_merge( $default, $settings );
+		$settings['meta_box'] = array_merge( $default['meta_box'], $settings['meta_box'] );
 
-		// "To" settings.
-		if ( is_string( $settings['to'] ) ) {
-			$settings['to'] = array(
-				'post_type' => $settings['to'],
-			);
-		}
-		$settings['to']             = array_merge( $default, $settings['to'] );
-		$settings['to']['meta_box'] = array_merge( $default['meta_box'], $settings['to']['meta_box'] );
 		return $settings;
 	}
 }

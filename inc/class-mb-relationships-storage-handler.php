@@ -81,9 +81,8 @@ class MB_Relationships_Storage_Handler {
 	 * @param int $object_id Object ID.
 	 */
 	public function delete_object_data( $object_id ) {
-		$connections = $this->factory->get_by( array(
-			'object_type' => str_replace( array( 'deleted_', 'delete_' ), '', current_filter() ),
-		) );
+		$object_type = str_replace( array( 'deleted_', 'delete_' ), '', current_filter() );
+		$connections = $this->factory->filter_by( $object_type );
 		foreach ( $connections as $connection ) {
 			$this->delete_object_connections( $object_id, $connection->id );
 		}

@@ -35,13 +35,35 @@ class MB_Relationships_Connection {
 	/**
 	 * Register a connection.
 	 *
-	 * @param array                          $settings       Connection settings.
+	 * @param array                           $settings       Connection settings.
 	 * @param MB_Relationships_Object_Factory $object_factory The instance of the API class.
 	 */
 	public function __construct( $settings, MB_Relationships_Object_Factory $object_factory ) {
 		$this->settings    = $settings;
 		$this->from_object = $object_factory->build( $this->from['object_type'] );
 		$this->to_object   = $object_factory->build( $this->to['object_type'] );
+	}
+
+	/**
+	 * Magic method to quick access to connection settings.
+	 *
+	 * @param string $name Setting name.
+	 *
+	 * @return mixed
+	 */
+	public function __get( $name ) {
+		return isset( $this->settings[ $name ] ) ? $this->settings[ $name ] : '';
+	}
+
+	/**
+	 * Check if the connection has an object type on either side.
+	 *
+	 * @param mixed $type Object type.
+	 *
+	 * @return bool
+	 */
+	public function has_object_type( $type ) {
+		return $this->from['object_type'] === $type || $this->to['object_type'] === $type;
 	}
 
 	/**
@@ -62,9 +84,7 @@ class MB_Relationships_Connection {
 		if ( ! $this->from['meta_box']['hidden'] ) {
 			$meta_boxes[] = $this->parse_meta_box_from();
 		}
-		if ( ! $this->to['meta_box']['hidden'] ) {
-			$meta_boxes[] = $this->parse_meta_box_to();
-		}
+		$meta_boxes[] = $this->parse_meta_box_to();
 
 		return $meta_boxes;
 	}
@@ -131,16 +151,5 @@ class MB_Relationships_Connection {
 		}
 		$output .= '</ul>';
 		return $output;
-	}
-
-	/**
-	 * Magic method to quick access to connection settings.
-	 *
-	 * @param string $name Setting name.
-	 *
-	 * @return mixed
-	 */
-	public function __get( $name ) {
-		return isset( $this->settings[ $name ] ) ? $this->settings[ $name ] : '';
 	}
 }
