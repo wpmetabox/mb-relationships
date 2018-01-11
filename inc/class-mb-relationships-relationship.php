@@ -101,7 +101,7 @@ class MB_Relationships_Relationship {
 
 		$meta_box = array(
 			'id'           => "{$this->id}_relationships_to",
-			'title'        => $this->from['meta_box']['label'],
+			'title'        => $this->from['meta_box']['title'],
 			'storage_type' => 'relationships_table',
 			'fields'       => array( $field ),
 		);
@@ -117,7 +117,7 @@ class MB_Relationships_Relationship {
 	protected function parse_meta_box_to() {
 		$meta_box = array(
 			'id'     => "{$this->id}_relationships_from",
-			'title'  => $this->to['meta_box']['label'],
+			'title'  => $this->to['meta_box']['title'],
 			'fields' => array(
 				array(
 					'name'     => $this->to['meta_box']['field_title'],

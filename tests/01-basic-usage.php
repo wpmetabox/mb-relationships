@@ -1,10 +1,10 @@
 <?php
 add_action( 'mb_relationships_init', function ( MB_Relationships_API $api ) {
-//	$api->register( array(
-//		'id'   => 'id0',
-//		'from' => 'post',
-//		'to'   => 'page',
-//	) );
+	$api->register( array(
+		'id'   => 'id0',
+		'from' => 'post',
+		'to'   => 'page',
+	) );
 	$api->register( array(
 		'id'   => 'id2',
 		'from' => array(
@@ -25,6 +25,38 @@ add_action( 'mb_relationships_init', function ( MB_Relationships_API $api ) {
 		),
 	) );
 } );
+add_filter( 'the_content', function ( $content ) {
+//	$connected = new WP_Query( array(
+//		'connected_type'  => 'posts_to_pages',
+//		'connected_items' => get_queried_object(),
+//	) );
+//
+//	$output = '<ul>';
+//	while ( $connected->have_posts() ) {
+//		$connected->the_post();
+//		$output .= '<li>' . get_the_title() . '</li>';
+//	}
+//	wp_reset_postdata();
+//	$output .= '</ul>';
+//	return $content . $output;
+
+
+	$related = new WP_Query( array(
+		'relationship' => array(
+			'id'   => 'id0',
+			'from' => get_the_ID(),
+		),
+	) );
+	$output  = '<ul>';
+	while ( $related->have_posts() ) {
+		$related->the_post();
+		$output .= '<li>' . get_the_title() . '</li>';
+	}
+	wp_reset_postdata();
+	$output .= '</ul>';
+	return $content . $output;
+} );
+
 function prefix_register_relationships() {
 	$args = array(
 		'id'   => 'id0',

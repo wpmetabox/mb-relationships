@@ -94,8 +94,8 @@ class MB_Relationships_Relationship_Factory {
 			'from' => '',
 			'to'   => '',
 		) );
-		$settings['from'] = $this->normalize_side( $settings['from'] );
-		$settings['to']   = $this->normalize_side( $settings['to'] );
+		$settings['from'] = $this->normalize_side( $settings['from'], 'from' );
+		$settings['to']   = $this->normalize_side( $settings['to'], 'to' );
 
 		return $settings;
 	}
@@ -103,11 +103,13 @@ class MB_Relationships_Relationship_Factory {
 	/**
 	 * Normalize settings for a "from" or "to" side.
 	 *
-	 * @param array|string $settings Array of settings or post type (string) for short.
+	 * @param array|string $settings  Array of settings or post type (string) for short.
+	 * @param string       $direction Relationship direction.
 	 *
 	 * @return array
 	 */
-	protected function normalize_side( $settings ) {
+	protected function normalize_side( $settings, $direction ) {
+		$title   = 'from' === $direction ? __( 'Connects To', 'mb-relationships' ) : __( 'Connected From', 'mb-relationship' );
 		$default = array(
 			'object_type' => 'post',
 			'post_type'   => 'post',
@@ -116,6 +118,7 @@ class MB_Relationships_Relationship_Factory {
 				'hidden'        => false,
 				'context'       => 'side',
 				'priority'      => 'low',
+				'title'         => $title,
 				'field_title'   => '',
 				'empty_message' => '',
 			),

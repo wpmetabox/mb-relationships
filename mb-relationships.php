@@ -27,20 +27,25 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		if ( ! defined( 'RWMB_VER' ) || class_exists( 'MB_Relationships_Table' ) ) {
 			return;
 		}
-		require_once dirname( __FILE__ ) . '/inc/database/class-mb-relationships-table.php';
-		require_once dirname( __FILE__ ) . '/inc/database/class-rwmb-relationships-table-storage.php';
-		require_once dirname( __FILE__ ) . '/inc/database/class-mb-relationships-storage-handler.php';
+		$dir = dirname( __FILE__ ) . '/inc/';
 
-		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-object-interface.php';
-		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-post.php';
-		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-term.php';
-		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-user.php';
-		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-object-factory.php';
+		require_once $dir . 'database/class-mb-relationships-table.php';
+		require_once $dir . 'database/class-rwmb-relationships-table-storage.php';
+		require_once $dir . 'database/class-mb-relationships-storage-handler.php';
 
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-relationship-factory.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-relationship.php';
+		require_once $dir . 'object/class-mb-relationships-object-interface.php';
+		require_once $dir . 'object/class-mb-relationships-post.php';
+		require_once $dir . 'object/class-mb-relationships-term.php';
+		require_once $dir . 'object/class-mb-relationships-user.php';
+		require_once $dir . 'object/class-mb-relationships-object-factory.php';
 
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-api.php';
+		require_once $dir . 'query/class-mb-relationships-query.php';
+		require_once $dir . 'query/class-mb-relationships-query-post.php';
+
+		require_once $dir . 'class-mb-relationships-relationship-factory.php';
+		require_once $dir . 'class-mb-relationships-relationship.php';
+
+		require_once $dir . 'class-mb-relationships-api.php';
 
 		do_action( 'mb_relationships_pre_init' );
 
@@ -53,6 +58,9 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 
 		$storage_handler = new MB_Relationships_Storage_Handler( $relationship_factory );
 		$storage_handler->init();
+
+		$post_query = new MB_Relationships_Query_Post();
+		$post_query->init();
 
 		$api = new MB_Relationships_API( $wpdb, $relationship_factory );
 

@@ -37,7 +37,6 @@ class MB_Relationships_Post implements MB_Relationships_Object_Interface {
 		return array(
 			'type'       => 'post',
 			'clone'      => true,
-			'sort_clone' => true,
 			'post_type'  => $args['post_type'],
 			'query_args' => $args['query_args'],
 		);
