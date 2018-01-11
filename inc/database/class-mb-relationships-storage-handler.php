@@ -11,9 +11,9 @@
  */
 class MB_Relationships_Storage_Handler {
 	/**
-	 * Reference to connection factory.
+	 * Reference to relationship factory.
 	 *
-	 * @var MB_Relationships_Connection_Factory
+	 * @var MB_Relationships_Relationship_Factory
 	 */
 	protected $factory;
 
@@ -27,9 +27,9 @@ class MB_Relationships_Storage_Handler {
 	/**
 	 * Constructor.
 	 *
-	 * @param MB_Relationships_Connection_Factory $factory Reference to connection factory.
+	 * @param MB_Relationships_Relationship_Factory $factory Reference to relationship factory.
 	 */
-	public function __construct( MB_Relationships_Connection_Factory $factory ) {
+	public function __construct( MB_Relationships_Relationship_Factory $factory ) {
 		$this->factory = $factory;
 	}
 
@@ -82,19 +82,19 @@ class MB_Relationships_Storage_Handler {
 	 */
 	public function delete_object_data( $object_id ) {
 		$object_type = str_replace( array( 'deleted_', 'delete_' ), '', current_filter() );
-		$connections = $this->factory->filter_by( $object_type );
-		foreach ( $connections as $connection ) {
-			$this->delete_object_connections( $object_id, $connection->id );
+		$relationships = $this->factory->filter_by( $object_type );
+		foreach ( $relationships as $relationship ) {
+			$this->delete_object_relationships( $object_id, $relationship->id );
 		}
 	}
 
 	/**
-	 * Delete all connections to an object.
+	 * Delete all relationships to an object.
 	 *
 	 * @param int    $object_id ID of the object metadata is for.
-	 * @param string $type      The connection type.
+	 * @param string $type      The relationship type.
 	 */
-	protected function delete_object_connections( $object_id, $type ) {
+	protected function delete_object_relationships( $object_id, $type ) {
 		global $wpdb;
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)",

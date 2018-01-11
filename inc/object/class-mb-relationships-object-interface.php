@@ -13,7 +13,7 @@ interface MB_Relationships_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *
-	 * @param array $args Connection settings.
+	 * @param array $args Relationship settings.
 	 *
 	 * @return array
 	 */
@@ -22,7 +22,7 @@ interface MB_Relationships_Object_Interface {
 	/**
 	 * Get query arguments.
 	 *
-	 * @param array $args Connection settings.
+	 * @param array $args Relationship settings.
 	 *
 	 * @return array
 	 */

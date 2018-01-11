@@ -1,6 +1,6 @@
 <?php
 /**
- * The post object that handle query arguments for "to" and list for "from" connections.
+ * The post object that handle query arguments for "to" and list for "from" relationships.
  *
  * @package    Meta Box
  * @subpackage MB Relationships
@@ -13,7 +13,7 @@ class MB_Relationships_Post implements MB_Relationships_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *
-	 * @param array $args Connection settings.
+	 * @param array $args Relationship settings.
 	 *
 	 * @return array
 	 */
@@ -29,7 +29,7 @@ class MB_Relationships_Post implements MB_Relationships_Object_Interface {
 	/**
 	 * Get query arguments.
 	 *
-	 * @param array $args Connection settings.
+	 * @param array $args Relationship settings.
 	 *
 	 * @return array
 	 */

@@ -18,29 +18,29 @@ class MB_Relationships_API {
 	protected $db;
 
 	/**
-	 * Reference to object factory.
+	 * Reference to relationship factory.
 	 *
-	 * @var MB_Relationships_Connection_Factory
+	 * @var MB_Relationships_Relationship_Factory
 	 */
 	public $factory;
 
 	/**
 	 * Constructor
 	 *
-	 * @param wpdb                               $wpdb    Database object.
-	 * @param MB_Relationships_Connection_Factory $factory The object factory.
+	 * @param wpdb                                  $wpdb    Database object.
+	 * @param MB_Relationships_Relationship_Factory $factory The object factory.
 	 */
-	public function __construct( wpdb $wpdb, MB_Relationships_Connection_Factory $factory ) {
+	public function __construct( wpdb $wpdb, MB_Relationships_Relationship_Factory $factory ) {
 		$this->db      = $wpdb;
 		$this->factory = $factory;
 	}
 
 	/**
-	 * Register a connection.
+	 * Register a relationship.
 	 *
-	 * @param array $settings Connection parameters.
+	 * @param array $settings Relationship parameters.
 	 *
-	 * @return MB_Relationships_Connection
+	 * @return MB_Relationships_Relationship
 	 */
 	public function register( $settings ) {
 		return $this->factory->build( $settings );
@@ -49,7 +49,7 @@ class MB_Relationships_API {
 	/**
 	 * Get connected items from an item.
 	 *
-	 * @param string $type      Connection type.
+	 * @param string $type      Relationship type.
 	 * @param int    $object_id Object ID. Optional.
 	 *
 	 * @return array
@@ -66,7 +66,7 @@ class MB_Relationships_API {
 	/**
 	 * Get connected items to an item.
 	 *
-	 * @param string $type      Connection type.
+	 * @param string $type      Relationship type.
 	 * @param int    $object_id Object ID. Optional.
 	 *
 	 * @return array

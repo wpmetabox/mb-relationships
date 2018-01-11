@@ -1,6 +1,6 @@
 <?php
 /**
- * The connection class.
+ * The relationship class.
  * Registers meta boxes and custom fields for objects, displays and handles data.
  *
  * @package    Meta Box
@@ -8,11 +8,11 @@
  */
 
 /**
- * The connection class.
+ * The relationship class.
  */
-class MB_Relationships_Connection {
+class MB_Relationships_Relationship {
 	/**
-	 * The connection settings.
+	 * The relationship settings.
 	 *
 	 * @var array
 	 */
@@ -33,9 +33,9 @@ class MB_Relationships_Connection {
 	protected $to_object;
 
 	/**
-	 * Register a connection.
+	 * Register a relationship.
 	 *
-	 * @param array                           $settings       Connection settings.
+	 * @param array                           $settings       Relationship settings.
 	 * @param MB_Relationships_Object_Factory $object_factory The instance of the API class.
 	 */
 	public function __construct( $settings, MB_Relationships_Object_Factory $object_factory ) {
@@ -45,7 +45,7 @@ class MB_Relationships_Connection {
 	}
 
 	/**
-	 * Magic method to quick access to connection settings.
+	 * Magic method to quick access to relationship settings.
 	 *
 	 * @param string $name Setting name.
 	 *
@@ -56,7 +56,7 @@ class MB_Relationships_Connection {
 	}
 
 	/**
-	 * Check if the connection has an object type on either side.
+	 * Check if the relationship has an object type on either side.
 	 *
 	 * @param mixed $type Object type.
 	 *
@@ -74,7 +74,7 @@ class MB_Relationships_Connection {
 	}
 
 	/**
-	 * Register 2 meta boxes for "From" and "To" connections.
+	 * Register 2 meta boxes for "From" and "To" relationships.
 	 *
 	 * @param array $meta_boxes Meta boxes array.
 	 *

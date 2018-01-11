@@ -1,15 +1,15 @@
 <?php
 /**
- * The simple connection factory.
+ * The simple relationship factory.
  *
  * @package    Meta Box
  * @subpackage MB Relationships
  */
 
 /**
- * Connection factory class.
+ * Relationship factory class.
  */
-class MB_Relationships_Connection_Factory {
+class MB_Relationships_Relationship_Factory {
 	/**
 	 * Reference to object factory.
 	 *
@@ -41,25 +41,25 @@ class MB_Relationships_Connection_Factory {
 	}
 
 	/**
-	 * Build a new connection.
+	 * Build a new relationship.
 	 *
-	 * @param array $settings Connection settings.
+	 * @param array $settings Relationship settings.
 	 *
-	 * @return MB_Relationships_Connection
+	 * @return MB_Relationships_Relationship
 	 */
 	public function build( $settings ) {
 		$settings = $this->normalize( $settings );
 
-		$connection = new MB_Relationships_Connection( $settings, $this->object_factory );
-		$connection->init();
+		$relationship = new MB_Relationships_Relationship( $settings, $this->object_factory );
+		$relationship->init();
 
-		$this->data[ $settings['id'] ] = $connection;
+		$this->data[ $settings['id'] ] = $relationship;
 
 		return $this->data[ $settings['id'] ];
 	}
 
 	/**
-	 * Filter connections by object type.
+	 * Filter relationships by object type.
 	 *
 	 * @param string $type Object type.
 	 *
@@ -71,20 +71,20 @@ class MB_Relationships_Connection_Factory {
 	}
 
 	/**
-	 * Check if connection has an object type on either side.
+	 * Check if relationship has an object type on either side.
 	 *
-	 * @param MB_Relationships_Connection $connection Connection object.
+	 * @param MB_Relationships_Relationship $relationship Relationship object.
 	 *
 	 * @return bool
 	 */
-	protected function is_filtered( MB_Relationships_Connection $connection ) {
-		return $connection->has_object_type( $this->filter_type );
+	protected function is_filtered( MB_Relationships_Relationship $relationship ) {
+		return $relationship->has_object_type( $this->filter_type );
 	}
 
 	/**
-	 * Normalize connection settings.
+	 * Normalize relationship settings.
 	 *
-	 * @param array $settings Connection settings.
+	 * @param array $settings Relationship settings.
 	 *
 	 * @return array
 	 */

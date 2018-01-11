@@ -27,20 +27,20 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		if ( ! defined( 'RWMB_VER' ) || class_exists( 'MB_Relationships_Table' ) ) {
 			return;
 		}
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-table.php';
-		require_once dirname( __FILE__ ) . '/inc/class-rwmb-relationships-table-storage.php';
+		require_once dirname( __FILE__ ) . '/inc/database/class-mb-relationships-table.php';
+		require_once dirname( __FILE__ ) . '/inc/database/class-rwmb-relationships-table-storage.php';
+		require_once dirname( __FILE__ ) . '/inc/database/class-mb-relationships-storage-handler.php';
 
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-object-interface.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-post.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-term.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-user.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-object-factory.php';
+		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-object-interface.php';
+		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-post.php';
+		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-term.php';
+		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-user.php';
+		require_once dirname( __FILE__ ) . '/inc/object/class-mb-relationships-object-factory.php';
 
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-connection-factory.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-connection.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-relationship-factory.php';
+		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-relationship.php';
 
 		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-api.php';
-		require_once dirname( __FILE__ ) . '/inc/class-mb-relationships-storage-handler.php';
 
 		do_action( 'mb_relationships_pre_init' );
 
@@ -48,13 +48,13 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		$table = new MB_Relationships_Table( $wpdb );
 		$table->create();
 
-		$object_factory     = new MB_Relationships_Object_Factory();
-		$connection_factory = new MB_Relationships_Connection_Factory( $object_factory );
+		$object_factory       = new MB_Relationships_Object_Factory();
+		$relationship_factory = new MB_Relationships_Relationship_Factory( $object_factory );
 
-		$api = new MB_Relationships_API( $wpdb, $connection_factory );
+		$storage_handler = new MB_Relationships_Storage_Handler( $relationship_factory );
+		$storage_handler->init();
 
-		$loader = new MB_Relationships_Storage_Handler( $connection_factory );
-		$loader->init();
+		$api = new MB_Relationships_API( $wpdb, $relationship_factory );
 
 		// All registration code goes here.
 		do_action( 'mb_relationships_init', $api );
