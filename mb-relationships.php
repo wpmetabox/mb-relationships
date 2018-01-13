@@ -40,6 +40,7 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		require_once $dir . 'object/class-mb-relationships-object-factory.php';
 
 		require_once $dir . 'query/class-mb-relationships-query.php';
+		require_once $dir . 'query/class-mb-relationships-query-normalizer.php';
 		require_once $dir . 'query/class-mb-relationships-query-post.php';
 		require_once $dir . 'query/class-mb-relationships-query-term.php';
 		require_once $dir . 'query/class-mb-relationships-query-user.php';
@@ -61,11 +62,12 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		$storage_handler = new MB_Relationships_Storage_Handler( $relationship_factory );
 		$storage_handler->init();
 
-		$post_query = new MB_Relationships_Query_Post();
+		$query_normalizer = new MB_Relationships_Query_Normalizer();
+		$post_query = new MB_Relationships_Query_Post( $query_normalizer );
 		$post_query->init();
-		$term_query = new MB_Relationships_Query_Term();
+		$term_query = new MB_Relationships_Query_Term( $query_normalizer );
 		$term_query->init();
-		$user_query = new MB_Relationships_Query_User();
+		$user_query = new MB_Relationships_Query_User( $query_normalizer );
 		$user_query->init();
 
 		$api = new MB_Relationships_API( $wpdb, $relationship_factory );

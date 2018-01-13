@@ -7,9 +7,25 @@
  */
 
 /**
- * Class MB_Relationships_Query_Post
+ * Post query class.
  */
 class MB_Relationships_Query_Post {
+	/**
+	 * Query normalizer.
+	 *
+	 * @var MB_Relationships_Query_Normalizer
+	 */
+	protected $normalizer;
+
+	/**
+	 * Constructor
+	 *
+	 * @param MB_Relationships_Query_Normalizer $normalizer Query normalizer.
+	 */
+	public function __construct( MB_Relationships_Query_Normalizer $normalizer ) {
+		$this->normalizer = $normalizer;
+	}
+
 	/**
 	 * Filter the WordPress query to get connected posts.
 	 */
@@ -29,6 +45,8 @@ class MB_Relationships_Query_Post {
 		if ( ! $args ) {
 			return;
 		}
+		$args['id_field'] = 'ID';
+		$this->normalizer->normalize( $args );
 
 		$wp_query->relationship_query = new MB_Relationships_Query( $args );
 		$wp_query->set( 'post_type', 'any' );

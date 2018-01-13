@@ -37,16 +37,16 @@ class MB_Relationships_Query {
 	public function alter_clauses( &$clauses, $id_column ) {
 		global $wpdb;
 
-		$direction = isset( $this->args['from'] ) ? 'from' : 'to';
-		$connected = isset( $this->args['from'] ) ? 'to' : 'from';
-		$object_id = $this->args[ $direction ];
+		$direction = $this->args['direction'];
+		$connected = 'from' === $direction ? 'to' : 'from';
+		$items     = $this->args['items'];
 
 		$join  = " INNER JOIN $wpdb->mb_relationships ON $wpdb->mb_relationships.$connected = $id_column";
 		$where = $wpdb->prepare( "$wpdb->mb_relationships.type = %s", $this->args['id'] );
-		$where .= $wpdb->prepare( " AND $wpdb->mb_relationships.$direction = %d", $object_id );
+		$where .= $wpdb->prepare( " AND $wpdb->mb_relationships.$direction IN (%s)", implode( ',', $items ) );
 
-		$clauses['where'] .= " AND $where";
 		$clauses['join']  .= $join;
+		$clauses['where'] .= " AND $where";
 
 		return $clauses;
 	}

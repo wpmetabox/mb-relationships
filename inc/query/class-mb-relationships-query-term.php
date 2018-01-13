@@ -1,15 +1,31 @@
 <?php
 /**
- * Query for related terms using WP_Query.
+ * Query for related terms using get_terms().
  *
  * @package    Meta Box
  * @subpackage MB Relationships
  */
 
 /**
- * Class MB_Relationships_Query_Term
+ * Term query class.
  */
 class MB_Relationships_Query_Term {
+	/**
+	 * Query normalizer.
+	 *
+	 * @var MB_Relationships_Query_Normalizer
+	 */
+	protected $normalizer;
+
+	/**
+	 * Constructor
+	 *
+	 * @param MB_Relationships_Query_Normalizer $normalizer Query normalizer.
+	 */
+	public function __construct( MB_Relationships_Query_Normalizer $normalizer ) {
+		$this->normalizer = $normalizer;
+	}
+
 	/**
 	 * Filter the WordPress query to get connected terms.
 	 */
@@ -33,7 +49,10 @@ class MB_Relationships_Query_Term {
 		if ( ! isset( $args['relationship'] ) ) {
 			return $clauses;
 		}
-		$query = new MB_Relationships_Query( $args['relationship'] );
+		$args             = $args['relationship'];
+		$args['id_field'] = 'term_id';
+		$this->normalizer->normalize( $args );
+		$query = new MB_Relationships_Query( $args );
 
 		return $query->alter_clauses( $clauses, 't.term_id' );
 	}

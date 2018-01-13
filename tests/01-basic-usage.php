@@ -7,6 +7,9 @@ add_action( 'mb_relationships_init', function ( MB_Relationships_API $api ) {
 	) );
 } );
 add_filter( 'the_content', function ( $content ) {
+	if ( ! is_single() ) {
+		return $content;
+	}
 	$related = new WP_Query( array(
 		'relationship' => array(
 			'id'   => 'posts_to_pages',
