@@ -120,7 +120,7 @@ class MB_Relationships_Relationship_Factory {
 				'priority'      => 'low',
 				'title'         => $title,
 				'field_title'   => '',
-				'empty_message' => '',
+				'empty_message' => __( 'No connections', 'mb-relationships' ),
 			),
 		);
 

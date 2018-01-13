@@ -41,6 +41,8 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 
 		require_once $dir . 'query/class-mb-relationships-query.php';
 		require_once $dir . 'query/class-mb-relationships-query-post.php';
+		require_once $dir . 'query/class-mb-relationships-query-term.php';
+		require_once $dir . 'query/class-mb-relationships-query-user.php';
 
 		require_once $dir . 'class-mb-relationships-relationship-factory.php';
 		require_once $dir . 'class-mb-relationships-relationship.php';
@@ -61,6 +63,10 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 
 		$post_query = new MB_Relationships_Query_Post();
 		$post_query->init();
+		$term_query = new MB_Relationships_Query_Term();
+		$term_query->init();
+		$user_query = new MB_Relationships_Query_User();
+		$user_query->init();
 
 		$api = new MB_Relationships_API( $wpdb, $relationship_factory );
 
