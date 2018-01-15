@@ -67,4 +67,13 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 		$user = get_userdata( $id );
 		return '<a href="' . admin_url( 'user-edit.php?user_id=' . $id ) . '">' . esc_html( $user->display_name ) . '</a>';
 	}
+
+	/**
+	 * Get database ID field.
+	 *
+	 * @return string
+	 */
+	public function get_db_field() {
+		return 'ID';
+	}
 }

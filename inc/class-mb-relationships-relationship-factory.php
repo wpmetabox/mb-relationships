@@ -59,6 +59,17 @@ class MB_Relationships_Relationship_Factory {
 	}
 
 	/**
+	 * Get a relationship object.
+	 *
+	 * @param string $id Relationship ID.
+	 *
+	 * @return MB_Relationships_Relationship
+	 */
+	public function get( $id ) {
+		return isset( $this->data[ $id ] ) ? $this->data[ $id ] : null;
+	}
+
+	/**
 	 * Filter relationships by object type.
 	 *
 	 * @param string $type Object type.

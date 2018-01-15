@@ -49,8 +49,7 @@ class MB_Relationships_Query_Term {
 		if ( ! isset( $args['relationship'] ) ) {
 			return $clauses;
 		}
-		$args             = $args['relationship'];
-		$args['id_field'] = 'term_id';
+		$args = $args['relationship'];
 		$this->normalizer->normalize( $args );
 		$query = new MB_Relationships_Query( $args );
 

@@ -45,7 +45,6 @@ class MB_Relationships_Query_Post {
 		if ( ! $args ) {
 			return;
 		}
-		$args['id_field'] = 'ID';
 		$this->normalizer->normalize( $args );
 		$query->set( 'relationship', $args );
 

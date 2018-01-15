@@ -1,6 +1,6 @@
 <?php
-add_action( 'mb_relationships_init', function ( MB_Relationships_API $api ) {
-	$api->register( array(
+add_action( 'mb_relationships_init', function () {
+	MB_Relationships_API::register( array(
 		'id'   => 'users_to_posts',
 		'from' => array(
 			'object_type' => 'user',
@@ -21,6 +21,9 @@ add_action( 'mb_relationships_init', function ( MB_Relationships_API $api ) {
 	) );
 } );
 add_filter( 'the_content', function ( $content ) {
+	if ( ! is_single() ) {
+		return $content;
+	}
 	$users  = get_users( array(
 		'relationship' => array(
 			'id' => 'users_to_posts',

@@ -60,4 +60,13 @@ class MB_Relationships_Term implements MB_Relationships_Object_Interface {
 		$term = get_term( $id );
 		return '<a href="' . get_edit_term_link( $id ) . '">' . esc_html( $term->name ) . '</a>';
 	}
+
+	/**
+	 * Get database ID field.
+	 *
+	 * @return string
+	 */
+	public function get_db_field() {
+		return 'term_id';
+	}
 }

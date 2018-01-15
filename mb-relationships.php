@@ -64,18 +64,17 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		$storage_handler = new MB_Relationships_Storage_Handler( $relationship_factory );
 		$storage_handler->init();
 
-		$query_normalizer = new MB_Relationships_Query_Normalizer();
-		$post_query = new MB_Relationships_Query_Post( $query_normalizer );
+		$query_normalizer = new MB_Relationships_Query_Normalizer( $relationship_factory );
+		$post_query       = new MB_Relationships_Query_Post( $query_normalizer );
 		$post_query->init();
 		$term_query = new MB_Relationships_Query_Term( $query_normalizer );
 		$term_query->init();
 		$user_query = new MB_Relationships_Query_User( $query_normalizer );
 		$user_query->init();
 
-		global $wpdb;
-		$api = new MB_Relationships_API( $wpdb, $relationship_factory );
+		MB_Relationships_API::set_relationship_factory( $relationship_factory );
 
 		// All registration code goes here.
-		do_action( 'mb_relationships_init', $api );
+		do_action( 'mb_relationships_init' );
 	}
 }

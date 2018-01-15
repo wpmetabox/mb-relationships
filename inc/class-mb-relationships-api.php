@@ -11,28 +11,19 @@
  */
 class MB_Relationships_API {
 	/**
-	 * The reference to WordPress global database object.
-	 *
-	 * @var wpdb
-	 */
-	protected $db;
-
-	/**
 	 * Reference to relationship factory.
 	 *
 	 * @var MB_Relationships_Relationship_Factory
 	 */
-	public $factory;
+	public static $factory;
 
 	/**
-	 * Constructor
+	 * Set relationship factory.
 	 *
-	 * @param wpdb                                  $wpdb    Database object.
 	 * @param MB_Relationships_Relationship_Factory $factory The object factory.
 	 */
-	public function __construct( wpdb $wpdb, MB_Relationships_Relationship_Factory $factory ) {
-		$this->db      = $wpdb;
-		$this->factory = $factory;
+	public static function set_relationship_factory( MB_Relationships_Relationship_Factory $factory ) {
+		self::$factory = $factory;
 	}
 
 	/**
@@ -42,41 +33,57 @@ class MB_Relationships_API {
 	 *
 	 * @return MB_Relationships_Relationship
 	 */
-	public function register( $settings ) {
-		return $this->factory->build( $settings );
+	public static function register( $settings ) {
+		return self::$factory->build( $settings );
 	}
 
 	/**
-	 * Get connected items from an item.
+	 * Get connected items for each object in the list.
 	 *
-	 * @param string $type      Relationship type.
-	 * @param int    $object_id Object ID. Optional.
-	 *
-	 * @return array
+	 * @param array $args       Relationship query arguments.
+	 * @param array $query_vars Extra query variables.
 	 */
-	public function get_connected_from( $type, $object_id = null ) {
-		$object_id = empty( $object_id ) ? get_queried_object_id() : $object_id;
-		return $this->db->get_col( $this->db->prepare(
-			"SELECT `to` FROM {$this->db->mb_relationships} WHERE `from`=%d AND `type`=%s",
-			$object_id,
-			$type
+	public static function each_connected( $args, $query_vars = array() ) {
+		$args         = wp_parse_args( $args, array(
+			'id'       => '',
+			'property' => 'connected',
 		) );
-	}
+		$relationship = self::$factory->get( $args['id'] );
+		if ( ! $relationship ) {
+			return;
+		}
 
-	/**
-	 * Get connected items to an item.
-	 *
-	 * @param string $type      Relationship type.
-	 * @param int    $object_id Object ID. Optional.
-	 *
-	 * @return array
-	 */
-	public function get_connected_to( $type, $object_id = null ) {
-		$object_id = empty( $object_id ) ? get_queried_object_id() : $object_id;
-		return $this->db->get_col( $this->db->prepare(
-			"SELECT `from` FROM {$this->db->mb_relationships} WHERE `to`=%d AND `type`=%s",
-			$object_id,
-			$type
+		$direction   = isset( $args['from'] ) ? 'from' : 'to';
+		$connected   = isset( $args['from'] ) ? 'to' : 'from';
+		$object_type = $relationship->get_object_type( $connected );
+		$id_key      = $relationship->get_db_field( $direction );
+
+		$query_vars = wp_parse_args( $query_vars, array(
+			'relationship' => $args,
 		) );
+		$items      = array();
+
+		switch ( $object_type ) {
+			case 'post':
+				$query_vars = wp_parse_args( $query_vars, array(
+					'nopaging' => true,
+				) );
+				$query      = new WP_Query( $query_vars );
+				$items      = $query->posts;
+				break;
+			case 'term':
+				$settings   = $relationship->$connected;
+				$query_vars = wp_parse_args( $query_vars, array(
+					'taxonomy'   => $settings['taxonomy'],
+					'hide_empty' => false,
+				) );
+				$items      = get_terms( $query_vars );
+				break;
+			case 'user':
+				$items = get_users( $query_vars );
+				break;
+		}
+
+		MB_Relationships_Query::distribute( $args[ $direction ], $items, $args['property'], $id_key );
 	}
 }

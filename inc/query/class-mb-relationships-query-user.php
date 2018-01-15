@@ -46,15 +46,15 @@ class MB_Relationships_Query_User {
 		if ( ! $args ) {
 			return;
 		}
-		$args['id_field'] = 'ID';
 		$this->normalizer->normalize( $args );
 
 		$relationship_query = new MB_Relationships_Query( $args );
 
 		$clauses = array();
 		$map     = array(
-			'join'  => 'query_from',
-			'where' => 'query_where',
+			'fields' => 'query_fields',
+			'join'   => 'query_from',
+			'where'  => 'query_where',
 		);
 		foreach ( $map as $clause => $key ) {
 			$clauses[ $clause ] = $query->$key;

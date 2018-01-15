@@ -56,6 +56,17 @@ class MB_Relationships_Relationship {
 	}
 
 	/**
+	 * Get relationship object types.
+	 *
+	 * @param string $side "from" or "to".
+	 *
+	 * @return array
+	 */
+	public function get_object_type( $side ) {
+		return $this->$side['object_type'];
+	}
+
+	/**
 	 * Check if the relationship has an object type on either side.
 	 *
 	 * @param mixed $type Object type.
@@ -63,7 +74,19 @@ class MB_Relationships_Relationship {
 	 * @return bool
 	 */
 	public function has_object_type( $type ) {
-		return $this->from['object_type'] === $type || $this->to['object_type'] === $type;
+		return $type === $this->get_object_type( 'from' ) || $type === $this->get_object_type( 'to' );
+	}
+
+	/**
+	 * Get the database ID field of "from" or "to" object.
+	 *
+	 * @param string $side "from" or "to".
+	 *
+	 * @return string
+	 */
+	public function get_db_field( $side ) {
+		$key = $side . '_object';
+		return $this->$key->get_db_field();
 	}
 
 	/**

@@ -41,13 +41,17 @@ class MB_Relationships_Query {
 		$connected = 'from' === $direction ? 'to' : 'from';
 		$items     = array_map( 'absint', $this->args['items'] );
 
-		$clauses['fields'] .= ", mbr.$direction AS mb_origin";
-		$clauses['join']   .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
-		$clauses['where']  .= sprintf(
-			" AND mbr.type = %s AND mbr.$direction IN (%s)",
+		$fields            = "mbr.$direction AS mb_origin";
+		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
+
+		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
+
+		$where            = sprintf(
+			"mbr.type = %s AND mbr.$direction IN (%s)",
 			$wpdb->prepare( '%s', $this->args['id'] ),
 			implode( ',', $items )
 		);
+		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
 
 		return $clauses;
 	}
@@ -63,12 +67,28 @@ class MB_Relationships_Query {
 	 *
 	 * @return array
 	 */
-	public function distribute( $items, $connected, $property, $id_key ) {
+	public static function distribute( &$items, $connected, $property, $id_key ) {
 		foreach ( $items as &$item ) {
-			$item->$property = wp_list_filter( $connected, array(
-				'mb_origin' => $item->$id_key,
-			) );
+			$item->$property = self::filter( $connected, $item->$id_key );
 		}
 		return $items;
+	}
+
+	/**
+	 * Filter to find the matched items with "mb_origin" value.
+	 *
+	 * @param array  $list  List of objects.
+	 * @param string $value "mb_origin" value.
+	 *
+	 * @return array
+	 */
+	protected static function filter( $list, $value ) {
+		$filtered = array();
+		foreach ( $list as $item ) {
+			if ( $value == $item->mb_origin ) {
+				$filtered[] = $item;
+			}
+		}
+		return $filtered;
 	}
 }

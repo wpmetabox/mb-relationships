@@ -65,4 +65,13 @@ class MB_Relationships_Post implements MB_Relationships_Object_Interface {
 	public function get_link( $id ) {
 		return '<a href="' . get_edit_post_link( $id ) . '">' . get_the_title( $id ) . '</a>';
 	}
+
+	/**
+	 * Get database ID field.
+	 *
+	 * @return string
+	 */
+	public function get_db_field() {
+		return 'ID';
+	}
 }

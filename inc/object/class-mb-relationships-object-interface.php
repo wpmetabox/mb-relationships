@@ -43,4 +43,12 @@ interface MB_Relationships_Object_Interface {
 	 * @return string
 	 */
 	public function get_link( $id );
+
+
+	/**
+	 * Get database ID field.
+	 *
+	 * @return string
+	 */
+	public function get_db_field();
 }

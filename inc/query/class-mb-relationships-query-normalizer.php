@@ -11,13 +11,32 @@
  */
 class MB_Relationships_Query_Normalizer {
 	/**
+	 * The relationship factory.
+	 *
+	 * @var MB_Relationships_Relationship_Factory
+	 */
+	protected $factory;
+
+	/**
+	 * Constructor
+	 *
+	 * @param MB_Relationships_Relationship_Factory $factory The relationship factory.
+	 */
+	public function __construct( MB_Relationships_Relationship_Factory $factory ) {
+		$this->factory = $factory;
+	}
+
+	/**
 	 * Normalize relationship query args.
 	 *
 	 * @param array $args Query arguments.
 	 */
 	public function normalize( &$args ) {
-		$direction         = ! empty( $args['from'] ) ? 'from' : 'to';
+		$direction         = isset( $args['from'] ) ? 'from' : 'to';
 		$args['direction'] = $direction;
+
+		$relationship     = $this->factory->get( $args['id'] );
+		$args['id_field'] = $relationship->get_db_field( $direction );
 
 		$items         = $args[ $direction ];
 		$items         = $this->get_ids( $items, $args['id_field'] );
