@@ -26,11 +26,12 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 
 	// Hook to 'init' with priority 5 to make sure all actions are registered before Meta Box runs.
 	add_action( 'init', 'mb_relationships_load', 5 );
+
 	/**
 	 * Load plugin files after Meta Box is loaded.
 	 */
 	function mb_relationships_load() {
-		if ( ! defined( 'RWMB_VER' ) || class_exists( 'MB_Relationships_Table' ) ) {
+		if ( ! defined( 'RWMB_VER' ) ) {
 			return;
 		}
 		$dir = dirname( __FILE__ ) . '/inc/';

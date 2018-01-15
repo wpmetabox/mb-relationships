@@ -38,23 +38,24 @@ class MB_Relationships_Query_Post {
 	 * Parse query variables.
 	 * Fires after the main query vars have been parsed.
 	 *
-	 * @param WP_Query $wp_query The WP_Query instance (passed by reference).
+	 * @param WP_Query $query The WP_Query instance (passed by reference).
 	 */
-	public function parse_query( WP_Query $wp_query ) {
-		$args = $wp_query->get( 'relationship' );
+	public function parse_query( WP_Query $query ) {
+		$args = $query->get( 'relationship' );
 		if ( ! $args ) {
 			return;
 		}
 		$args['id_field'] = 'ID';
 		$this->normalizer->normalize( $args );
+		$query->set( 'relationship', $args );
 
-		$wp_query->relationship_query = new MB_Relationships_Query( $args );
-		$wp_query->set( 'post_type', 'any' );
-		$wp_query->set( 'suppress_filters', false );
-		$wp_query->set( 'ignore_sticky_posts', true );
+		$query->relationship_query = new MB_Relationships_Query( $args );
+		$query->set( 'post_type', 'any' );
+		$query->set( 'suppress_filters', false );
+		$query->set( 'ignore_sticky_posts', true );
 
-		$wp_query->is_home    = false;
-		$wp_query->is_archive = true;
+		$query->is_home    = false;
+		$query->is_archive = true;
 	}
 
 	/**
@@ -63,19 +64,19 @@ class MB_Relationships_Query_Post {
 	 * Covers the WHERE, GROUP BY, JOIN, ORDER BY, DISTINCT,
 	 * fields (SELECT), and LIMITS clauses.
 	 *
-	 * @param array    $clauses  The list of clauses for the query.
-	 * @param WP_Query $wp_query The WP_Query instance (passed by reference).
+	 * @param array    $clauses The list of clauses for the query.
+	 * @param WP_Query $query   The WP_Query instance (passed by reference).
 	 *
 	 * @return array
 	 */
-	public function posts_clauses( $clauses, WP_Query $wp_query ) {
+	public function posts_clauses( $clauses, WP_Query $query ) {
 		global $wpdb;
 
-		if ( ! isset( $wp_query->relationship_query ) ) {
+		if ( ! isset( $query->relationship_query ) ) {
 			return $clauses;
 		}
 
-		return $wp_query->relationship_query->alter_clauses( $clauses, "$wpdb->posts.ID" );
+		return $query->relationship_query->alter_clauses( $clauses, "$wpdb->posts.ID" );
 	}
 }
 

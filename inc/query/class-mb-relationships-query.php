@@ -39,15 +39,36 @@ class MB_Relationships_Query {
 
 		$direction = $this->args['direction'];
 		$connected = 'from' === $direction ? 'to' : 'from';
-		$items     = $this->args['items'];
+		$items     = array_map( 'absint', $this->args['items'] );
 
-		$join  = " INNER JOIN $wpdb->mb_relationships ON $wpdb->mb_relationships.$connected = $id_column";
-		$where = $wpdb->prepare( "$wpdb->mb_relationships.type = %s", $this->args['id'] );
-		$where .= $wpdb->prepare( " AND $wpdb->mb_relationships.$direction IN (%s)", implode( ',', $items ) );
-
-		$clauses['join']  .= $join;
-		$clauses['where'] .= " AND $where";
+		$clauses['fields'] .= ", mbr.$direction AS mb_origin";
+		$clauses['join']   .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
+		$clauses['where']  .= sprintf(
+			" AND mbr.type = %s AND mbr.$direction IN (%s)",
+			$wpdb->prepare( '%s', $this->args['id'] ),
+			implode( ',', $items )
+		);
 
 		return $clauses;
+	}
+
+	/**
+	 * Given a list of objects and another list of connected items,
+	 * distribute each connected item to it's respective counterpart.
+	 *
+	 * @param array  $items     List of objects.
+	 * @param array  $connected List of connected objects.
+	 * @param string $property  Name of connected array property.
+	 * @param string $id_key    ID key of the objects.
+	 *
+	 * @return array
+	 */
+	public function distribute( $items, $connected, $property, $id_key ) {
+		foreach ( $items as &$item ) {
+			$item->$property = wp_list_filter( $connected, array(
+				'mb_origin' => $item->$id_key,
+			) );
+		}
+		return $items;
 	}
 }
