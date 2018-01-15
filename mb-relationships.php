@@ -18,6 +18,12 @@
 defined( 'ABSPATH' ) || exit;
 
 if ( ! function_exists( 'mb_relationships_load' ) ) {
+	require_once dirname( __FILE__ ) . '/inc/database/class-mb-relationships-table.php';
+
+	global $wpdb;
+	$table = new MB_Relationships_Table( $wpdb );
+	register_activation_hook( __FILE__, array( $table, 'create' ) );
+
 	// Hook to 'init' with priority 5 to make sure all actions are registered before Meta Box runs.
 	add_action( 'init', 'mb_relationships_load', 5 );
 	/**
@@ -29,7 +35,6 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		}
 		$dir = dirname( __FILE__ ) . '/inc/';
 
-		require_once $dir . 'database/class-mb-relationships-table.php';
 		require_once $dir . 'database/class-rwmb-relationships-table-storage.php';
 		require_once $dir . 'database/class-mb-relationships-storage-handler.php';
 
@@ -52,10 +57,6 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 
 		do_action( 'mb_relationships_pre_init' );
 
-		global $wpdb;
-		$table = new MB_Relationships_Table( $wpdb );
-		$table->create();
-
 		$object_factory       = new MB_Relationships_Object_Factory();
 		$relationship_factory = new MB_Relationships_Relationship_Factory( $object_factory );
 
@@ -70,6 +71,7 @@ if ( ! function_exists( 'mb_relationships_load' ) ) {
 		$user_query = new MB_Relationships_Query_User( $query_normalizer );
 		$user_query->init();
 
+		global $wpdb;
 		$api = new MB_Relationships_API( $wpdb, $relationship_factory );
 
 		// All registration code goes here.

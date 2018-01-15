@@ -24,6 +24,10 @@ class MB_Relationships_Table {
 	 */
 	public function __construct( wpdb $wpdb ) {
 		$this->db = $wpdb;
+
+		// Register new table.
+		$this->db->tables[]         = 'mb_relationships';
+		$this->db->mb_relationships = $this->db->prefix . 'mb_relationships';
 	}
 
 	/**
@@ -32,14 +36,9 @@ class MB_Relationships_Table {
 	public function create() {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-		// Register new table.
-		$name               = 'mb_relationships';
-		$this->db->tables[] = $name;
-		$this->db->$name    = $this->db->prefix . $name;
-
 		// Create new table.
 		$sql = "
-			CREATE TABLE {$this->db->$name} (
+			CREATE TABLE {$this->db->mb_relationships} (
 				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				`from` bigint(20) unsigned NOT NULL,
 				`to` bigint(20) unsigned NOT NULL,
