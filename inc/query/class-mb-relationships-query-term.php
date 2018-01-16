@@ -55,5 +55,26 @@ class MB_Relationships_Query_Term {
 
 		return $query->alter_clauses( $clauses, 't.term_id' );
 	}
-}
 
+	/**
+	 * Query and get list of items.
+	 *
+	 * @param array                         $args         Relationship arguments.
+	 * @param array                         $query_vars   Extra query variables.
+	 * @param MB_Relationships_Relationship $relationship Relationship object.
+	 *
+	 * @return array
+	 */
+	public function query( $args, $query_vars, $relationship ) {
+		$query_vars = wp_parse_args( $query_vars, array(
+			'relationship' => $args,
+		) );
+		$connected = isset( $args['from'] ) ? 'to' : 'from';
+		$settings   = $relationship->$connected;
+		$query_vars = wp_parse_args( $query_vars, array(
+			'taxonomy'   => $settings['taxonomy'],
+			'hide_empty' => false,
+		) );
+		return get_terms( $query_vars );
+	}
+}

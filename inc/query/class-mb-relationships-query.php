@@ -55,40 +55,4 @@ class MB_Relationships_Query {
 
 		return $clauses;
 	}
-
-	/**
-	 * Given a list of objects and another list of connected items,
-	 * distribute each connected item to it's respective counterpart.
-	 *
-	 * @param array  $items     List of objects.
-	 * @param array  $connected List of connected objects.
-	 * @param string $property  Name of connected array property.
-	 * @param string $id_key    ID key of the objects.
-	 *
-	 * @return array
-	 */
-	public static function distribute( &$items, $connected, $property, $id_key ) {
-		foreach ( $items as &$item ) {
-			$item->$property = self::filter( $connected, $item->$id_key );
-		}
-		return $items;
-	}
-
-	/**
-	 * Filter to find the matched items with "mb_origin" value.
-	 *
-	 * @param array  $list  List of objects.
-	 * @param string $value "mb_origin" value.
-	 *
-	 * @return array
-	 */
-	protected static function filter( $list, $value ) {
-		$filtered = array();
-		foreach ( $list as $item ) {
-			if ( $value == $item->mb_origin ) {
-				$filtered[] = $item;
-			}
-		}
-		return $filtered;
-	}
 }

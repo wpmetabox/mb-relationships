@@ -15,7 +15,28 @@ class MB_Relationships_API {
 	 *
 	 * @var MB_Relationships_Relationship_Factory
 	 */
-	public static $factory;
+	protected static $factory;
+
+	/**
+	 * Reference to post query object.
+	 *
+	 * @var MB_Relationships_Query_Post
+	 */
+	protected static $post_query;
+
+	/**
+	 * Reference to term query object.
+	 *
+	 * @var MB_Relationships_Query_Term
+	 */
+	protected static $term_query;
+
+	/**
+	 * Reference to user query object.
+	 *
+	 * @var MB_Relationships_Query_User
+	 */
+	protected static $user_query;
 
 	/**
 	 * Set relationship factory.
@@ -24,6 +45,33 @@ class MB_Relationships_API {
 	 */
 	public static function set_relationship_factory( MB_Relationships_Relationship_Factory $factory ) {
 		self::$factory = $factory;
+	}
+
+	/**
+	 * Set post query.
+	 *
+	 * @param MB_Relationships_Query_Post $post_query The post query object.
+	 */
+	public static function set_post_query( MB_Relationships_Query_Post $post_query ) {
+		self::$post_query = $post_query;
+	}
+
+	/**
+	 * Set term query.
+	 *
+	 * @param MB_Relationships_Query_Term $term_query The term query object.
+	 */
+	public static function set_term_query( MB_Relationships_Query_Term $term_query ) {
+		self::$term_query = $term_query;
+	}
+
+	/**
+	 * Set user query.
+	 *
+	 * @param MB_Relationships_Query_User $user_query The user query object.
+	 */
+	public static function set_user_query( MB_Relationships_Query_User $user_query ) {
+		self::$user_query = $user_query;
 	}
 
 	/**
@@ -53,37 +101,49 @@ class MB_Relationships_API {
 			return;
 		}
 
-		$direction   = isset( $args['from'] ) ? 'from' : 'to';
-		$connected   = isset( $args['from'] ) ? 'to' : 'from';
-		$object_type = $relationship->get_object_type( $connected );
-		$id_key      = $relationship->get_db_field( $direction );
+		$direction    = isset( $args['from'] ) ? 'from' : 'to';
+		$connected    = isset( $args['from'] ) ? 'to' : 'from';
+		$object_type  = $relationship->get_object_type( $connected );
+		$id_key       = $relationship->get_db_field( $direction );
+		$query_object = $object_type . '_query';
 
-		$query_vars = wp_parse_args( $query_vars, array(
-			'relationship' => $args,
-		) );
-		$items      = array();
+		$items = self::$$query_object->query( $args, $query_vars, $relationship );
+		self::distribute( $args[ $direction ], $items, $args['property'], $id_key );
+	}
 
-		switch ( $object_type ) {
-			case 'post':
-				$query_vars = wp_parse_args( $query_vars, array(
-					'nopaging' => true,
-				) );
-				$query      = new WP_Query( $query_vars );
-				$items      = $query->posts;
-				break;
-			case 'term':
-				$settings   = $relationship->$connected;
-				$query_vars = wp_parse_args( $query_vars, array(
-					'taxonomy'   => $settings['taxonomy'],
-					'hide_empty' => false,
-				) );
-				$items      = get_terms( $query_vars );
-				break;
-			case 'user':
-				$items = get_users( $query_vars );
-				break;
+	/**
+	 * Given a list of objects and another list of connected items,
+	 * distribute each connected item to it's respective counterpart.
+	 *
+	 * @param array  $items     List of objects.
+	 * @param array  $connected List of connected objects.
+	 * @param string $property  Name of connected array property.
+	 * @param string $id_key    ID key of the objects.
+	 *
+	 * @return array
+	 */
+	protected static function distribute( &$items, $connected, $property, $id_key ) {
+		foreach ( $items as &$item ) {
+			$item->$property = self::filter( $connected, $item->$id_key );
 		}
+		return $items;
+	}
 
-		MB_Relationships_Query::distribute( $args[ $direction ], $items, $args['property'], $id_key );
+	/**
+	 * Filter to find the matched items with "mb_origin" value.
+	 *
+	 * @param array  $list  List of objects.
+	 * @param string $value "mb_origin" value.
+	 *
+	 * @return array
+	 */
+	protected static function filter( $list, $value ) {
+		$filtered = array();
+		foreach ( $list as $item ) {
+			if ( $value == $item->mb_origin ) {
+				$filtered[] = $item;
+			}
+		}
+		return $filtered;
 	}
 }

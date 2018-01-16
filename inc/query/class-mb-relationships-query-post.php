@@ -77,5 +77,27 @@ class MB_Relationships_Query_Post {
 
 		return $query->relationship_query->alter_clauses( $clauses, "$wpdb->posts.ID" );
 	}
+
+	/**
+	 * Query and get list of items.
+	 *
+	 * @param array                         $args         Relationship arguments.
+	 * @param array                         $query_vars   Extra query variables.
+	 * @param MB_Relationships_Relationship $relationship Relationship object.
+	 *
+	 * @return array
+	 */
+	public function query( $args, $query_vars, $relationship ) {
+		$query_vars = wp_parse_args( $query_vars, array(
+			'relationship' => $args,
+		) );
+		$query_vars = wp_parse_args( $query_vars, array(
+			'nopaging'            => true,
+			'suppress_filters'    => false,
+			'ignore_sticky_posts' => true,
+		) );
+		$query      = new WP_Query( $query_vars );
+		return $query->posts;
+	}
 }
 
