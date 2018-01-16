@@ -112,6 +112,29 @@ class MB_Relationships_API {
 	}
 
 	/**
+	 * Get connected items.
+	 *
+	 * @param array $args Relationship arguments.
+	 *
+	 * @return array
+	 */
+	public static function get_connected( $args ) {
+		$args         = wp_parse_args( $args, array(
+			'id' => '',
+		) );
+		$relationship = self::$factory->get( $args['id'] );
+		if ( ! $relationship ) {
+			return array();
+		}
+
+		$connected    = isset( $args['from'] ) ? 'to' : 'from';
+		$object_type  = $relationship->get_object_type( $connected );
+		$query_object = $object_type . '_query';
+
+		return self::$$query_object->query( $args, array(), $relationship );
+	}
+
+	/**
 	 * Given a list of objects and another list of connected items,
 	 * distribute each connected item to it's respective counterpart.
 	 *

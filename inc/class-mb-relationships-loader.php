@@ -69,6 +69,9 @@ class MB_Relationships_Loader {
 		MB_Relationships_API::set_term_query( $term_query );
 		MB_Relationships_API::set_user_query( $user_query );
 
+		$shortcodes = new MB_Relationships_Shortcodes( $rel_factory, $obj_factory );
+		$shortcodes->init();
+
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
 	}
@@ -107,5 +110,6 @@ class MB_Relationships_Loader {
 		require 'class-mb-relationships-relationship.php';
 
 		require 'class-mb-relationships-api.php';
+		require 'class-mb-relationships-shortcodes.php';
 	}
 }

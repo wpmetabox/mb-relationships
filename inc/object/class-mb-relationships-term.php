@@ -45,8 +45,17 @@ class MB_Relationships_Term implements MB_Relationships_Object_Interface {
 	 *
 	 * @return int
 	 */
-	public function get_current_id() {
+	public function get_current_admin_id() {
 		return filter_input( INPUT_GET, 'tag_ID', FILTER_SANITIZE_NUMBER_INT );
+	}
+
+	/**
+	 * Get current object ID.
+	 *
+	 * @return int
+	 */
+	public function get_current_id() {
+		return get_queried_object_id();
 	}
 
 	/**
@@ -59,6 +68,17 @@ class MB_Relationships_Term implements MB_Relationships_Object_Interface {
 	public function get_link( $id ) {
 		$term = get_term( $id );
 		return '<a href="' . get_edit_term_link( $id ) . '">' . esc_html( $term->name ) . '</a>';
+	}
+
+	/**
+	 * Render HTML of the object to show in the frontend.
+	 *
+	 * @param WP_Term $item Term object.
+	 *
+	 * @return string
+	 */
+	public function render( $item ) {
+		return '<a href="' . get_term_link( $item ) . '">' . esc_html( $item->name ) . '</a>';
 	}
 
 	/**

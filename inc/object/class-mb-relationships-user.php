@@ -44,7 +44,7 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 *
 	 * @return int
 	 */
-	public function get_current_id() {
+	public function get_current_admin_id() {
 		$user_id = false;
 		$screen  = get_current_screen();
 		if ( 'profile' === $screen->id ) {
@@ -57,6 +57,15 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	}
 
 	/**
+	 * Get current object ID.
+	 *
+	 * @return int
+	 */
+	public function get_current_id() {
+		return get_current_user_id();
+	}
+
+	/**
 	 * Get HTML link to the object.
 	 *
 	 * @param int $id Object ID.
@@ -66,6 +75,17 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	public function get_link( $id ) {
 		$user = get_userdata( $id );
 		return '<a href="' . admin_url( 'user-edit.php?user_id=' . $id ) . '">' . esc_html( $user->display_name ) . '</a>';
+	}
+
+	/**
+	 * Render HTML of the object to show in the frontend.
+	 *
+	 * @param WP_User $item User object.
+	 *
+	 * @return string
+	 */
+	public function render( $item ) {
+		return $item->display_name;
 	}
 
 	/**

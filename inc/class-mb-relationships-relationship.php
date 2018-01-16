@@ -60,7 +60,7 @@ class MB_Relationships_Relationship {
 	 *
 	 * @param string $side "from" or "to".
 	 *
-	 * @return array
+	 * @return string
 	 */
 	public function get_object_type( $side ) {
 		return $this->$side['object_type'];
@@ -162,7 +162,7 @@ class MB_Relationships_Relationship {
 		global $wpdb;
 		$items = $wpdb->get_col( $wpdb->prepare(
 			"SELECT `from` FROM $wpdb->mb_relationships WHERE `to`=%d AND `type`=%s",
-			$this->to_object->get_current_id(),
+			$this->to_object->get_current_admin_id(),
 			$this->id
 		) );
 		if ( empty( $items ) ) {

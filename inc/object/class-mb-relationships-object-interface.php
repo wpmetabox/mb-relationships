@@ -29,11 +29,27 @@ interface MB_Relationships_Object_Interface {
 	public function get_field_settings( $args );
 
 	/**
+	 * Get current object ID in the admin area.
+	 *
+	 * @return int
+	 */
+	public function get_current_admin_id();
+
+	/**
 	 * Get current object ID.
 	 *
 	 * @return int
 	 */
 	public function get_current_id();
+
+	/**
+	 * Render HTML of the object to show in the frontend.
+	 *
+	 * @param mixed $item The object.
+	 *
+	 * @return string
+	 */
+	public function render( $item );
 
 	/**
 	 * Get HTML link to the object.
