@@ -86,6 +86,48 @@ class MB_Relationships_API {
 	}
 
 	/**
+	 * Check if 2 objects has a relationship.
+	 *
+	 * @param int    $from From object ID.
+	 * @param int    $to   To object ID.
+	 * @param string $id   Relationship ID.
+	 *
+	 * @return bool
+	 */
+	public static function has( $from, $to, $id ) {
+		$relationship = self::$factory->get( $id );
+		return $relationship ? $relationship->has( $from, $to ) : false;
+	}
+
+	/**
+	 * Add a relationship for 2 objects.
+	 *
+	 * @param int    $from From object ID.
+	 * @param int    $to   To object ID.
+	 * @param string $id   Relationship ID.
+	 *
+	 * @return bool
+	 */
+	public static function add( $from, $to, $id ) {
+		$relationship = self::$factory->get( $id );
+		return $relationship ? $relationship->add( $from, $to ) : false;
+	}
+
+	/**
+	 * Delete a relationship for 2 objects.
+	 *
+	 * @param int    $from From object ID.
+	 * @param int    $to   To object ID.
+	 * @param string $id   Relationship ID.
+	 *
+	 * @return bool
+	 */
+	public static function delete( $from, $to, $id ) {
+		$relationship = self::$factory->get( $id );
+		return $relationship ? $relationship->delete( $from, $to ) : false;
+	}
+
+	/**
 	 * Get connected items for each object in the list.
 	 *
 	 * @param array $args       Relationship query arguments.

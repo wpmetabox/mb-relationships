@@ -31,6 +31,13 @@ class MB_Relationships_Relationship {
 	 * @var MB_Relationships_Object_Interface
 	 */
 	protected $to_object;
+	
+	/**
+	 * The wpdb object.
+	 *
+	 * @var wpdb
+	 */
+	protected $db;
 
 	/**
 	 * Register a relationship.
@@ -42,6 +49,9 @@ class MB_Relationships_Relationship {
 		$this->settings    = $settings;
 		$this->from_object = $object_factory->build( $this->from['object_type'] );
 		$this->to_object   = $object_factory->build( $this->to['object_type'] );
+
+		global $wpdb;
+		$this->db = $wpdb;
 	}
 
 	/**
@@ -53,6 +63,71 @@ class MB_Relationships_Relationship {
 	 */
 	public function __get( $name ) {
 		return isset( $this->settings[ $name ] ) ? $this->settings[ $name ] : '';
+	}
+	
+	/**
+	 * Check if 2 objects has a relationship.
+	 *
+	 * @param int $from From object ID.
+	 * @param int $to   To object ID.
+	 *
+	 * @return bool
+	 */
+	public function has( $from, $to ) {
+		$rel_id = $this->db->get_var( $this->db->prepare(
+			"SELECT `ID` FROM {$this->db->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
+			$from, $to, $this->id
+		) );
+		return (bool) $rel_id;
+	}
+
+	/**
+	 * Add a relationship for 2 objects.
+	 *
+	 * @param int $from From object ID.
+	 * @param int $to   To object ID.
+	 *
+	 * @return bool
+	 */
+	public function add( $from, $to ) {
+		if ( $this->has( $from, $to ) ) {
+			return false;
+		}
+		return $this->db->insert(
+			$this->db->mb_relationships,
+			array(
+				'from' => $from,
+				'to'   => $to,
+				'type' => $this->id,
+			),
+			array(
+				'%d',
+				'%d',
+				'%s',
+			)
+		);
+	}
+
+	/**
+	 * Delete a relationship for 2 objects.
+	 *
+	 * @param int $from From object ID.
+	 * @param int $to   To object ID.
+	 *
+	 * @return bool
+	 */
+	public function delete( $from, $to ) {
+		if ( ! $this->has( $from, $to ) ) {
+			return false;
+		}
+		return $this->db->delete(
+			$this->db->mb_relationships,
+			array(
+				'from' => $from,
+				'to'   => $to,
+				'type' => $this->id,
+			)
+		);
 	}
 
 	/**
