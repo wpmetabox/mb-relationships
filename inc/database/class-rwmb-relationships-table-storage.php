@@ -57,8 +57,10 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return mixed Single metadata value, or array of values.
 		 */
 		public function get( $object_id, $meta_key, $args = false ) {
+			$target = $this->get_direction( $meta_key );
+			$origin = 'to' === $target ? 'from' : 'to';
 			return $this->db->get_col( $this->db->prepare(
-				"SELECT `to` FROM {$this->table} WHERE `from`=%d AND `type`=%s",
+				"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s",
 				$object_id,
 				$this->get_type( $meta_key )
 			) );
@@ -92,14 +94,16 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
 			$this->delete( $object_id, $meta_key );
 			$meta_value = array_filter( (array) $meta_value );
+			$target     = $this->get_direction( $meta_key );
+			$origin     = 'to' === $target ? 'from' : 'to';
 			$type       = $this->get_type( $meta_key );
 			foreach ( $meta_value as $value ) {
 				$this->db->insert(
 					$this->table,
 					array(
-						'from' => $object_id,
-						'to'   => $value,
-						'type' => $type,
+						$origin => $object_id,
+						$target => $value,
+						'type'  => $type,
 					),
 					array(
 						'%d',
@@ -128,23 +132,35 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool True on successful delete, false on failure.
 		 */
 		public function delete( $object_id, $meta_key = '', $meta_value = '', $delete_all = false ) {
-			$type = $this->get_type( $meta_key );
+			$type   = $this->get_type( $meta_key );
+			$origin = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
 			$this->db->delete( $this->table, array(
-				'from' => $object_id,
-				'type' => $type,
+				$origin => $object_id,
+				'type'  => $type,
 			) );
 			return true;
 		}
 
 		/**
-		 * Get relationship type from submitted field name "{$type}_to".
+		 * Get relationship type from submitted field name "{$type}_to" or "{$type}_from".
 		 *
 		 * @param string $name Submitted field name.
 		 *
 		 * @return string
 		 */
 		protected function get_type( $name ) {
-			return substr( $name, 0, '-3' );
+			return substr( $name, 0, -1 - strlen( $this->get_direction( $name ) ) );
+		}
+
+		/**
+		 * Get relationship direction from submitted field name "{$type}_to" or "{$type}_from".
+		 * 
+		 * @param string $name Submitted field name.
+		 * 
+		 * @return string
+		 */
+		protected function get_direction( $name ) {
+			return '_to' === substr( $name, -3 ) ? 'to' : 'from';
 		}
 	}
 }

@@ -138,41 +138,17 @@ class MB_Relationships_Relationship {
 	 * @return array
 	 */
 	protected function parse_meta_box_to() {
+		$field         = $this->from_object->get_field_settings( $this->from );
+		$field['id']   = "{$this->id}_from";
+		$field['name'] = $this->to['meta_box']['field_title'];
+
 		$meta_box = array(
-			'id'     => "{$this->id}_relationships_from",
-			'title'  => $this->to['meta_box']['title'],
-			'fields' => array(
-				array(
-					'name'     => $this->to['meta_box']['field_title'],
-					'type'     => 'custom_html',
-					'callback' => array( $this, 'get_connected_to' ),
-				),
-			),
+			'id'           => "{$this->id}_relationships_from",
+			'title'        => $this->to['meta_box']['title'],
+			'storage_type' => 'relationships_table',
+			'fields'       => array( $field ),
 		);
 		$meta_box = array_merge( $meta_box, $this->to_object->get_meta_box_settings( $this->to ) );
 		return $meta_box;
-	}
-
-	/**
-	 * Output the list of connected from items.
-	 *
-	 * @return string
-	 */
-	public function get_connected_to() {
-		global $wpdb;
-		$items = $wpdb->get_col( $wpdb->prepare(
-			"SELECT `from` FROM $wpdb->mb_relationships WHERE `to`=%d AND `type`=%s",
-			$this->to_object->get_current_admin_id(),
-			$this->id
-		) );
-		if ( empty( $items ) ) {
-			return $this->to['meta_box']['empty_message'];
-		}
-		$output = '<ul class="mb-relationships-from-items">';
-		foreach ( $items as $item ) {
-			$output .= '<li class="mb-relationships-from-item">' . $this->from_object->get_link( $item ) . '</li>';
-		}
-		$output .= '</ul>';
-		return $output;
 	}
 }
