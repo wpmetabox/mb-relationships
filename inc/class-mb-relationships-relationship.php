@@ -31,7 +31,7 @@ class MB_Relationships_Relationship {
 	 * @var MB_Relationships_Object_Interface
 	 */
 	protected $to_object;
-	
+
 	/**
 	 * The wpdb object.
 	 *
@@ -64,7 +64,7 @@ class MB_Relationships_Relationship {
 	public function __get( $name ) {
 		return isset( $this->settings[ $name ] ) ? $this->settings[ $name ] : '';
 	}
-	
+
 	/**
 	 * Check if 2 objects has a relationship.
 	 *
@@ -78,6 +78,7 @@ class MB_Relationships_Relationship {
 			"SELECT `ID` FROM {$this->db->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
 			$from, $to, $this->id
 		) );
+
 		return (bool) $rel_id;
 	}
 
@@ -93,6 +94,7 @@ class MB_Relationships_Relationship {
 		if ( $this->has( $from, $to ) ) {
 			return false;
 		}
+
 		return $this->db->insert(
 			$this->db->mb_relationships,
 			array(
@@ -120,6 +122,7 @@ class MB_Relationships_Relationship {
 		if ( ! $this->has( $from, $to ) ) {
 			return false;
 		}
+
 		return $this->db->delete(
 			$this->db->mb_relationships,
 			array(
@@ -161,6 +164,7 @@ class MB_Relationships_Relationship {
 	 */
 	public function get_db_field( $side ) {
 		$key = $side . '_object';
+
 		return $this->$key->get_db_field();
 	}
 
@@ -204,6 +208,7 @@ class MB_Relationships_Relationship {
 			'fields'       => array( $field ),
 		);
 		$meta_box = array_merge( $meta_box, $this->from_object->get_meta_box_settings( $this->from ) );
+
 		return $meta_box;
 	}
 
@@ -224,6 +229,7 @@ class MB_Relationships_Relationship {
 			'fields'       => array( $field ),
 		);
 		$meta_box = array_merge( $meta_box, $this->to_object->get_meta_box_settings( $this->to ) );
+
 		return $meta_box;
 	}
 }

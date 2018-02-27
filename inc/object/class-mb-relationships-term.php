@@ -35,6 +35,7 @@ class MB_Relationships_Term implements MB_Relationships_Object_Interface {
 		return array(
 			'type'       => 'taxonomy_advanced',
 			'clone'      => true,
+			'sort_clone' => true,
 			'taxonomy'   => $args['taxonomy'],
 			'query_args' => $args['query_args'],
 		);

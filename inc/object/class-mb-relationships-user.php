@@ -35,6 +35,7 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 		return array(
 			'type'       => 'user',
 			'clone'      => true,
+			'sort_clone' => true,
 			'query_args' => $args['query_args'],
 		);
 	}

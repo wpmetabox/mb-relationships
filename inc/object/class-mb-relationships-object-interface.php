@@ -60,7 +60,6 @@ interface MB_Relationships_Object_Interface {
 	 */
 	public function get_link( $id );
 
-
 	/**
 	 * Get database ID field.
 	 *
