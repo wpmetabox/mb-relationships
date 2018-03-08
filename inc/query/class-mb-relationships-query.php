@@ -45,6 +45,7 @@ class MB_Relationships_Query {
 		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 
 		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
+		$clauses['orderby'] = 'mbr.ID';
 
 		$where            = sprintf(
 			"mbr.type = %s AND mbr.$direction IN (%s)",

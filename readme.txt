@@ -4,7 +4,7 @@ Donate link: https://metabox.io/pricing/
 Tags: cms, custom, custom post types, custom post type, cpt, post, post types, post type, types, relationship, relationships, posts to posts, post relationship, post relationships
 Requires at least: 4.8
 Tested up to: 4.9.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 
 A lightweight solution for creating many-to-many posts to posts relationships.
