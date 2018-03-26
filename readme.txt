@@ -1,7 +1,7 @@
 === MB Relationships ===
 Contributors: metabox, rilwis
 Donate link: https://metabox.io/pricing/
-Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships, meta-box, cms, custom, custom post types, custom post type, cpt, post, post types, post type, types
+Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
 Tested up to: 4.9.4
 Stable tag: 1.1.2
