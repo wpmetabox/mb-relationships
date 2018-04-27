@@ -18,14 +18,19 @@ add_filter( 'the_content', function ( $content ) {
 		return $content;
 	}
 	$sibling_posts = get_posts( array(
-		'taxonomy'     => 'category',
 		'relationship' => array(
 			'id'      => 'categories_to_posts',
-			'from'    => get_the_ID(),
+			'to'      => get_the_ID(),
 			'sibling' => true,
 		),
 	) );
-	$output = '<ul>';
+	global $wpdb;
+//	echo '<pre>';
+//	var_dump( $sibling_posts );
+//	echo '</pre>';
+//	var_dump( $wpdb->last_query );
+	$output = '<p><strong>Sibling</strong></p>';
+	$output .= '<ul>';
 	foreach ( $sibling_posts as $sibling_post ) {
 		$output .= '<li>' . $sibling_post->post_title . '</li>';
 	}

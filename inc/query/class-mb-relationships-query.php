@@ -44,14 +44,32 @@ class MB_Relationships_Query {
 		$fields            = "mbr.$direction AS mb_origin";
 		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 
+		if ( ! empty( $this->args['sibling'] ) ) {
+			$ids = implode( ',', $items );
+			$items = "(
+				SELECT DISTINCT `{$connected}` 
+				FROM {$wpdb->mb_relationships} 
+				WHERE `type` = {$wpdb->prepare( '%s', $this->args['id'] )} 
+				AND `{$direction}` IN ({$ids})
+			)";
+			$tmp = $direction;
+			$direction = $connected;
+			$connected = $tmp;
+		}
+
 		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
 		$clauses['orderby'] = 'mbr.ID';
 
 		$where            = sprintf(
 			"mbr.type = %s AND mbr.$direction IN (%s)",
 			$wpdb->prepare( '%s', $this->args['id'] ),
-			implode( ',', $items )
+			is_array( $items ) ? implode( ',', $items ) : $items
 		);
+
+		if ( ! empty( $this->args['sibling'] ) ) {
+			$where .= " AND mbr.$connected NOT IN ($ids)";
+		}
+
 		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
 
 		return $clauses;

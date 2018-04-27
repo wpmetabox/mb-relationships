@@ -36,25 +36,10 @@ class MB_Relationships_Query_Normalizer {
 		$relationship     = $this->factory->get( $args['id'] );
 		$args['id_field'] = $relationship->get_db_field( $direction );
 
-		if ( ! empty( $args['sibling'] ) ) {
-			$args['exclude'] = $args[ $direction ];
-			$items = get_posts( array(
-				'relationship' => array(
-					'id'   => $args['id'],
-					'from' => $args[ $direction ],
-				),
-				'nopaging'     => true,
-				'fields'       => 'ids',
-			) );
-
-			$args['direction'] = 'from' === $direction ? 'to' : 'from';
-			$args['items'] = $items;
-		} else {
-			$args['direction'] = $direction;
-			$items         = $args[ $direction ];
-			$items         = $this->get_ids( $items, $args['id_field'] );
-			$args['items'] = $items;
-		}
+		$args['direction'] = $direction;
+		$items         = $args[ $direction ];
+		$items         = $this->get_ids( $items, $args['id_field'] );
+		$args['items'] = $items;
 
 		unset( $args[ $direction ] );
 	}
