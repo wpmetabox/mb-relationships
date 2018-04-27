@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## Unreleased
 
+## 1.2.0 - 2018-04-27
+### Added
+- Added API to get siblings items.
+
 ## 1.1.2 - 2018-03-08
 ### Fixed
 - Fixed output of related posts with the same order as in the backend.

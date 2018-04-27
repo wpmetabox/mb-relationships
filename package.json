@@ -1,7 +1,0 @@
-{
-  "scripts": {
-    "zip": "git archive -o mb-relationships.zip --prefix=mb-relationships/ HEAD",
-    "upload": "scp mb-relationships.zip metabox:/var/www/metabox.io/downloads",
-    "release": "npm run zip && npm run upload"
-  }
-}
