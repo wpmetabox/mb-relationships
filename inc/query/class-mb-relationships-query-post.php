@@ -45,12 +45,7 @@ class MB_Relationships_Query_Post {
 		if ( ! $args ) {
 			return;
 		}
-
 		$this->normalizer->normalize( $args );
-		if ( ! empty( $args['exclude'] ) ) {
-			$query->set( 'post__not_in', (array) $args['exclude'] );
-		}
-
 		$query->set( 'relationship', $args );
 
 		$query->relationship_query = new MB_Relationships_Query( $args );
