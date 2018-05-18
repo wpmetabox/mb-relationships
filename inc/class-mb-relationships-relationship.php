@@ -38,6 +38,10 @@ class MB_Relationships_Relationship {
 	 * @var wpdb
 	 */
 	protected $db;
+	
+	protected $from_type;
+	
+	protected $to_type;
 
 	/**
 	 * Register a relationship.
@@ -173,6 +177,102 @@ class MB_Relationships_Relationship {
 	 */
 	public function init() {
 		add_filter( 'rwmb_meta_boxes', array( $this, 'register_meta_boxes' ) );
+		
+		$this->from_type = $this->settings['from']['object_type'];
+		$this->to_type = $this->settings['to']['object_type'];
+		
+		switch ( $this->from_type ) {
+			case 'post':
+				$post_type = $this->settings['from']['post_type'];
+				if ( 'post' === $post_type ) {
+					add_filter( 'manage_posts_columns', array( $this, 'post_to_columns' ) );
+					add_action( 'manage_posts_custom_column', array( $this, 'post_to_column_data' ), 10, 2 );
+				} elseif ( 'page' === $post_type ) {
+					add_filter( 'manage_pages_columns', array( $this, 'post_to_columns' ) );
+					add_action( 'manage_pages_custom_column', array( $this, 'post_to_column_data' ), 10, 2 );
+				} else {
+					add_filter( "manage_{$post_type}_posts_columns", array( $this, 'post_to_columns' ) );
+					add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_to_column_data' ), 10, 2 );
+				}
+				
+		}
+		
+		switch ( $this->to_type ) {
+			case 'post':
+				$post_type = $this->settings['to']['post_type'];
+				if ( 'post' === $post_type ) {
+					add_filter( 'manage_posts_columns', array( $this, 'post_from_columns' ) );
+					add_action( 'manage_posts_custom_column', array( $this, 'post_from_column_data' ), 10, 2 );
+				} elseif ( 'page' === $post_type ) {
+					add_filter( 'manage_pages_columns', array( $this, 'post_from_columns' ) );
+					add_action( 'manage_pages_custom_column', array( $this, 'post_from_column_data' ), 10, 2 );
+				} else {
+					add_filter( "manage_{$post_type}_posts_columns", array( $this, 'post_from_columns' ) );
+					add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
+				}
+				
+		}
+		// echo '<pre>'; print_r( $this->settings ); echo '</pre>';
+	}
+	
+	public function post_from_columns( $columns ) {
+		$columns['from'] = __( 'From', 'mb-relationships' );
+		return $columns;
+	}
+	
+	public function post_from_column_data( $column_name, $post_id ) {
+		if ( 'from' !== $column_name ) {
+			return;
+		}
+		
+		switch ( $this->from_type ) {
+			case 'post':
+				$related = get_posts( array(
+					'relationship' => array(
+						'id' => $this->settings['id'],
+						'to' => $post_id,
+					),
+					'nopaging'     => true,
+					'fields'       => 'ids',
+				) );
+				if ( $related ) {
+					echo '<ul>';
+					foreach ( $related as $value ) {
+						printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink( $value ) ), esc_html( get_the_title( $value ) ) );
+					}
+					echo '</ul>';
+				}
+		}
+	}
+	
+	public function post_to_columns( $columns ) {
+		$columns['to'] = __( 'To', 'mb-relationships' );
+		return $columns;
+	}
+	
+	public function post_to_column_data( $column_name, $post_id ) {
+		if ( 'to' !== $column_name ) {
+			return;
+		}
+		
+		switch ( $this->from_type ) {
+			case 'post':
+				$related = get_posts( array(
+					'relationship' => array(
+						'id'   => $this->settings['id'],
+						'from' => $post_id,
+					),
+					'nopaging'     => true,
+					'fields'       => 'ids',
+				) );
+				if ( $related ) {
+					echo '<ul>';
+					foreach ( $related as $value ) {
+						printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink( $value ) ), esc_html( get_the_title( $value ) ) );
+					}
+					echo '</ul>';
+				}
+		}
 	}
 
 	/**
