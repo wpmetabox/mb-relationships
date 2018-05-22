@@ -184,95 +184,114 @@ class MB_Relationships_Relationship {
 		switch ( $this->from_type ) {
 			case 'post':
 				$post_type = $this->settings['from']['post_type'];
-				if ( 'post' === $post_type ) {
-					add_filter( 'manage_posts_columns', array( $this, 'post_to_columns' ) );
-					add_action( 'manage_posts_custom_column', array( $this, 'post_to_column_data' ), 10, 2 );
-				} elseif ( 'page' === $post_type ) {
-					add_filter( 'manage_pages_columns', array( $this, 'post_to_columns' ) );
-					add_action( 'manage_pages_custom_column', array( $this, 'post_to_column_data' ), 10, 2 );
-				} else {
-					add_filter( "manage_{$post_type}_posts_columns", array( $this, 'post_to_columns' ) );
-					add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_to_column_data' ), 10, 2 );
-				}
+				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'to_columns' ) );
+				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_to_column_data' ), 10, 2 );
+				break;
 				
+			case 'term':
+				$taxonomy = $this->settings['from']['taxonomy'];
+				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'to_columns' ) );
+				add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'term_to_column_data' ), 10, 3 );
+				break;
 		}
 		
 		switch ( $this->to_type ) {
 			case 'post':
 				$post_type = $this->settings['to']['post_type'];
-				if ( 'post' === $post_type ) {
-					add_filter( 'manage_posts_columns', array( $this, 'post_from_columns' ) );
-					add_action( 'manage_posts_custom_column', array( $this, 'post_from_column_data' ), 10, 2 );
-				} elseif ( 'page' === $post_type ) {
-					add_filter( 'manage_pages_columns', array( $this, 'post_from_columns' ) );
-					add_action( 'manage_pages_custom_column', array( $this, 'post_from_column_data' ), 10, 2 );
-				} else {
-					add_filter( "manage_{$post_type}_posts_columns", array( $this, 'post_from_columns' ) );
-					add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
-				}
+				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'from_columns' ) );
+				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
+				break;
 				
+			case 'term':
+				$taxonomy = $this->settings['to']['taxonomy'];
+				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'from_columns' ) );
+				break;
 		}
 		// echo '<pre>'; print_r( $this->settings ); echo '</pre>';
 	}
 	
-	public function post_from_columns( $columns ) {
-		$columns['from'] = __( 'From', 'mb-relationships' );
+	public function from_columns( $columns ) {
+		$columns[ $this->settings['id'] . '_from'] = $this->settings['meta_box']['label'] . __( 'From', 'mb-relationships' );
 		return $columns;
 	}
 	
-	public function post_from_column_data( $column_name, $post_id ) {
-		if ( 'from' !== $column_name ) {
-			return;
-		}
-		
-		switch ( $this->from_type ) {
+	protected function get_column_data( $object_id, $object_type, $direction = 'from' ) {
+		$output = '';
+		switch ( $object_type ) {
 			case 'post':
 				$related = get_posts( array(
 					'relationship' => array(
-						'id' => $this->settings['id'],
-						'to' => $post_id,
+						'id'       => $this->settings['id'],
+						$direction => $object_id,
 					),
 					'nopaging'     => true,
 					'fields'       => 'ids',
 				) );
 				if ( $related ) {
-					echo '<ul>';
+					$output .= '<ul>';
 					foreach ( $related as $value ) {
-						printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink( $value ) ), esc_html( get_the_title( $value ) ) );
+						$output .= sprintf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink( $value ) ), esc_html( get_the_title( $value ) ) );
 					}
-					echo '</ul>';
+					$output .= '</ul>';
 				}
+				break;
+			
+			case 'term':
+				$related = get_terms( array(
+					'hide_empty'   => false,
+					'relationship' => array(
+						'id'       => $this->settings['id'],
+						$direction => $object_id,
+					),
+				) );
+				if ( $related ) {
+					$output .= '<ul>';
+					foreach ( $related as $term ) {
+						$output .= sprintf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_term_link( $term ) ), esc_html( $term->name ) );
+					}
+					$output .= '</ul>';
+				}
+				break;
 		}
+		
+		return $output;
 	}
 	
-	public function post_to_columns( $columns ) {
-		$columns['to'] = __( 'To', 'mb-relationships' );
+	public function post_from_column_data( $column_name, $post_id ) {
+		if ( $this->settings['id'] . '_from' !== $column_name ) {
+			return;
+		}
+		
+		echo $this->get_column_data( $post_id, $this->from_type, 'to' );
+	}
+	
+	public function term_from_column_data( $content, $column_name, $term_id ) {
+		if ( $this->settings['id'] . '_from' !== $column_name ) {
+			return $content;
+		}
+		
+		return $this->get_column_data( $term_id, $this->from_type, 'to' );
+	}
+	
+	public function to_columns( $columns ) {
+		$columns[ $this->settings['id'] . '_to'] = $this->settings['meta_box']['label'] . __( 'To', 'mb-relationships' );
 		return $columns;
 	}
 	
 	public function post_to_column_data( $column_name, $post_id ) {
-		if ( 'to' !== $column_name ) {
+		if ( $this->settings['id'] . '_to' !== $column_name ) {
 			return;
 		}
 		
-		switch ( $this->from_type ) {
-			case 'post':
-				$related = get_posts( array(
-					'relationship' => array(
-						'id'   => $this->settings['id'],
-						'from' => $post_id,
-					),
-					'nopaging'     => true,
-					'fields'       => 'ids',
-				) );
-				if ( $related ) {
-					echo '<ul>';
-					foreach ( $related as $value ) {
-						printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink( $value ) ), esc_html( get_the_title( $value ) ) );
-					}
-					echo '</ul>';
-				}
+		echo $this->get_column_data( $post_id, $this->to_type, 'from' );
+	}
+	
+	public function term_to_column_data( $content, $column_name, $term_id ) {
+		if ( $this->settings['id'] . '_to' !== $column_name ) {
+			return $content;
 		}
+		
+		return $this->get_column_data( $term_id, $this->to_type, 'from' );
 	}
 
 	/**
