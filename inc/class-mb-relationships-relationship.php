@@ -193,6 +193,11 @@ class MB_Relationships_Relationship {
 				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'to_columns' ) );
 				add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'term_to_column_data' ), 10, 3 );
 				break;
+				
+			case 'user':
+				add_filter( 'manage_users_columns', array( $this, 'to_columns' ) );
+				add_filter( 'manage_users_custom_column', array( $this, 'term_to_column_data' ), 10, 3 );
+				break;
 		}
 		
 		switch ( $this->to_type ) {
@@ -206,8 +211,12 @@ class MB_Relationships_Relationship {
 				$taxonomy = $this->settings['to']['taxonomy'];
 				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'from_columns' ) );
 				break;
+				
+			case 'user':
+				add_filter( 'manage_users_columns', array( $this, 'from_columns' ) );
+				add_filter( 'manage_users_custom_column', array( $this, 'term_to_column_data' ), 10, 3 );
+				break;
 		}
-		// echo '<pre>'; print_r( $this->settings ); echo '</pre>';
 	}
 	
 	public function from_columns( $columns ) {
@@ -252,6 +261,21 @@ class MB_Relationships_Relationship {
 					$output .= '</ul>';
 				}
 				break;
+				
+			case 'user':
+				$related  = get_users( array(
+					'relationship' => array(
+						'id' => 'users_to_posts',
+						'to' => get_the_ID(),
+					),
+				) );
+				if ( $related ) {
+					$output .= '<ul>';
+					foreach ( $related as $user ) {
+						$output .= sprintf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_edit_user_link( $user->ID ) ), esc_html( $user->display_name ) );
+					}
+					$output .= '</ul>';
+				}
 		}
 		
 		return $output;
