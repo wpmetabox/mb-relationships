@@ -36,7 +36,6 @@ class MB_Relationships_Query {
 	 */
 	public function alter_clauses( &$clauses, $id_column ) {
 		global $wpdb;
-
 		$direction = $this->args['direction'];
 		$connected = 'from' === $direction ? 'to' : 'from';
 		$items     = array_map( 'absint', $this->args['items'] );
@@ -58,7 +57,7 @@ class MB_Relationships_Query {
 		}
 
 		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
-		$clauses['orderby'] = 'mbr.ID';
+		$clauses['orderby'] = 't.term_id' === $id_column ? 'ORDER BY mbr.ID' : 'mbr.ID';
 
 		$where            = sprintf(
 			"mbr.type = %s AND mbr.$direction IN (%s)",
