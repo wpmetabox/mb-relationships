@@ -184,14 +184,32 @@ class MB_Relationships_Relationship {
 		switch ( $this->from_type ) {
 			case 'post':
 				$post_type = $this->settings['from']['post_type'];
+				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'from_columns' ) );
+				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
+				break;
+				
+			case 'term':
+				$taxonomy = $this->settings['from']['taxonomy'];
+				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'from_columns' ) );
+				add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'term_from_column_data' ), 10, 3 );
+				break;
+				
+			case 'user':
+				add_filter( 'manage_users_columns', array( $this, 'from_columns' ) );
+				add_filter( 'manage_users_custom_column', array( $this, 'term_from_column_data' ), 10, 3 );
+				break;
+		}
+		
+		switch ( $this->to_type ) {
+			case 'post':
+				$post_type = $this->settings['to']['post_type'];
 				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'to_columns' ) );
 				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_to_column_data' ), 10, 2 );
 				break;
 				
 			case 'term':
-				$taxonomy = $this->settings['from']['taxonomy'];
+				$taxonomy = $this->settings['to']['taxonomy'];
 				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'to_columns' ) );
-				add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'term_to_column_data' ), 10, 3 );
 				break;
 				
 			case 'user':
@@ -199,29 +217,6 @@ class MB_Relationships_Relationship {
 				add_filter( 'manage_users_custom_column', array( $this, 'term_to_column_data' ), 10, 3 );
 				break;
 		}
-		
-		switch ( $this->to_type ) {
-			case 'post':
-				$post_type = $this->settings['to']['post_type'];
-				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'from_columns' ) );
-				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
-				break;
-				
-			case 'term':
-				$taxonomy = $this->settings['to']['taxonomy'];
-				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'from_columns' ) );
-				break;
-				
-			case 'user':
-				add_filter( 'manage_users_columns', array( $this, 'from_columns' ) );
-				add_filter( 'manage_users_custom_column', array( $this, 'term_to_column_data' ), 10, 3 );
-				break;
-		}
-	}
-	
-	public function from_columns( $columns ) {
-		$columns[ $this->settings['id'] . '_from'] = $this->settings['meta_box']['label'] . __( 'From', 'mb-relationships' );
-		return $columns;
 	}
 	
 	protected function get_column_data( $object_id, $object_type, $direction = 'from' ) {
@@ -281,28 +276,12 @@ class MB_Relationships_Relationship {
 		return $output;
 	}
 	
-	public function post_from_column_data( $column_name, $post_id ) {
-		if ( $this->settings['id'] . '_from' !== $column_name ) {
-			return;
-		}
-		
-		echo $this->get_column_data( $post_id, $this->from_type, 'to' );
-	}
-	
-	public function term_from_column_data( $content, $column_name, $term_id ) {
-		if ( $this->settings['id'] . '_from' !== $column_name ) {
-			return $content;
-		}
-		
-		return $this->get_column_data( $term_id, $this->from_type, 'to' );
-	}
-	
-	public function to_columns( $columns ) {
-		$columns[ $this->settings['id'] . '_to'] = $this->settings['meta_box']['label'] . __( 'To', 'mb-relationships' );
+	public function from_columns( $columns ) {
+		$columns[ $this->settings['id'] . '_to'] = $this->settings['from']['meta_box']['title'];
 		return $columns;
 	}
 	
-	public function post_to_column_data( $column_name, $post_id ) {
+	public function post_from_column_data( $column_name, $post_id ) {
 		if ( $this->settings['id'] . '_to' !== $column_name ) {
 			return;
 		}
@@ -310,12 +289,33 @@ class MB_Relationships_Relationship {
 		echo $this->get_column_data( $post_id, $this->to_type, 'from' );
 	}
 	
-	public function term_to_column_data( $content, $column_name, $term_id ) {
+	public function term_from_column_data( $content, $column_name, $term_id ) {
 		if ( $this->settings['id'] . '_to' !== $column_name ) {
 			return $content;
 		}
 		
 		return $this->get_column_data( $term_id, $this->to_type, 'from' );
+	}
+	
+	public function to_columns( $columns ) {
+		$columns[ $this->settings['id'] . '_from'] = $this->settings['to']['meta_box']['title'];
+		return $columns;
+	}
+	
+	public function post_to_column_data( $column_name, $post_id ) {
+		if ( $this->settings['id'] . '_from' !== $column_name ) {
+			return;
+		}
+		
+		echo $this->get_column_data( $post_id, $this->from_type, 'to' );
+	}
+	
+	public function term_to_column_data( $content, $column_name, $term_id ) {
+		if ( $this->settings['id'] . '_from' !== $column_name ) {
+			return $content;
+		}
+		
+		return $this->get_column_data( $term_id, $this->from_type, 'to' );
 	}
 
 	/**

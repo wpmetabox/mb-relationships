@@ -5,7 +5,7 @@ add_action( 'mb_relationships_init', function () {
 		'from' => array(
 			'object_type' => 'user',
 			'meta_box'    => array(
-				'label'       => 'Manages',
+				'title'       => 'Manages',
 				'field_title' => 'Select Posts',
 			),
 		),
@@ -13,7 +13,7 @@ add_action( 'mb_relationships_init', function () {
 			'object_type' => 'post',
 			'post_type'   => 'post',
 			'meta_box'    => array(
-				'label'         => 'Managed By',
+				'title'         => 'Managed By',
 				'context'       => 'side',
 				'empty_message' => 'No users',
 			),
