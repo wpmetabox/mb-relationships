@@ -4,6 +4,7 @@ add_action( 'mb_relationships_init', function () {
 		'id'   => 'users_to_posts',
 		'from' => array(
 			'object_type' => 'user',
+			'admin_column' => 'after username',
 			'meta_box'    => array(
 				'title'       => 'Manages',
 				'field_title' => 'Select Posts',
@@ -12,6 +13,7 @@ add_action( 'mb_relationships_init', function () {
 		'to'   => array(
 			'object_type' => 'post',
 			'post_type'   => 'post',
+			'admin_column' => true,
 			'meta_box'    => array(
 				'title'         => 'Managed By',
 				'context'       => 'side',

@@ -181,41 +181,45 @@ class MB_Relationships_Relationship {
 		$this->from_type = $this->settings['from']['object_type'];
 		$this->to_type = $this->settings['to']['object_type'];
 		
-		switch ( $this->from_type ) {
-			case 'post':
-				$post_type = $this->settings['from']['post_type'];
-				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'from_columns' ) );
-				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
-				break;
-				
-			case 'term':
-				$taxonomy = $this->settings['from']['taxonomy'];
-				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'from_columns' ) );
-				add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'term_from_column_data' ), 10, 3 );
-				break;
-				
-			case 'user':
-				add_filter( 'manage_users_columns', array( $this, 'from_columns' ) );
-				add_filter( 'manage_users_custom_column', array( $this, 'term_from_column_data' ), 10, 3 );
-				break;
+		if ( ! empty( $this->settings['from']['admin_column'] ) ) {
+			switch ( $this->from_type ) {
+				case 'post':
+					$post_type = $this->settings['from']['post_type'];
+					add_filter( "manage_{$post_type}_posts_columns", array( $this, 'from_columns' ) );
+					add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_from_column_data' ), 10, 2 );
+					break;
+					
+				case 'term':
+					$taxonomy = $this->settings['from']['taxonomy'];
+					add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'from_columns' ) );
+					add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'term_from_column_data' ), 10, 3 );
+					break;
+					
+				case 'user':
+					add_filter( 'manage_users_columns', array( $this, 'from_columns' ) );
+					add_filter( 'manage_users_custom_column', array( $this, 'term_from_column_data' ), 10, 3 );
+					break;
+			}
 		}
 		
-		switch ( $this->to_type ) {
-			case 'post':
-				$post_type = $this->settings['to']['post_type'];
-				add_filter( "manage_{$post_type}_posts_columns", array( $this, 'to_columns' ) );
-				add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_to_column_data' ), 10, 2 );
-				break;
-				
-			case 'term':
-				$taxonomy = $this->settings['to']['taxonomy'];
-				add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'to_columns' ) );
-				break;
-				
-			case 'user':
-				add_filter( 'manage_users_columns', array( $this, 'to_columns' ) );
-				add_filter( 'manage_users_custom_column', array( $this, 'term_to_column_data' ), 10, 3 );
-				break;
+		if ( ! empty( $this->settings['to']['admin_column'] ) ) {
+			switch ( $this->to_type ) {
+				case 'post':
+					$post_type = $this->settings['to']['post_type'];
+					add_filter( "manage_{$post_type}_posts_columns", array( $this, 'to_columns' ) );
+					add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'post_to_column_data' ), 10, 2 );
+					break;
+					
+				case 'term':
+					$taxonomy = $this->settings['to']['taxonomy'];
+					add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'to_columns' ) );
+					break;
+					
+				case 'user':
+					add_filter( 'manage_users_columns', array( $this, 'to_columns' ) );
+					add_filter( 'manage_users_custom_column', array( $this, 'term_to_column_data' ), 10, 3 );
+					break;
+			}
 		}
 	}
 	
@@ -275,9 +279,82 @@ class MB_Relationships_Relationship {
 		
 		return $output;
 	}
+
+	/**
+	 * Add a new column.
+	 *
+	 * @param array  $columns  Array of columns.
+	 * @param string $id       New column ID.
+	 * @param string $title    New column title.
+	 * @param string $position New column position. Empty to not specify the position. Could be 'before', 'after' or 'replace'.
+	 * @param string $target   The target column. Used with combination with $position.
+	 */
+	protected function add_column( &$columns, $id, $title, $position = '', $target = '' ) {
+		// Just add new column.
+		if ( ! $position ) {
+			$columns[ $id ] = $title;
+			return;
+		}
+
+		// Add new column in a specific position.
+		$new = array();
+		switch ( $position ) {
+			case 'replace':
+				foreach ( $columns as $key => $value ) {
+					if ( $key === $target ) {
+						$new[ $id ] = $title;
+					} else {
+						$new[ $key ] = $value;
+					}
+				}
+				break;
+			case 'before':
+				foreach ( $columns as $key => $value ) {
+					if ( $key === $target ) {
+						$new[ $id ] = $title;
+					}
+					$new[ $key ] = $value;
+				}
+				break;
+			case 'after':
+				foreach ( $columns as $key => $value ) {
+					$new[ $key ] = $value;
+					if ( $key === $target ) {
+						$new[ $id ] = $title;
+					}
+				}
+				break;
+			default:
+				return;
+		}
+		$columns = $new;
+	}
 	
 	public function from_columns( $columns ) {
-		$columns[ $this->settings['id'] . '_to'] = $this->settings['from']['meta_box']['title'];
+		$config = $this->settings['from']['admin_column'];
+		
+		if ( true === $config ) {
+			$this->add_column( $columns, $this->settings['id'] . '_to', $this->settings['from']['meta_box']['title'] );
+			return $columns;
+		}
+
+		// If position is specified.
+		if ( is_string( $config ) ) {
+			$config = strtolower( $config );
+			list( $position, $target ) = array_map( 'trim', explode( ' ', $config . ' ' ) );
+			$this->add_column( $columns, $this->settings['id'] . '_to', $this->settings['from']['meta_box']['title'], $position, $target );
+		}
+
+		// If an array of configuration is specified.
+		if ( is_array( $config ) ) {
+			$config = wp_parse_args( $config, array(
+				'position' => '',
+				'title'    => $this->settings['from']['meta_box']['title'],
+			) );
+			list( $position, $target ) = array_map( 'trim', explode( ' ', $config['position'] . ' ' ) );
+			$this->add_column( $columns, $this->settings['id'] . '_to', $config['title'], $position, $target );
+		}
+		
 		return $columns;
 	}
 	
@@ -298,7 +375,30 @@ class MB_Relationships_Relationship {
 	}
 	
 	public function to_columns( $columns ) {
-		$columns[ $this->settings['id'] . '_from'] = $this->settings['to']['meta_box']['title'];
+		$config = $this->settings['to']['admin_column'];
+		
+		if ( true === $config ) {
+			$this->add_column( $columns, $this->settings['id'] . '_from', $this->settings['to']['meta_box']['title'] );
+			return $columns;
+		}
+
+		// If position is specified.
+		if ( is_string( $config ) ) {
+			$config = strtolower( $config );
+			list( $position, $target ) = array_map( 'trim', explode( ' ', $config . ' ' ) );
+			$this->add_column( $columns, $this->settings['id'] . '_from', $this->settings['to']['meta_box']['title'], $position, $target );
+		}
+
+		// If an array of configuration is specified.
+		if ( is_array( $config ) ) {
+			$config = wp_parse_args( $config, array(
+				'position' => '',
+				'title'    => $this->settings['to']['meta_box']['title'],
+			) );
+			list( $position, $target ) = array_map( 'trim', explode( ' ', $config['position'] . ' ' ) );
+			$this->add_column( $columns, $this->settings['id'] . '_from', $config['title'], $position, $target );
+		}
+		
 		return $columns;
 	}
 	
