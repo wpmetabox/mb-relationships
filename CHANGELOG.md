@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## Unreleased
 
+## 1.3.0 - 2018-05-25
+### Added
+- Added support for admin columns. See [documentation](https://docs.metabox.io/extensions/mb-relationships/) for details.
+
 ## 1.2.0 - 2018-04-27
 ### Added
 - Added API to get siblings items.

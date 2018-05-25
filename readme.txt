@@ -1,10 +1,10 @@
 === MB Relationships ===
-Contributors: metabox, rilwis
+Contributors: metabox, rilwis, truongwp
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
-Tested up to: 4.9.5
-Stable tag: 1.2.0
+Tested up to: 4.9.6
+Stable tag: 1.3.0
 License: GPLv2 or later
 
 A lightweight solution for creating many-to-many posts to posts relationships.
