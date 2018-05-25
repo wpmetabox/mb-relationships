@@ -264,8 +264,8 @@ class MB_Relationships_Relationship {
 			case 'user':
 				$related  = get_users( array(
 					'relationship' => array(
-						'id' => 'users_to_posts',
-						'to' => get_the_ID(),
+						'id'       => $this->settings['id'],
+						$direction => $object_id,
 					),
 				) );
 				if ( $related ) {
