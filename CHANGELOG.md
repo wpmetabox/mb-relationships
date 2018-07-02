@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## Unreleased
 
+## 1.3.1 - 2018-07-02
+### Changed
+- Remove `'post_type' => 'any'` in the query for relationship, which causes unexpected behaviour with post types that have `'exclude_from_search' => true`. Developers should always set `post_type` in their queries. See https://bit.ly/2lPvnPk.
+
 ## 1.3.0 - 2018-05-25
 ### Added
 - Added support for admin columns. See [documentation](https://docs.metabox.io/extensions/mb-relationships/) for details.
