@@ -1,0 +1,34 @@
+{
+  "name": "wpmetabox/mb-relationships",
+  "type": "library",
+  "keywords": [
+    "wordpress",
+    "ui",
+    "select2",
+    "wp-admin",
+    "meta-box",
+    "wordpress-plugin",
+    "custom-field",
+    "relationships",
+    "relationship",
+    "connection",
+    "connections"
+  ],
+  "description": "A lightweight solution for creating many-to-many posts to posts relationships in WordPress.",
+  "homepage": "https://metabox.io/plugins/mb-relationships/",
+  "license": "GPL-2.0",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "Tran Ngoc Tuan Anh",
+      "email": "anhtnt@elightup.com",
+      "homepage": "https://deluxeblogtips.com",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "files": [
+      "mb-relationships.php"
+    ]
+  }
+}
