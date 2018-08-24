@@ -145,7 +145,7 @@ class MB_Relationships_Relationship {
 	 * @return string
 	 */
 	public function get_object_type( $side ) {
-		return $this->$side['object_type'];
+		return $this->{$side}['object_type'];
 	}
 
 	/**
