@@ -127,6 +127,8 @@ class MB_Relationships_Relationship_Factory {
 			'query_args'  => array(),
 			'meta_box'    => array(
 				'hidden'        => false,
+				'autosave'      => false,
+				'closed'        => false,
 				'context'       => 'side',
 				'priority'      => 'low',
 				'title'         => $title,

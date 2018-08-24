@@ -21,6 +21,8 @@ class MB_Relationships_Post implements MB_Relationships_Object_Interface {
 		$settings = array(
 			'context'    => $args['meta_box']['context'],
 			'priority'   => $args['meta_box']['priority'],
+			'autosave'   => $args['meta_box']['autosave'],
+			'closed'     => $args['meta_box']['closed'],
 			'post_types' => $args['post_type'],
 		);
 		return $settings;
