@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## Unreleased
 
+## 1.4.0 - 2018-08-24
+### Added
+- Added 'closed' and 'autosave' param to relationship meta boxes.
+
+### Fixed
+- Fixed indirect variable access in PHP 5.x.
+
 ## 1.3.2 - 2018-07-02
 ### Changed
 - Reverted the `'post_type' => 'any'` as it relates to many queries.
