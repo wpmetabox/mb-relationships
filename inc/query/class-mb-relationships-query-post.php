@@ -49,7 +49,12 @@ class MB_Relationships_Query_Post {
 		$query->set( 'relationship', $args );
 
 		$query->relationship_query = new MB_Relationships_Query( $args );
-		$query->set( 'post_type', 'any' );
+
+		$post_type = $query->get( 'post_type' );
+		info( $post_type );
+		if ( ! $post_type ) {
+			$query->set( 'post_type', 'any' );
+		}
 		$query->set( 'suppress_filters', false );
 		$query->set( 'ignore_sticky_posts', true );
 
