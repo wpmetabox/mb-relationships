@@ -51,7 +51,6 @@ class MB_Relationships_Query_Post {
 		$query->relationship_query = new MB_Relationships_Query( $args );
 
 		$post_type = $query->get( 'post_type' );
-		info( $post_type );
 		if ( ! $post_type ) {
 			$query->set( 'post_type', 'any' );
 		}
