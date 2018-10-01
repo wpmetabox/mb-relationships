@@ -227,7 +227,7 @@ class MB_Relationships_Relationship {
 		$output = '';
 		switch ( $object_type ) {
 			case 'post':
-				$related = get_posts( array(
+				$query = new WP_Query( array(
 					'relationship' => array(
 						'id'       => $this->settings['id'],
 						$direction => $object_id,
@@ -235,13 +235,16 @@ class MB_Relationships_Relationship {
 					'nopaging'     => true,
 					'fields'       => 'ids',
 				) );
-				if ( $related ) {
-					$output .= '<ul>';
-					foreach ( $related as $value ) {
-						$output .= sprintf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink( $value ) ), esc_html( get_the_title( $value ) ) );
-					}
-					$output .= '</ul>';
+				if ( ! $query->have_posts() ) {
+					break;
 				}
+				$output .= '<ul>';
+				while ( $query->have_posts() ) {
+					$query->the_post();
+					$output .= sprintf( '<li><a href="%1$s">%2$s</a></li>', esc_url( get_permalink() ), esc_html( get_the_title() ) );
+				}
+				wp_reset_postdata();
+				$output .= '</ul>';
 				break;
 
 			case 'term':
