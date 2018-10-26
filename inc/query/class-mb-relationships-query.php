@@ -29,8 +29,9 @@ class MB_Relationships_Query {
 	/**
 	 * Modify the WordPress query to get connected object.
 	 *
-	 * @param array  $clauses   Query clauses.
-	 * @param string $id_column Database column for object ID.
+	 * @param array  	$clauses   			Query clauses.
+	 * @param string 	$id_column 			Database column for object ID.
+	 * @param boolean 	$pass_thru_order 	If TRUE use the WP_Query orderby clause
 	 *
 	 * @return mixed
 	 */
