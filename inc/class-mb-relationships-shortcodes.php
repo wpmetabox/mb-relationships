@@ -61,13 +61,16 @@ class MB_Relationships_Shortcodes {
 		$object_type = $relationship->get_object_type( $connected );
 		$object      = $this->obj_factory->build( $object_type );
 
-		$atts = shortcode_atts( array(
-			'id'        => '',
-			'items'     => $object->get_current_id(),
-			'direction' => 'from',
-			'mode'      => 'ul',
-			'separator' => '',
-		), $atts );
+		$atts = shortcode_atts(
+			array(
+				'id'        => '',
+				'items'     => $object->get_current_id(),
+				'direction' => 'from',
+				'mode'      => 'ul',
+				'separator' => '',
+			),
+			$atts
+		);
 
 		$atts[ $atts['direction'] ] = $atts['items'];
 

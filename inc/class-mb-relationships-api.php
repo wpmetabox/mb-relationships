@@ -134,10 +134,13 @@ class MB_Relationships_API {
 	 * @param array $query_vars Extra query variables.
 	 */
 	public static function each_connected( $args, $query_vars = array() ) {
-		$args         = wp_parse_args( $args, array(
-			'id'       => '',
-			'property' => 'connected',
-		) );
+		$args         = wp_parse_args(
+			$args,
+			array(
+				'id'       => '',
+				'property' => 'connected',
+			)
+		);
 		$relationship = self::$factory->get( $args['id'] );
 		if ( ! $relationship ) {
 			return;
@@ -161,9 +164,12 @@ class MB_Relationships_API {
 	 * @return array
 	 */
 	public static function get_connected( $args ) {
-		$args         = wp_parse_args( $args, array(
-			'id' => '',
-		) );
+		$args         = wp_parse_args(
+			$args,
+			array(
+				'id' => '',
+			)
+		);
 		$relationship = self::$factory->get( $args['id'] );
 		if ( ! $relationship ) {
 			return array();

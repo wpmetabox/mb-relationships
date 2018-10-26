@@ -76,9 +76,12 @@ class MB_Relationships_Query_User {
 	 * @return array
 	 */
 	public function query( $args, $query_vars, $relationship ) {
-		$query_vars = wp_parse_args( $query_vars, array(
-			'relationship' => $args,
-		) );
+		$query_vars = wp_parse_args(
+			$query_vars,
+			array(
+				'relationship' => $args,
+			)
+		);
 		return get_users( $query_vars );
 	}
 }

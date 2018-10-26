@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## Unreleased
 
+## 1.4.1 - 2018-10-26
+### Fixed
+ - Fixed cannot query for posts excluded from search.
+ - Fixed not showing entries in admin columns.
+
 ## 1.4.0 - 2018-08-24
 ### Added
 - Added 'closed' and 'autosave' param to relationship meta boxes.

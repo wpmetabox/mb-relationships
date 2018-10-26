@@ -40,26 +40,26 @@ class MB_Relationships_Query {
 		$connected = 'from' === $direction ? 'to' : 'from';
 		$items     = array_map( 'absint', $this->args['items'] );
 
-		$fields            = "mbr.$direction AS mb_origin";
+		$fields             = "mbr.$direction AS mb_origin";
 		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 
 		if ( ! empty( $this->args['sibling'] ) ) {
-			$ids = implode( ',', $items );
-			$items = "(
+			$ids       = implode( ',', $items );
+			$items     = "(
 				SELECT DISTINCT `{$connected}` 
 				FROM {$wpdb->mb_relationships} 
 				WHERE `type` = {$wpdb->prepare( '%s', $this->args['id'] )} 
 				AND `{$direction}` IN ({$ids})
 			)";
-			$tmp = $direction;
+			$tmp       = $direction;
 			$direction = $connected;
 			$connected = $tmp;
 		}
 
-		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
+		$clauses['join']   .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
 		$clauses['orderby'] = 't.term_id' === $id_column ? 'ORDER BY mbr.ID' : 'mbr.ID';
 
-		$where            = sprintf(
+		$where = sprintf(
 			"mbr.type = %s AND mbr.$direction IN (%s)",
 			$wpdb->prepare( '%s', $this->args['id'] ),
 			is_array( $items ) ? implode( ',', $items ) : $items

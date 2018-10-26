@@ -78,10 +78,14 @@ class MB_Relationships_Relationship {
 	 * @return bool
 	 */
 	public function has( $from, $to ) {
-		$rel_id = $this->db->get_var( $this->db->prepare(
-			"SELECT `ID` FROM {$this->db->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
-			$from, $to, $this->id
-		) );
+		$rel_id = $this->db->get_var(
+			$this->db->prepare(
+				"SELECT `ID` FROM {$this->db->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
+				$from,
+				$to,
+				$this->id
+			)
+		);
 
 		return (bool) $rel_id;
 	}
@@ -227,14 +231,16 @@ class MB_Relationships_Relationship {
 		$output = '';
 		switch ( $object_type ) {
 			case 'post':
-				$query = new WP_Query( array(
-					'relationship' => array(
-						'id'       => $this->settings['id'],
-						$direction => $object_id,
-					),
-					'nopaging'     => true,
-					'fields'       => 'ids',
-				) );
+				$query = new WP_Query(
+					array(
+						'relationship' => array(
+							'id'       => $this->settings['id'],
+							$direction => $object_id,
+						),
+						'nopaging'     => true,
+						'fields'       => 'ids',
+					)
+				);
 				if ( ! $query->have_posts() ) {
 					break;
 				}
@@ -248,13 +254,15 @@ class MB_Relationships_Relationship {
 				break;
 
 			case 'term':
-				$related = get_terms( array(
-					'hide_empty'   => false,
-					'relationship' => array(
-						'id'       => $this->settings['id'],
-						$direction => $object_id,
-					),
-				) );
+				$related = get_terms(
+					array(
+						'hide_empty'   => false,
+						'relationship' => array(
+							'id'       => $this->settings['id'],
+							$direction => $object_id,
+						),
+					)
+				);
 				if ( $related ) {
 					$output .= '<ul>';
 					foreach ( $related as $term ) {
@@ -265,12 +273,14 @@ class MB_Relationships_Relationship {
 				break;
 
 			case 'user':
-				$related = get_users( array(
-					'relationship' => array(
-						'id'       => $this->settings['id'],
-						$direction => $object_id,
-					),
-				) );
+				$related = get_users(
+					array(
+						'relationship' => array(
+							'id'       => $this->settings['id'],
+							$direction => $object_id,
+						),
+					)
+				);
 				if ( $related ) {
 					$output .= '<ul>';
 					foreach ( $related as $user ) {
@@ -343,17 +353,20 @@ class MB_Relationships_Relationship {
 
 		// If position is specified.
 		if ( is_string( $config ) ) {
-			$config = strtolower( $config );
+			$config                    = strtolower( $config );
 			list( $position, $target ) = array_map( 'trim', explode( ' ', $config . ' ' ) );
 			$this->add_column( $columns, $this->settings['id'] . '_to', $this->settings['from']['meta_box']['title'], $position, $target );
 		}
 
 		// If an array of configuration is specified.
 		if ( is_array( $config ) ) {
-			$config = wp_parse_args( $config, array(
-				'position' => '',
-				'title'    => $this->settings['from']['meta_box']['title'],
-			) );
+			$config                    = wp_parse_args(
+				$config,
+				array(
+					'position' => '',
+					'title'    => $this->settings['from']['meta_box']['title'],
+				)
+			);
 			list( $position, $target ) = array_map( 'trim', explode( ' ', $config['position'] . ' ' ) );
 			$this->add_column( $columns, $this->settings['id'] . '_to', $config['title'], $position, $target );
 		}
@@ -387,17 +400,20 @@ class MB_Relationships_Relationship {
 
 		// If position is specified.
 		if ( is_string( $config ) ) {
-			$config = strtolower( $config );
+			$config                    = strtolower( $config );
 			list( $position, $target ) = array_map( 'trim', explode( ' ', $config . ' ' ) );
 			$this->add_column( $columns, $this->settings['id'] . '_from', $this->settings['to']['meta_box']['title'], $position, $target );
 		}
 
 		// If an array of configuration is specified.
 		if ( is_array( $config ) ) {
-			$config = wp_parse_args( $config, array(
-				'position' => '',
-				'title'    => $this->settings['to']['meta_box']['title'],
-			) );
+			$config                    = wp_parse_args(
+				$config,
+				array(
+					'position' => '',
+					'title'    => $this->settings['to']['meta_box']['title'],
+				)
+			);
 			list( $position, $target ) = array_map( 'trim', explode( ' ', $config['position'] . ' ' ) );
 			$this->add_column( $columns, $this->settings['id'] . '_from', $config['title'], $position, $target );
 		}

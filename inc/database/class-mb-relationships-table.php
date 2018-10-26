@@ -34,7 +34,7 @@ class MB_Relationships_Table {
 	 * Create shared table for all relationships.
 	 */
 	public function create() {
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// Create new table.
 		$sql = "

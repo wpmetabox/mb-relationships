@@ -81,7 +81,7 @@ class MB_Relationships_Storage_Handler {
 	 * @param int $object_id Object ID.
 	 */
 	public function delete_object_data( $object_id ) {
-		$object_type = str_replace( array( 'deleted_', 'delete_' ), '', current_filter() );
+		$object_type   = str_replace( array( 'deleted_', 'delete_' ), '', current_filter() );
 		$relationships = $this->factory->filter_by( $object_type );
 		foreach ( $relationships as $relationship ) {
 			$this->delete_object_relationships( $object_id, $relationship->id );
@@ -96,11 +96,13 @@ class MB_Relationships_Storage_Handler {
 	 */
 	protected function delete_object_relationships( $object_id, $type ) {
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)",
-			$type,
-			$object_id,
-			$object_id
-		) );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)",
+				$type,
+				$object_id,
+				$object_id
+			)
+		);
 	}
 }

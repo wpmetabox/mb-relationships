@@ -59,11 +59,13 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		public function get( $object_id, $meta_key, $args = false ) {
 			$target = $this->get_direction( $meta_key );
 			$origin = 'to' === $target ? 'from' : 'to';
-			return $this->db->get_col( $this->db->prepare(
-				"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s",
-				$object_id,
-				$this->get_type( $meta_key )
-			) );
+			return $this->db->get_col(
+				$this->db->prepare(
+					"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s",
+					$object_id,
+					$this->get_type( $meta_key )
+				)
+			);
 		}
 
 		/**
@@ -134,10 +136,13 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		public function delete( $object_id, $meta_key = '', $meta_value = '', $delete_all = false ) {
 			$type   = $this->get_type( $meta_key );
 			$origin = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
-			$this->db->delete( $this->table, array(
-				$origin => $object_id,
-				'type'  => $type,
-			) );
+			$this->db->delete(
+				$this->table,
+				array(
+					$origin => $object_id,
+					'type'  => $type,
+				)
+			);
 			return true;
 		}
 
@@ -154,9 +159,9 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 
 		/**
 		 * Get relationship direction from submitted field name "{$type}_to" or "{$type}_from".
-		 * 
+		 *
 		 * @param string $name Submitted field name.
-		 * 
+		 *
 		 * @return string
 		 */
 		protected function get_direction( $name ) {

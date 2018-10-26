@@ -66,15 +66,21 @@ class MB_Relationships_Query_Term {
 	 * @return array
 	 */
 	public function query( $args, $query_vars, $relationship ) {
-		$query_vars = wp_parse_args( $query_vars, array(
-			'relationship' => $args,
-		) );
-		$connected = isset( $args['from'] ) ? 'to' : 'from';
+		$query_vars = wp_parse_args(
+			$query_vars,
+			array(
+				'relationship' => $args,
+			)
+		);
+		$connected  = isset( $args['from'] ) ? 'to' : 'from';
 		$settings   = $relationship->$connected;
-		$query_vars = wp_parse_args( $query_vars, array(
-			'taxonomy'   => $settings['taxonomy'],
-			'hide_empty' => false,
-		) );
+		$query_vars = wp_parse_args(
+			$query_vars,
+			array(
+				'taxonomy'   => $settings['taxonomy'],
+				'hide_empty' => false,
+			)
+		);
 		return get_terms( $query_vars );
 	}
 }

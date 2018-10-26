@@ -100,11 +100,14 @@ class MB_Relationships_Relationship_Factory {
 	 * @return array
 	 */
 	protected function normalize( $settings ) {
-		$settings         = wp_parse_args( $settings, array(
-			'id'   => '',
-			'from' => '',
-			'to'   => '',
-		) );
+		$settings         = wp_parse_args(
+			$settings,
+			array(
+				'id'   => '',
+				'from' => '',
+				'to'   => '',
+			)
+		);
 		$settings['from'] = $this->normalize_side( $settings['from'], 'from' );
 		$settings['to']   = $this->normalize_side( $settings['to'], 'to' );
 

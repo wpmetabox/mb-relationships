@@ -37,9 +37,9 @@ class MB_Relationships_Query_Normalizer {
 		$args['id_field'] = $relationship->get_db_field( $direction );
 
 		$args['direction'] = $direction;
-		$items         = $args[ $direction ];
-		$items         = $this->get_ids( $items, $args['id_field'] );
-		$args['items'] = $items;
+		$items             = $args[ $direction ];
+		$items             = $this->get_ids( $items, $args['id_field'] );
+		$args['items']     = $items;
 
 		unset( $args[ $direction ] );
 	}
