@@ -79,7 +79,7 @@ class MB_Relationships_Query_Post {
 			return $clauses;
 		}
 
-		return $query->relationship_query->alter_clauses( $clauses, "$wpdb->posts.ID" );
+		return $query->relationship_query->alter_clauses( $clauses, "$wpdb->posts.ID", $query->get( 'orderby' ) );
 	}
 
 	/**
