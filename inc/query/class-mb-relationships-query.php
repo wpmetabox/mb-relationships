@@ -58,9 +58,8 @@ class MB_Relationships_Query {
 		}
 
 		$clauses['join']   .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
-
 		if ( ! $pass_thru_order ) {
-			$clauses['orderby'] = 't.term_id' === $id_column ? 'ORDER BY mbr.ID' : 'mbr.ID';
+			$clauses['orderby'] = 't.term_id' === $id_column ? 'ORDER BY mbr.order_'. $direction : 'mbr.order_'. $direction;
 		}
 
 		$where = sprintf(
@@ -74,7 +73,7 @@ class MB_Relationships_Query {
 		}
 
 		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
-
+		
 		return $clauses;
 	}
 }

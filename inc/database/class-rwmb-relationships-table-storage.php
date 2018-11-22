@@ -59,9 +59,11 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		public function get( $object_id, $meta_key, $args = false ) {
 			$target = $this->get_direction( $meta_key );
 			$origin = 'to' === $target ? 'from' : 'to';
+			$order_by_key = 'order_'. $origin;
+			
 			return $this->db->get_col(
 				$this->db->prepare(
-					"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s",
+					"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s ORDER BY {$order_by_key}",
 					$object_id,
 					$this->get_type( $meta_key )
 				)
@@ -94,25 +96,60 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool
 		 */
 		public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
+			$meta_arrary = $order_item = array();
+			$target      = $this->get_direction( $meta_key );
+			$origin      = 'to' === $target ? 'from' : 'to';
+			$order_item  = $this->check_relationship( $object_id, $target, $origin );
+
 			$this->delete( $object_id, $meta_key );
-			$meta_value = array_filter( (array) $meta_value );
-			$target     = $this->get_direction( $meta_key );
-			$origin     = 'to' === $target ? 'from' : 'to';
-			$type       = $this->get_type( $meta_key );
-			foreach ( $meta_value as $value ) {
-				$this->db->insert(
-					$this->table,
-					array(
-						$origin => $object_id,
-						$target => $value,
-						'type'  => $type,
-					),
-					array(
-						'%d',
-						'%d',
-						'%s',
-					)
-				);
+			$meta_value  = array_filter( (array) $meta_value );
+			$type        = $this->get_type( $meta_key );
+			
+			foreach ( $meta_value as $field ) {
+				$value   = isset( $order_item[ $field ] ) ? $order_item[ $field ] : 0;
+				$meta_arrary[$field] = $value;
+			}
+			
+			$x = 0;
+			foreach ( $meta_arrary as $key => $value ) {
+				$x++;
+				if ( $origin === 'to' ) {
+					$this->db->insert(
+						$this->table,
+						array(
+							$origin => $object_id,
+							$target => $key,
+							'type'  => $type,
+							'order_to'  => $x,
+							'order_from' => $value,
+						),
+						array(
+							'%d',
+							'%d',
+							'%s',
+							'%d',
+							'%d',
+						)
+					);
+				} else {
+					$this->db->insert(
+						$this->table,
+						array(
+							$origin => $object_id,
+							$target => $key,
+							'type'  => $type,
+							'order_from'  => $x,
+							'order_to'  => $value,
+						),
+						array(
+							'%d',
+							'%d',
+							'%s',
+							'%d',
+							'%d',
+						)
+					);
+				}
 			}
 			return true;
 		}
@@ -167,5 +204,19 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		protected function get_direction( $name ) {
 			return '_to' === substr( $name, -3 ) ? 'to' : 'from';
 		}
+
+		protected function check_relationship( $object_id, $targets, $origins ) {
+			global $wpdb;
+			$order_item = array();
+			$items = $wpdb->get_results( 
+				$wpdb->prepare( "SELECT * FROM {$this->table} WHERE `{$origins}`=%d", $object_id ) 
+			);
+			$order = 'order_' . $targets;
+			foreach ( $items as $key => $item ) {
+				$order_item[$item->$targets] = $item->$order;
+			}
+			return $order_item;
+		}
+
 	}
 }
