@@ -43,6 +43,8 @@ class MB_Relationships_Table {
 				`from` bigint(20) unsigned NOT NULL,
 				`to` bigint(20) unsigned NOT NULL,
 				`type` varchar(44) NOT NULL default '',
+				`order_from` bigint(20) unsigned NOT NULL,
+				`order_to` bigint(20) unsigned NOT NULL,
 				PRIMARY KEY  (`ID`),
 				KEY `from` (`from`),
 				KEY `to` (`to`),
