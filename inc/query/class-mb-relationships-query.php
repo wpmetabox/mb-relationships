@@ -29,13 +29,13 @@ class MB_Relationships_Query {
 	/**
 	 * Modify the WordPress query to get connected object.
 	 *
-	 * @param array  	$clauses   			Query clauses.
-	 * @param string 	$id_column 			Database column for object ID.
-	 * @param boolean 	$pass_thru_order 	If TRUE use the WP_Query orderby clause
+	 * @param array   $clauses            Query clauses.
+	 * @param string  $id_column          Database column for object ID.
+	 * @param boolean $pass_thru_order    If TRUE use the WP_Query orderby clause.
 	 *
 	 * @return mixed
 	 */
-	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = FALSE ) {
+	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
 		global $wpdb;
 		$direction = $this->args['direction'];
 		$connected = 'from' === $direction ? 'to' : 'from';
@@ -47,9 +47,9 @@ class MB_Relationships_Query {
 		if ( ! empty( $this->args['sibling'] ) ) {
 			$ids       = implode( ',', $items );
 			$items     = "(
-				SELECT DISTINCT `{$connected}` 
-				FROM {$wpdb->mb_relationships} 
-				WHERE `type` = {$wpdb->prepare( '%s', $this->args['id'] )} 
+				SELECT DISTINCT `{$connected}`
+				FROM {$wpdb->mb_relationships}
+				WHERE `type` = {$wpdb->prepare( '%s', $this->args['id'] )}
 				AND `{$direction}` IN ({$ids})
 			)";
 			$tmp       = $direction;
@@ -57,9 +57,10 @@ class MB_Relationships_Query {
 			$connected = $tmp;
 		}
 
-		$clauses['join']   .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
+		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
 		if ( ! $pass_thru_order ) {
-			$clauses['orderby'] = 't.term_id' === $id_column ? 'ORDER BY mbr.order_'. $direction : 'mbr.order_'. $direction;
+			$orderby            = "mbr.order_$direction";
+			$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
 		}
 
 		$where = sprintf(
@@ -73,7 +74,7 @@ class MB_Relationships_Query {
 		}
 
 		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
-		
+
 		return $clauses;
 	}
 }

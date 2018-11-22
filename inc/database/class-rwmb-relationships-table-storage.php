@@ -57,13 +57,13 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return mixed Single metadata value, or array of values.
 		 */
 		public function get( $object_id, $meta_key, $args = false ) {
-			$target = $this->get_direction( $meta_key );
-			$origin = 'to' === $target ? 'from' : 'to';
-			$order_by_key = 'order_'. $origin;
-			
+			$target       = $this->get_direction( $meta_key );
+			$origin       = 'to' === $target ? 'from' : 'to';
+			$order_column = "order_$origin";
+
 			return $this->db->get_col(
 				$this->db->prepare(
-					"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s ORDER BY {$order_by_key}",
+					"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s ORDER BY {$order_column}",
 					$object_id,
 					$this->get_type( $meta_key )
 				)
@@ -96,60 +96,41 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool
 		 */
 		public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
-			$meta_arrary = $order_item = array();
-			$target      = $this->get_direction( $meta_key );
-			$origin      = 'to' === $target ? 'from' : 'to';
-			$order_item  = $this->check_relationship( $object_id, $target, $origin );
+			$meta_value = array_filter( (array) $meta_value );
+			$target     = $this->get_direction( $meta_key );
+			$origin     = 'to' === $target ? 'from' : 'to';
+			$type       = $this->get_type( $meta_key );
+
+			$order = $this->get_target_order( $object_id, $type, $origin, $target );
+
+			$values = array();
+			foreach ( $meta_value as $id ) {
+				$value         = isset( $order[ $id ] ) ? $order[ $id ] : 0;
+				$values[ $id ] = $value;
+			}
 
 			$this->delete( $object_id, $meta_key );
-			$meta_value  = array_filter( (array) $meta_value );
-			$type        = $this->get_type( $meta_key );
-			
-			foreach ( $meta_value as $field ) {
-				$value   = isset( $order_item[ $field ] ) ? $order_item[ $field ] : 0;
-				$meta_arrary[$field] = $value;
-			}
-			
+
 			$x = 0;
-			foreach ( $meta_arrary as $key => $value ) {
+			foreach ( $values as $id => $order ) {
 				$x++;
-				if ( $origin === 'to' ) {
-					$this->db->insert(
-						$this->table,
-						array(
-							$origin => $object_id,
-							$target => $key,
-							'type'  => $type,
-							'order_to'  => $x,
-							'order_from' => $value,
-						),
-						array(
-							'%d',
-							'%d',
-							'%s',
-							'%d',
-							'%d',
-						)
-					);
-				} else {
-					$this->db->insert(
-						$this->table,
-						array(
-							$origin => $object_id,
-							$target => $key,
-							'type'  => $type,
-							'order_from'  => $x,
-							'order_to'  => $value,
-						),
-						array(
-							'%d',
-							'%d',
-							'%s',
-							'%d',
-							'%d',
-						)
-					);
-				}
+				$this->db->insert(
+					$this->table,
+					array(
+						$origin         => $object_id,
+						$target         => $id,
+						'type'          => $type,
+						"order_$origin" => $x,
+						"order_$target" => $order,
+					),
+					array(
+						'%d',
+						'%d',
+						'%s',
+						'%d',
+						'%d',
+					)
+				);
 			}
 			return true;
 		}
@@ -205,18 +186,33 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 			return '_to' === substr( $name, -3 ) ? 'to' : 'from';
 		}
 
-		protected function check_relationship( $object_id, $targets, $origins ) {
+		/**
+		 * Get existing order of connected objects (in the target column).
+		 *
+		 * @param  int    $object_id Object ID.
+		 * @param  string $type      Relationship ID.
+		 * @param  string $origin    Origin column. 'from' or 'to'.
+		 * @param  string $target    Target column. 'from' or 'to'.
+		 * @return array             Array of [object_id => order].
+		 */
+		protected function get_target_order( $object_id, $type, $origin, $target ) {
 			global $wpdb;
-			$order_item = array();
-			$items = $wpdb->get_results( 
-				$wpdb->prepare( "SELECT * FROM {$this->table} WHERE `{$origins}`=%d", $object_id ) 
+			$items = $wpdb->get_results(
+				$wpdb->prepare(
+					"
+						SELECT `{$target}` AS `id`, `order_{$target}` AS `order`
+						FROM {$this->table}
+						WHERE `{$origin}` = %d AND `type` = %s
+					",
+					$object_id,
+					$type
+				)
 			);
-			$order = 'order_' . $targets;
+			$order = array();
 			foreach ( $items as $key => $item ) {
-				$order_item[$item->$targets] = $item->$order;
+				$order[ $item->id ] = $item->order;
 			}
-			return $order_item;
+			return $order;
 		}
-
 	}
 }
