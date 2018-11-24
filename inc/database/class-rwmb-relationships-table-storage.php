@@ -19,21 +19,6 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		protected $table;
 
 		/**
-		 * WPDB object.
-		 *
-		 * @var wpdb
-		 */
-		public $db;
-
-		/**
-		 * RWMB_Table_Storage constructor.
-		 */
-		public function __construct() {
-			global $wpdb;
-			$this->db = $wpdb;
-		}
-
-		/**
 		 * Set the table name.
 		 *
 		 * @param string $table Table name.
@@ -57,12 +42,14 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return mixed Single metadata value, or array of values.
 		 */
 		public function get( $object_id, $meta_key, $args = false ) {
+			global $wpdb;
+
 			$target       = $this->get_direction( $meta_key );
 			$origin       = 'to' === $target ? 'from' : 'to';
 			$order_column = "order_$origin";
 
-			return $this->db->get_col(
-				$this->db->prepare(
+			return $wpdb->get_col(
+				$wpdb->prepare(
 					"SELECT `{$target}` FROM {$this->table} WHERE `{$origin}`=%d AND `type`=%s ORDER BY {$order_column}",
 					$object_id,
 					$this->get_type( $meta_key )
@@ -96,6 +83,8 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool
 		 */
 		public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
+			global $wpdb;
+
 			$meta_value = array_filter( (array) $meta_value );
 			$target     = $this->get_direction( $meta_key );
 			$origin     = 'to' === $target ? 'from' : 'to';
@@ -114,7 +103,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 			$x = 0;
 			foreach ( $values as $id => $order ) {
 				$x++;
-				$this->db->insert(
+				$wpdb->insert(
 					$this->table,
 					array(
 						$origin         => $object_id,
@@ -152,9 +141,12 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 * @return bool True on successful delete, false on failure.
 		 */
 		public function delete( $object_id, $meta_key = '', $meta_value = '', $delete_all = false ) {
+			global $wpdb;
+
 			$type   = $this->get_type( $meta_key );
 			$origin = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
-			$this->db->delete(
+
+			$wpdb->delete(
 				$this->table,
 				array(
 					$origin => $object_id,
@@ -197,6 +189,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 		 */
 		protected function get_target_order( $object_id, $type, $origin, $target ) {
 			global $wpdb;
+
 			$items = $wpdb->get_results(
 				$wpdb->prepare(
 					"
