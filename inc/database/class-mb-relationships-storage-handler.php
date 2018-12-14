@@ -53,12 +53,14 @@ class MB_Relationships_Storage_Handler {
 	 * @return mixed
 	 */
 	public function filter_storage( $storage, $object_type, $meta_box ) {
+		global $wpdb;
+
 		if ( ! $meta_box || ! $this->is_relationships( $meta_box ) ) {
 			return $storage;
 		}
 		if ( ! $this->storage ) {
 			$this->storage = new RWMB_Relationships_Table_Storage();
-			$this->storage->set_table( $this->storage->db->mb_relationships );
+			$this->storage->set_table( $wpdb->mb_relationships );
 		}
 
 		return $this->storage;
