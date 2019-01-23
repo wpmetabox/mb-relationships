@@ -36,3 +36,28 @@ add_filter(
 		return $content . $output;
 	}
 );
+add_filter(
+	'the_content',
+	function ( $content ) {
+		if ( ! is_page() ) {
+			return $content;
+		}
+		$related = new WP_Query(
+			array(
+				'relationship' => array(
+					'id' => 'posts_to_pages',
+					'to' => get_the_ID(),
+				),
+				'nopaging'     => true,
+			)
+		);
+		$output  = '<ul>';
+		while ( $related->have_posts() ) {
+			$related->the_post();
+			$output .= '<li>' . get_the_title() . '</li>';
+		}
+		wp_reset_postdata();
+		$output .= '</ul>';
+		return $content . $output;
+	}
+);

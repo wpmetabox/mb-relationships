@@ -11,13 +11,6 @@
  */
 class MB_Relationships_Loader {
 	/**
-	 * Reference to table object.
-	 *
-	 * @var MB_Relationships_Table
-	 */
-	protected $table;
-
-	/**
 	 * Detect if the relationships table is created.
 	 *
 	 * @var bool
@@ -82,9 +75,8 @@ class MB_Relationships_Loader {
 	protected function create_table() {
 		require 'database/class-mb-relationships-table.php';
 
-		global $wpdb;
-		$this->table = new MB_Relationships_Table( $wpdb );
-		$this->table->create();
+		$table = new MB_Relationships_Table();
+		$table->create();
 	}
 
 	/**

@@ -32,13 +32,6 @@ class MB_Relationships_Relationship {
 	 */
 	protected $to_object;
 
-	/**
-	 * The wpdb object.
-	 *
-	 * @var wpdb
-	 */
-	protected $db;
-
 	protected $from_type;
 
 	protected $to_type;
@@ -53,9 +46,6 @@ class MB_Relationships_Relationship {
 		$this->settings    = $settings;
 		$this->from_object = $object_factory->build( $this->from['object_type'] );
 		$this->to_object   = $object_factory->build( $this->to['object_type'] );
-
-		global $wpdb;
-		$this->db = $wpdb;
 	}
 
 	/**
@@ -78,9 +68,11 @@ class MB_Relationships_Relationship {
 	 * @return bool
 	 */
 	public function has( $from, $to ) {
-		$rel_id = $this->db->get_var(
-			$this->db->prepare(
-				"SELECT `ID` FROM {$this->db->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
+		global $wpdb;
+
+		$rel_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT `ID` FROM {$wpdb->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
 				$from,
 				$to,
 				$this->id
@@ -99,12 +91,14 @@ class MB_Relationships_Relationship {
 	 * @return bool
 	 */
 	public function add( $from, $to ) {
+		global $wpdb;
+
 		if ( $this->has( $from, $to ) ) {
 			return false;
 		}
 
-		return $this->db->insert(
-			$this->db->mb_relationships,
+		return $wpdb->insert(
+			$wpdb->mb_relationships,
 			array(
 				'from' => $from,
 				'to'   => $to,
@@ -127,12 +121,14 @@ class MB_Relationships_Relationship {
 	 * @return bool
 	 */
 	public function delete( $from, $to ) {
+		global $wpdb;
+
 		if ( ! $this->has( $from, $to ) ) {
 			return false;
 		}
 
-		return $this->db->delete(
-			$this->db->mb_relationships,
+		return $wpdb->delete(
+			$wpdb->mb_relationships,
 			array(
 				'from' => $from,
 				'to'   => $to,

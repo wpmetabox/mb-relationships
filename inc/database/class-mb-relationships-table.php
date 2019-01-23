@@ -11,43 +11,38 @@
  */
 class MB_Relationships_Table {
 	/**
-	 * Store the global database connector.
-	 *
-	 * @var wpdb
-	 */
-	protected $db;
-
-	/**
 	 * Constructor.
-	 *
-	 * @param wpdb $wpdb The WordPress global database connector.
 	 */
-	public function __construct( wpdb $wpdb ) {
-		$this->db = $wpdb;
+	public function __construct() {
+		global $wpdb;
 
 		// Register new table.
-		$this->db->tables[]         = 'mb_relationships';
-		$this->db->mb_relationships = $this->db->prefix . 'mb_relationships';
+		$wpdb->tables[]         = 'mb_relationships';
+		$wpdb->mb_relationships = $wpdb->prefix . 'mb_relationships';
 	}
 
 	/**
 	 * Create shared table for all relationships.
 	 */
 	public function create() {
+		global $wpdb;
+
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// Create new table.
 		$sql = "
-			CREATE TABLE {$this->db->mb_relationships} (
+			CREATE TABLE {$wpdb->mb_relationships} (
 				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				`from` bigint(20) unsigned NOT NULL,
 				`to` bigint(20) unsigned NOT NULL,
 				`type` varchar(44) NOT NULL default '',
+				`order_from` bigint(20) unsigned NOT NULL,
+				`order_to` bigint(20) unsigned NOT NULL,
 				PRIMARY KEY  (`ID`),
 				KEY `from` (`from`),
 				KEY `to` (`to`),
 				KEY `type` (`type`)
-			) COLLATE {$this->db->collate};
+			) COLLATE {$wpdb->collate};
 		";
 		dbDelta( $sql );
 	}
