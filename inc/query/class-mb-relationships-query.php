@@ -37,6 +37,40 @@ class MB_Relationships_Query {
 	 */
 	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
 		global $wpdb;
+
+		if ( isset( $this->args['relation'] ) ) {
+
+			$join_type 			= $this->args['relation'];
+			$criteria 			= '';
+
+			foreach ( $this->args as $key => $value ) {
+				if ( 'relation' === $key ) {
+					continue;
+				}
+				$direction	= $value['direction'];
+				$source		= 'from' === $direction ? 'to' : 'from';
+				$target		= 'from' !== $direction ? 'to' : 'from';
+				$items		= array_map( 'absint', $value['items'] );
+
+				if ( strlen( $criteria ) > 0 ) {
+					$criteria .= " $join_type ";
+				}
+
+				$criteria .= sprintf(
+					" (mbr.$target = $id_column AND mbr.type = %s AND mbr.$source = %s) ",
+					$wpdb->prepare( '%s', $value['id'] ),
+					$items[0]
+				);
+			}
+
+			if ( strlen( $criteria ) > 0 ) {
+				$clauses['join']	.= " INNER JOIN $wpdb->mb_relationships AS mbr ON ";
+				$clauses['join'] .= $criteria;
+			}
+
+			return $clauses;
+		}
+
 		$direction = $this->args['direction'];
 		$connected = 'from' === $direction ? 'to' : 'from';
 		$items     = array_map( 'absint', $this->args['items'] );
