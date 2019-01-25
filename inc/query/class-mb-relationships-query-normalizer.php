@@ -32,16 +32,22 @@ class MB_Relationships_Query_Normalizer {
 	 * @param array $args Query arguments.
 	 */
 	public function normalize( &$args ) {
-		$direction        = isset( $args['from'] ) ? 'from' : 'to';
-		$relationship     = $this->factory->get( $args['id'] );
-		$args['id_field'] = $relationship->get_db_field( $direction );
+		// Query by single relationship.
+		if ( ! isset( $args['relation'] ) ) {
+			$args = $this->normalize_args( $args );
+			return;
+		}
 
-		$args['direction'] = $direction;
-		$items             = $args[ $direction ];
-		$items             = $this->get_ids( $items, $args['id_field'] );
-		$args['items']     = $items;
-
-		unset( $args[ $direction ] );
+		// Query by multiple relationships.
+		$new_args = array(
+			'relation' => $args['relation'],
+		);
+		unset( $args['relation'] );
+		foreach ( $args as $value ) {
+			$value = $this->normalize_args( $value );
+			array_push( $new_args, $value );
+		}
+		$args = $new_args;
 	}
 
 	/**
@@ -56,5 +62,25 @@ class MB_Relationships_Query_Normalizer {
 		$items = (array) $items;
 		$first = reset( $items );
 		return is_numeric( $first ) ? $items : wp_list_pluck( $items, $id_field );
+	}
+
+	/**
+	 * Normalizes single relationship query arguments.
+	 *
+	 * @param array $args Query arguments.
+	 */
+	protected function normalize_args( $args ) {
+		$direction        = isset( $args['from'] ) ? 'from' : 'to';
+		$relationship     = $this->factory->get( $args['id'] );
+		$args['id_field'] = $relationship->get_db_field( $direction );
+
+		$args['direction'] = $direction;
+		$items             = $args[ $direction ];
+		$items             = $this->get_ids( $items, $args['id_field'] );
+		$args['items']     = $items;
+
+		unset( $args[ $direction ] );
+
+		return $args;
 	}
 }
