@@ -32,28 +32,22 @@ class MB_Relationships_Query_Normalizer {
 	 * @param array $args Query arguments.
 	 */
 	public function normalize( &$args ) {
-		// Multiple relationship type args
-		if ( isset( $args['relation'] ) ) {
-			$new_args = array(
-				'relation' => $args['relation']
-			);
-			foreach ( $args as $key => $value ) {
-				if ( 'relation' === $key ) {
-					continue;
-				}
-				
-				$value = $this->normalize_args( $value );
-
-				array_push( $new_args, $value );
-
-			}
-
-			$args = $new_args;
+		// Query by single relationship.
+		if ( ! isset( $args['relation'] ) ) {
+			$args = $this->normalize_args( $args );
 			return;
 		}
 
-		// Single relationship type args
-		$args = $this->normalize_args( $args );
+		// Query by multiple relationships.
+		$new_args = array(
+			'relation' => $args['relation'],
+		);
+		unset( $args['relation'] );
+		foreach ( $args as $value ) {
+			$value = $this->normalize_args( $value );
+			array_push( $new_args, $value );
+		}
+		$args = $new_args;
 	}
 
 	/**
@@ -71,9 +65,9 @@ class MB_Relationships_Query_Normalizer {
 	}
 
 	/**
-	 * Normalizes relationship query argument array
+	 * Normalizes single relationship query arguments.
 	 *
-	 * @param array $args Query arguments	
+	 * @param array $args Query arguments.
 	 */
 	protected function normalize_args( $args ) {
 		$direction        = isset( $args['from'] ) ? 'from' : 'to';
