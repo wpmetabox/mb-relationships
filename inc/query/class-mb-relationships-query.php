@@ -29,53 +29,21 @@ class MB_Relationships_Query {
 	/**
 	 * Modify the WordPress query to get connected object.
 	 *
-	 * @param array   $clauses            Query clauses.
-	 * @param string  $id_column          Database column for object ID.
-	 * @param boolean $pass_thru_order    If TRUE use the WP_Query orderby clause.
+	 * @param array  	$clauses   			Query clauses.
+	 * @param string 	$id_column 			Database column for object ID.
+	 * @param boolean 	$pass_thru_order 	If TRUE use the WP_Query orderby clause
 	 *
 	 * @return mixed
 	 */
-	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
+	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = FALSE ) {
 		global $wpdb;
+		$clauses = $this->handle_query_join( $clauses, $id_column, $pass_thru_order, $this->args );
+		$where   = $this->handle_query_where( $clauses, $this->args );
 
-		if ( isset( $this->args['relation'] ) ) {
-
-			$join_type = $this->args['relation'];
-			$criteria  = '';
-			unset( $this->args['relation'] );
-
-			foreach ( $this->args as $key => $value ) {
-				$direction = $value['direction'];
-				$source    = $direction;
-				$target    = 'from' === $direction ? 'to' : 'from';
-				$items     = array_map( 'absint', $value['items'] );
-
-				if ( strlen( $criteria ) > 0 ) {
-					$criteria .= " $join_type ";
-				}
-
-				$criteria .= sprintf(
-					" (mbr.$target = $id_column AND mbr.type = %s AND mbr.$source = %s) ",
-					$wpdb->prepare( '%s', $value['id'] ),
-					$items[0]
-				);
-			}
-
-			if ( $criteria ) {
-				$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $criteria";
-			}
-
-			return $clauses;
-		}
-
-		$direction = $this->args['direction'];
-		$connected = 'from' === $direction ? 'to' : 'from';
-		$items     = array_map( 'absint', $this->args['items'] );
-
-		$fields             = "mbr.$direction AS mb_origin";
-		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
-
-		if ( ! empty( $this->args['sibling'] ) ) {
+		if ( ! isset( $this->args['relation'] ) && ! empty( $this->args['sibling'] ) ) {
+			$direction = $this->args['direction'];
+			$connected = 'from' === $direction ? 'to' : 'from';
+			$items     = array_map( 'absint', $this->args['items'] );
 			$ids       = implode( ',', $items );
 			$items     = "(
 				SELECT DISTINCT `{$connected}`
@@ -86,26 +54,91 @@ class MB_Relationships_Query {
 			$tmp       = $direction;
 			$direction = $connected;
 			$connected = $tmp;
-		}
 
-		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
-		if ( ! $pass_thru_order ) {
-			$orderby            = "mbr.order_$direction";
-			$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
-		}
+			$clauses['join'] = " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$connected = $id_column";
 
-		$where = sprintf(
-			"mbr.type = %s AND mbr.$direction IN (%s)",
-			$wpdb->prepare( '%s', $this->args['id'] ),
-			is_array( $items ) ? implode( ',', $items ) : $items
-		);
-
-		if ( ! empty( $this->args['sibling'] ) ) {
+			$where = sprintf(
+				"mbr.type = %s AND mbr.$direction IN (%s)",
+				$wpdb->prepare( '%s', $this->args['id'] ),
+				is_array( $items ) ? implode( ',', $items ) : $items
+			);
 			$where .= " AND mbr.$connected NOT IN ($ids)";
 		}
-
 		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
 
 		return $clauses;
+	}
+
+	public function handle_query_join( &$clauses, $id_column, $pass_thru_order, $args ) {
+		global $wpdb;
+		$join_type = '';
+		$criteria  = '';
+		$query     = array();
+
+		if ( isset( $args['relation'] ) ) {
+			$join_type = $args['relation'];
+			unset( $args['relation'] );
+			$query     = $args;
+		} else {
+			$query[] = $args;
+		}
+
+		foreach ( $query as $key => $value ) {
+			$direction = $value['direction'];
+			$source    = $direction;
+			$target    = 'from' === $direction ? 'to' : 'from';
+			$items     = array_map( 'absint', $value['items'] );
+
+			if ( strlen( $criteria ) > 0 ) {
+				$criteria .= " $join_type ";
+			}
+
+			if ( ! $pass_thru_order ) {
+				$orderby            = "mbr.order_$direction";
+				$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
+			}
+
+			$fields             = "mbr.$direction AS mb_origin";
+			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
+
+			$criteria .= sprintf(
+				" (mbr.$target = $id_column AND mbr.type = %s AND mbr.$source = %s) ",
+				$wpdb->prepare( '%s', $value['id'] ),
+				$items[0]
+			);
+		}
+
+		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $criteria";
+		return $clauses;
+	}
+
+	public function handle_query_where( &$clauses, $args ) {
+		global $wpdb;
+		$where_direction  = '';
+		$query = $id_relationship = array();
+
+		if ( isset( $args['relation'] ) ) {
+			unset( $args['relation'] );
+			$query = $args;
+		} else {
+			$query[] = $args;
+		}
+
+		foreach ( $query as $key => $value ) {
+			$direction         = $value['direction'];
+			$items             = array_map( 'absint', $value['items'] );
+			$id_relationship[] =  "@@" . $value['id'] . "@@";
+
+			$where_direction .= sprintf(
+				" AND mbr.$direction IN (%s)",
+				is_array( $items ) ? implode( ',', $items ) : $items
+			);
+		}
+	 	$where = sprintf(
+			"mbr.type IN (%s)",
+			is_array( $id_relationship ) ? str_replace( "@@", "'", implode( ',', $id_relationship ) ) : str_replace( "@@", "'", $id_relationship )
+		);
+		$where .= $where_direction;
+		return $where;
 	}
 }
