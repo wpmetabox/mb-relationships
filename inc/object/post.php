@@ -9,7 +9,7 @@
 /**
  * The post object.
  */
-class MB_Relationships_Post implements MB_Relationships_Object_Interface {
+class MBR_Post implements MBR_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *

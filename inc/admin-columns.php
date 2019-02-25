@@ -14,7 +14,7 @@
  * @property array  $to   To side settings.
  * @property string $id   Relationship ID.
  */
-class MB_Relationships_Admin_Columns {
+class MBR_Admin_Columns {
 	/**
 	 * The relationship settings.
 	 *
@@ -25,7 +25,7 @@ class MB_Relationships_Admin_Columns {
 	/**
 	 * The object factory.
 	 *
-	 * @var MB_Relationships_Object_Factory
+	 * @var MBR_Object_Factory
 	 */
 	private $object_factory;
 
@@ -33,9 +33,9 @@ class MB_Relationships_Admin_Columns {
 	 * Constructor.
 	 *
 	 * @param array                           $settings       Relationship settings.
-	 * @param MB_Relationships_Object_Factory $object_factory The instance of the API class.
+	 * @param MBR_Object_Factory $object_factory The instance of the API class.
 	 */
-	public function __construct( $settings, MB_Relationships_Object_Factory $object_factory ) {
+	public function __construct( $settings, MBR_Object_Factory $object_factory ) {
 		$this->settings       = $settings;
 		$this->object_factory = $object_factory;
 	}
@@ -303,7 +303,7 @@ class MB_Relationships_Admin_Columns {
 	 * @param  string $direction Direction.
 	 * @return array
 	 */
-	private function get_term_column_data( $object_id, $direction ) {
+	private function get_term_items( $object_id, $direction ) {
 		return get_terms(
 			array(
 				'hide_empty'   => false,
@@ -322,7 +322,7 @@ class MB_Relationships_Admin_Columns {
 	 * @param  string $direction Direction.
 	 * @return array
 	 */
-	private function get_user_column_data( $object_id, $direction ) {
+	private function get_user_items( $object_id, $direction ) {
 		return get_users(
 			array(
 				'relationship' => array(

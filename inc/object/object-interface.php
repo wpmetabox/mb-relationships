@@ -9,7 +9,7 @@
 /**
  * Object interface.
  */
-interface MB_Relationships_Object_Interface {
+interface MBR_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *

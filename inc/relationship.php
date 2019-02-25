@@ -14,7 +14,7 @@
  * @property array  $to   To side settings.
  * @property string $id   Relationship ID.
  */
-class MB_Relationships_Relationship {
+class MBR_Relationship {
 	/**
 	 * The relationship settings.
 	 *
@@ -25,14 +25,14 @@ class MB_Relationships_Relationship {
 	/**
 	 * The object that connects "from".
 	 *
-	 * @var MB_Relationships_Object_Interface
+	 * @var MBR_Object_Interface
 	 */
 	protected $from_object;
 
 	/**
 	 * The object that connects "to".
 	 *
-	 * @var MB_Relationships_Object_Interface
+	 * @var MBR_Object_Interface
 	 */
 	protected $to_object;
 
@@ -40,9 +40,9 @@ class MB_Relationships_Relationship {
 	 * Register a relationship.
 	 *
 	 * @param array                           $settings       Relationship settings.
-	 * @param MB_Relationships_Object_Factory $object_factory The instance of the API class.
+	 * @param MBR_Object_Factory $object_factory The instance of the API class.
 	 */
-	public function __construct( $settings, MB_Relationships_Object_Factory $object_factory ) {
+	public function __construct( $settings, MBR_Object_Factory $object_factory ) {
 		$this->settings    = $settings;
 		$this->from_object = $object_factory->build( $this->from['object_type'] );
 		$this->to_object   = $object_factory->build( $this->to['object_type'] );

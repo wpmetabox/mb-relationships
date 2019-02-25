@@ -9,7 +9,7 @@
 /**
  * Object factory class.
  */
-class MB_Relationships_Object_Factory {
+class MBR_Object_Factory {
 	/**
 	 * For storing instances.
 	 *
@@ -22,14 +22,14 @@ class MB_Relationships_Object_Factory {
 	 *
 	 * @param string $type Object type.
 	 *
-	 * @return MB_Relationships_Object_Interface
+	 * @return MBR_Object_Interface
 	 */
 	public function build( $type ) {
 		if ( isset( $this->data[ $type ] ) ) {
 			return $this->data[ $type ];
 		}
 
-		$class               = 'MB_Relationships_' . ucfirst( $type );
+		$class               = 'MBR_' . ucfirst( $type );
 		$this->data[ $type ] = new $class();
 
 		return $this->data[ $type ];

@@ -9,20 +9,20 @@
 /**
  * Normalizer class.
  */
-class MB_Relationships_Query_Normalizer {
+class MBR_Query_Normalizer {
 	/**
 	 * The relationship factory.
 	 *
-	 * @var MB_Relationships_Relationship_Factory
+	 * @var MBR_Relationship_Factory
 	 */
 	protected $factory;
 
 	/**
 	 * Constructor
 	 *
-	 * @param MB_Relationships_Relationship_Factory $factory The relationship factory.
+	 * @param MBR_Relationship_Factory $factory The relationship factory.
 	 */
-	public function __construct( MB_Relationships_Relationship_Factory $factory ) {
+	public function __construct( MBR_Relationship_Factory $factory ) {
 		$this->factory = $factory;
 	}
 

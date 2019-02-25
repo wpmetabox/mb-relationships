@@ -1,15 +1,15 @@
 <?php
 /**
- * The user object that handle query arguments for "to" and list for "from" relationships.
+ * The term object that handle query arguments for "to" and list for "from" relationships.
  *
  * @package    Meta Box
  * @subpackage MB Relationships
  */
 
 /**
- * The user object.
+ * The term object.
  */
-class MB_Relationships_User implements MB_Relationships_Object_Interface {
+class MBR_Term implements MBR_Object_Interface {
 	/**
 	 * Get meta box settings.
 	 *
@@ -19,7 +19,7 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 */
 	public function get_meta_box_settings( $args ) {
 		$settings = array(
-			'type' => 'user',
+			'taxonomies' => $args['taxonomy'],
 		);
 		return $settings;
 	}
@@ -33,9 +33,10 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 */
 	public function get_field_settings( $args ) {
 		return array(
-			'type'       => 'user',
+			'type'       => 'taxonomy_advanced',
 			'clone'      => true,
 			'sort_clone' => true,
+			'taxonomy'   => $args['taxonomy'],
 			'query_args' => $args['query_args'],
 		);
 	}
@@ -46,15 +47,7 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 * @return int
 	 */
 	public function get_current_admin_id() {
-		$user_id = false;
-		$screen  = get_current_screen();
-		if ( 'profile' === $screen->id ) {
-			$user_id = get_current_user_id();
-		} elseif ( 'user-edit' === $screen->id ) {
-			$user_id = isset( $_REQUEST['user_id'] ) ? absint( $_REQUEST['user_id'] ) : false;
-		}
-
-		return $user_id;
+		return filter_input( INPUT_GET, 'tag_ID', FILTER_SANITIZE_NUMBER_INT );
 	}
 
 	/**
@@ -63,7 +56,7 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 * @return int
 	 */
 	public function get_current_id() {
-		return get_current_user_id();
+		return get_queried_object_id();
 	}
 
 	/**
@@ -74,19 +67,19 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 * @return string
 	 */
 	public function get_link( $id ) {
-		$user = get_userdata( $id );
-		return '<a href="' . admin_url( 'user-edit.php?user_id=' . $id ) . '">' . esc_html( $user->display_name ) . '</a>';
+		$term = get_term( $id );
+		return '<a href="' . get_edit_term_link( $id ) . '">' . esc_html( $term->name ) . '</a>';
 	}
 
 	/**
 	 * Render HTML of the object to show in the frontend.
 	 *
-	 * @param WP_User $item User object.
+	 * @param WP_Term $item Term object.
 	 *
 	 * @return string
 	 */
 	public function render( $item ) {
-		return $item->display_name;
+		return '<a href="' . get_term_link( $item ) . '">' . esc_html( $item->name ) . '</a>';
 	}
 
 	/**
@@ -95,6 +88,6 @@ class MB_Relationships_User implements MB_Relationships_Object_Interface {
 	 * @return string
 	 */
 	public function get_db_field() {
-		return 'ID';
+		return 'term_id';
 	}
 }
