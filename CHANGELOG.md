@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.6.0 - 2019-02-25
+### Added
+- Added support for querying by multiple relationships. See [docs](https://docs.metabox.io/extensions/mb-relationships/) for details.
+
+### Changed
+- Extracted admin columns and meta boxes into their own classes
+- Renamed files and classes for clarity
+
 ## 1.5.0 - 2018-12-19
 ### Fixed
 - Fixed incorrect order of items when changing order of connected items.
