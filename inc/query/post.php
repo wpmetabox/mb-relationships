@@ -9,20 +9,20 @@
 /**
  * Post query class.
  */
-class MB_Relationships_Query_Post {
+class MBR_Query_Post {
 	/**
 	 * Query normalizer.
 	 *
-	 * @var MB_Relationships_Query_Normalizer
+	 * @var MBR_Query_Normalizer
 	 */
 	protected $normalizer;
 
 	/**
 	 * Constructor
 	 *
-	 * @param MB_Relationships_Query_Normalizer $normalizer Query normalizer.
+	 * @param MBR_Query_Normalizer $normalizer Query normalizer.
 	 */
-	public function __construct( MB_Relationships_Query_Normalizer $normalizer ) {
+	public function __construct( MBR_Query_Normalizer $normalizer ) {
 		$this->normalizer = $normalizer;
 	}
 
@@ -48,7 +48,7 @@ class MB_Relationships_Query_Post {
 		$this->normalizer->normalize( $args );
 		$query->set( 'relationship', $args );
 
-		$query->relationship_query = new MB_Relationships_Query( $args );
+		$query->relationship_query = new MBR_Query( $args );
 
 		$post_type = $query->get( 'post_type' );
 		if ( ! $post_type ) {
@@ -87,7 +87,7 @@ class MB_Relationships_Query_Post {
 	 *
 	 * @param array                         $args         Relationship arguments.
 	 * @param array                         $query_vars   Extra query variables.
-	 * @param MB_Relationships_Relationship $relationship Relationship object.
+	 * @param MBR_Relationship $relationship Relationship object.
 	 *
 	 * @return array
 	 */

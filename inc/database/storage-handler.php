@@ -9,11 +9,11 @@
 /**
  * Storage handler class.
  */
-class MB_Relationships_Storage_Handler {
+class MBR_Storage_Handler {
 	/**
 	 * Reference to relationship factory.
 	 *
-	 * @var MB_Relationships_Relationship_Factory
+	 * @var MBR_Relationship_Factory
 	 */
 	protected $factory;
 
@@ -27,9 +27,9 @@ class MB_Relationships_Storage_Handler {
 	/**
 	 * Constructor.
 	 *
-	 * @param MB_Relationships_Relationship_Factory $factory Reference to relationship factory.
+	 * @param MBR_Relationship_Factory $factory Reference to relationship factory.
 	 */
-	public function __construct( MB_Relationships_Relationship_Factory $factory ) {
+	public function __construct( MBR_Relationship_Factory $factory ) {
 		$this->factory = $factory;
 	}
 
@@ -59,7 +59,7 @@ class MB_Relationships_Storage_Handler {
 			return $storage;
 		}
 		if ( ! $this->storage ) {
-			$this->storage = new RWMB_Relationships_Table_Storage();
+			$this->storage = new RWMBR_Table_Storage();
 			$this->storage->set_table( $wpdb->mb_relationships );
 		}
 

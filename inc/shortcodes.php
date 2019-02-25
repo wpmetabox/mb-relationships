@@ -9,28 +9,28 @@
 /**
  * Shortcodes class.
  */
-class MB_Relationships_Shortcodes {
+class MBR_Shortcodes {
 	/**
 	 * The relationship factory object.
 	 *
-	 * @var MB_Relationships_Relationship_Factory
+	 * @var MBR_Relationship_Factory
 	 */
 	protected $rel_factory;
 
 	/**
 	 * The object factory.
 	 *
-	 * @var MB_Relationships_Object_Factory
+	 * @var MBR_Object_Factory
 	 */
 	protected $obj_factory;
 
 	/**
-	 * MB_Relationships_Shortcodes constructor.
+	 * MBR_Shortcodes constructor.
 	 *
-	 * @param MB_Relationships_Relationship_Factory $rel_factory The relationship factory object.
-	 * @param MB_Relationships_Object_Factory       $obj_factory The post object.
+	 * @param MBR_Relationship_Factory $rel_factory The relationship factory object.
+	 * @param MBR_Object_Factory       $obj_factory The post object.
 	 */
-	public function __construct( MB_Relationships_Relationship_Factory $rel_factory, MB_Relationships_Object_Factory $obj_factory ) {
+	public function __construct( MBR_Relationship_Factory $rel_factory, MBR_Object_Factory $obj_factory ) {
 		$this->rel_factory = $rel_factory;
 		$this->obj_factory = $obj_factory;
 	}

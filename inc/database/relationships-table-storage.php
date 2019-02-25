@@ -10,7 +10,7 @@ if ( interface_exists( 'RWMB_Storage_Interface' ) ) {
 	/**
 	 * Class RWMB_Table_Storage
 	 */
-	class RWMB_Relationships_Table_Storage implements RWMB_Storage_Interface {
+	class RWMBR_Table_Storage implements RWMB_Storage_Interface {
 		/**
 		 * Table name.
 		 *

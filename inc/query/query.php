@@ -9,7 +9,7 @@
 /**
  * The relationship query class.
  */
-class MB_Relationships_Query {
+class MBR_Query {
 	/**
 	 * The relationship query variables.
 	 *

@@ -9,20 +9,20 @@
 /**
  * Term query class.
  */
-class MB_Relationships_Query_Term {
+class MBR_Query_Term {
 	/**
 	 * Query normalizer.
 	 *
-	 * @var MB_Relationships_Query_Normalizer
+	 * @var MBR_Query_Normalizer
 	 */
 	protected $normalizer;
 
 	/**
 	 * Constructor
 	 *
-	 * @param MB_Relationships_Query_Normalizer $normalizer Query normalizer.
+	 * @param MBR_Query_Normalizer $normalizer Query normalizer.
 	 */
-	public function __construct( MB_Relationships_Query_Normalizer $normalizer ) {
+	public function __construct( MBR_Query_Normalizer $normalizer ) {
 		$this->normalizer = $normalizer;
 	}
 
@@ -51,7 +51,7 @@ class MB_Relationships_Query_Term {
 		}
 		$args = $args['relationship'];
 		$this->normalizer->normalize( $args );
-		$query = new MB_Relationships_Query( $args );
+		$query = new MBR_Query( $args );
 
 		return $query->alter_clauses( $clauses, 't.term_id' );
 	}
@@ -61,7 +61,7 @@ class MB_Relationships_Query_Term {
 	 *
 	 * @param array                         $args         Relationship arguments.
 	 * @param array                         $query_vars   Extra query variables.
-	 * @param MB_Relationships_Relationship $relationship Relationship object.
+	 * @param MBR_Relationship $relationship Relationship object.
 	 *
 	 * @return array
 	 */

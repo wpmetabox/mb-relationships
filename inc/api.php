@@ -13,64 +13,64 @@ class MB_Relationships_API {
 	/**
 	 * Reference to relationship factory.
 	 *
-	 * @var MB_Relationships_Relationship_Factory
+	 * @var MBR_Relationship_Factory
 	 */
 	protected static $factory;
 
 	/**
 	 * Reference to post query object.
 	 *
-	 * @var MB_Relationships_Query_Post
+	 * @var MBR_Query_Post
 	 */
 	protected static $post_query;
 
 	/**
 	 * Reference to term query object.
 	 *
-	 * @var MB_Relationships_Query_Term
+	 * @var MBR_Query_Term
 	 */
 	protected static $term_query;
 
 	/**
 	 * Reference to user query object.
 	 *
-	 * @var MB_Relationships_Query_User
+	 * @var MBR_Query_User
 	 */
 	protected static $user_query;
 
 	/**
 	 * Set relationship factory.
 	 *
-	 * @param MB_Relationships_Relationship_Factory $factory The object factory.
+	 * @param MBR_Relationship_Factory $factory The object factory.
 	 */
-	public static function set_relationship_factory( MB_Relationships_Relationship_Factory $factory ) {
+	public static function set_relationship_factory( MBR_Relationship_Factory $factory ) {
 		self::$factory = $factory;
 	}
 
 	/**
 	 * Set post query.
 	 *
-	 * @param MB_Relationships_Query_Post $post_query The post query object.
+	 * @param MBR_Query_Post $post_query The post query object.
 	 */
-	public static function set_post_query( MB_Relationships_Query_Post $post_query ) {
+	public static function set_post_query( MBR_Query_Post $post_query ) {
 		self::$post_query = $post_query;
 	}
 
 	/**
 	 * Set term query.
 	 *
-	 * @param MB_Relationships_Query_Term $term_query The term query object.
+	 * @param MBR_Query_Term $term_query The term query object.
 	 */
-	public static function set_term_query( MB_Relationships_Query_Term $term_query ) {
+	public static function set_term_query( MBR_Query_Term $term_query ) {
 		self::$term_query = $term_query;
 	}
 
 	/**
 	 * Set user query.
 	 *
-	 * @param MB_Relationships_Query_User $user_query The user query object.
+	 * @param MBR_Query_User $user_query The user query object.
 	 */
-	public static function set_user_query( MB_Relationships_Query_User $user_query ) {
+	public static function set_user_query( MBR_Query_User $user_query ) {
 		self::$user_query = $user_query;
 	}
 
@@ -79,7 +79,7 @@ class MB_Relationships_API {
 	 *
 	 * @param array $settings Relationship parameters.
 	 *
-	 * @return MB_Relationships_Relationship
+	 * @return MBR_Relationship
 	 */
 	public static function register( $settings ) {
 		return self::$factory->build( $settings );

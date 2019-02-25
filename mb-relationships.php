@@ -17,9 +17,9 @@
 // Prevent loading this file directly.
 defined( 'ABSPATH' ) || exit;
 
-if ( ! class_exists( 'MB_Relationships_Loader' ) ) {
-	require 'inc/class-mb-relationships-loader.php';
-	$loader = new MB_Relationships_Loader();
+if ( ! class_exists( 'MBR_Loader' ) ) {
+	require 'inc/loader.php';
+	$loader = new MBR_Loader();
 
 	// Create relationships table only when plugin is activated.
 	register_activation_hook( __FILE__, array( $loader, 'activate' ) );

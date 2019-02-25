@@ -9,7 +9,7 @@
 /**
  * The tables class
  */
-class MB_Relationships_Table {
+class MBR_Table {
 	/**
 	 * Constructor.
 	 */

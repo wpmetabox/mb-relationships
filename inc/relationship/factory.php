@@ -9,11 +9,11 @@
 /**
  * Relationship factory class.
  */
-class MB_Relationships_Relationship_Factory {
+class MBR_Relationship_Factory {
 	/**
 	 * Reference to object factory.
 	 *
-	 * @var MB_Relationships_Object_Factory
+	 * @var MBR_Object_Factory
 	 */
 	protected $object_factory;
 
@@ -34,9 +34,9 @@ class MB_Relationships_Relationship_Factory {
 	/**
 	 * Constructor.
 	 *
-	 * @param MB_Relationships_Object_Factory $object_factory Reference to object factory.
+	 * @param MBR_Object_Factory $object_factory Reference to object factory.
 	 */
-	public function __construct( MB_Relationships_Object_Factory $object_factory ) {
+	public function __construct( MBR_Object_Factory $object_factory ) {
 		$this->object_factory = $object_factory;
 	}
 
@@ -45,13 +45,16 @@ class MB_Relationships_Relationship_Factory {
 	 *
 	 * @param array $settings Relationship settings.
 	 *
-	 * @return MB_Relationships_Relationship
+	 * @return MBR_Relationship
 	 */
 	public function build( $settings ) {
 		$settings = $this->normalize( $settings );
 
-		$relationship = new MB_Relationships_Relationship( $settings, $this->object_factory );
-		$relationship->init();
+		$relationship = new MBR_Relationship( $settings, $this->object_factory );
+		$admin_columns = new MBR_Admin_Columns( $settings, $this->object_factory );
+		$admin_columns->init();
+		$meta_boxes = new MBR_Meta_Boxes( $settings, $this->object_factory );
+		$meta_boxes->init();
 
 		$this->data[ $settings['id'] ] = $relationship;
 
@@ -63,7 +66,7 @@ class MB_Relationships_Relationship_Factory {
 	 *
 	 * @param string $id Relationship ID.
 	 *
-	 * @return MB_Relationships_Relationship
+	 * @return MBR_Relationship
 	 */
 	public function get( $id ) {
 		return isset( $this->data[ $id ] ) ? $this->data[ $id ] : null;
@@ -84,11 +87,11 @@ class MB_Relationships_Relationship_Factory {
 	/**
 	 * Check if relationship has an object type on either side.
 	 *
-	 * @param MB_Relationships_Relationship $relationship Relationship object.
+	 * @param MBR_Relationship $relationship Relationship object.
 	 *
 	 * @return bool
 	 */
-	protected function is_filtered( MB_Relationships_Relationship $relationship ) {
+	protected function is_filtered( MBR_Relationship $relationship ) {
 		return $relationship->has_object_type( $this->filter_type );
 	}
 
