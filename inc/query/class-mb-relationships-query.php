@@ -36,7 +36,6 @@ class MB_Relationships_Query {
 	 * @return mixed
 	 */
 	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
-		global $wpdb;
 		$this->handle_query_join( $clauses, $id_column, $pass_thru_order );
 
 		if ( ! isset( $this->args['relation'] ) && ! empty( $this->args['sibling'] ) ) {
@@ -55,23 +54,23 @@ class MB_Relationships_Query {
 	 */
 	public function handle_query_join( &$clauses, $id_column, $pass_thru_order ) {
 		global $wpdb;
-		$join_type = '';
-		$criteria  = '';
-		$query     = array();
+
+		$join_type     = '';
+		$criteria      = '';
+		$relationships = array();
 
 		if ( isset( $this->args['relation'] ) ) {
 			$join_type = $this->args['relation'];
 			unset( $this->args['relation'] );
-			$query = $this->args;
+			$relationships = $this->args;
 		} else {
-			$query[] = $this->args;
+			$relationships[] = $this->args;
 		}
 
-		foreach ( $query as $key => $value ) {
-			$direction = $value['direction'];
-			$source    = $direction;
-			$target    = 'from' === $direction ? 'to' : 'from';
-			$items     = array_map( 'absint', $value['items'] );
+		foreach ( $relationships as $relationship ) {
+			$source = $relationship['direction'];
+			$target = 'from' === $source ? 'to' : 'from';
+			$items  = array_map( 'absint', $relationship['items'] );
 
 			if ( strlen( $criteria ) > 0 ) {
 				$criteria .= " $join_type ";
@@ -87,7 +86,7 @@ class MB_Relationships_Query {
 
 			$criteria .= sprintf(
 				" (mbr.$target = $id_column AND mbr.type = %s AND mbr.$source IN (%s)) ",
-				$wpdb->prepare( '%s', $value['id'] ),
+				$wpdb->prepare( '%s', $relationship['id'] ),
 				is_array( $items ) ? implode( ',', $items ) : $items
 			);
 		}
@@ -103,29 +102,30 @@ class MB_Relationships_Query {
 	 */
 	public function handle_query_sibling( &$clauses, $id_column ) {
 		global $wpdb;
-		$direction = $this->args['direction'];
-		$source    = $direction;
-		$target    = 'from' === $direction ? 'to' : 'from';
-		$items     = array_map( 'absint', $this->args['items'] );
-		$ids       = implode( ',', $items );
-		$items     = "(
-			SELECT DISTINCT `{$target}`
-			FROM {$wpdb->mb_relationships}
+
+		$source = $this->args['direction'];
+		$target = 'from' === $source ? 'to' : 'from';
+		$items  = array_map( 'absint', $this->args['items'] );
+		$ids    = implode( ',', $items );
+		$items  = "(
+			SELECT DISTINCT `$target`
+			FROM $wpdb->mb_relationships
 			WHERE `type` = {$wpdb->prepare( '%s', $this->args['id'] )}
-			AND `{$source}` IN ({$ids})
+			AND `$source` IN ($ids)
 		)";
-		$tmp       = $source;
-		$source    = $target;
-		$target    = $tmp;
+		$tmp    = $source;
+		$source = $target;
+		$target = $tmp;
 
 		$clauses['join'] = " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$target = $id_column";
 
-		$where             = sprintf(
+		$where  = sprintf(
 			"mbr.type = %s AND mbr.$source IN (%s)",
 			$wpdb->prepare( '%s', $this->args['id'] ),
 			$items
 		);
-		$where            .= " AND mbr.$target NOT IN ($ids)";
+		$where .= " AND mbr.$target NOT IN ($ids)";
+
 		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
 	}
 }
