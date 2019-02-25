@@ -9,6 +9,10 @@
 
 /**
  * The relationship class.
+ *
+ * @property array  $from From side settings.
+ * @property array  $to   To side settings.
+ * @property string $id   Relationship ID.
  */
 class MB_Relationships_Relationship {
 	/**
@@ -122,10 +126,6 @@ class MB_Relationships_Relationship {
 	 */
 	public function delete( $from, $to ) {
 		global $wpdb;
-
-		if ( ! $this->has( $from, $to ) ) {
-			return false;
-		}
 
 		return $wpdb->delete(
 			$wpdb->mb_relationships,
