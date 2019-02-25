@@ -86,11 +86,11 @@ class MBR_Loader {
 		require 'database/relationships-table-storage.php';
 		require 'database/storage-handler.php';
 
-		require 'object/object-interface.php';
+		require 'object/interface.php';
 		require 'object/post.php';
 		require 'object/term.php';
 		require 'object/user.php';
-		require 'object/object-factory.php';
+		require 'object/factory.php';
 
 		require 'query/query.php';
 		require 'query/normalizer.php';
@@ -98,9 +98,10 @@ class MBR_Loader {
 		require 'query/term.php';
 		require 'query/user.php';
 
-		require 'relationship-factory.php';
-		require 'relationship.php';
-		require 'admin-columns.php';
+		require 'relationship/factory.php';
+		require 'relationship/relationship.php';
+		require 'relationship/admin-columns.php';
+		require 'relationship/meta-boxes.php';
 
 		require 'api.php';
 		require 'shortcodes.php';
