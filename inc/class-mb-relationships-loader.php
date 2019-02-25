@@ -100,6 +100,7 @@ class MB_Relationships_Loader {
 
 		require 'class-mb-relationships-relationship-factory.php';
 		require 'class-mb-relationships-relationship.php';
+		require 'class-mb-relationships-admin-columns.php';
 
 		require 'class-mb-relationships-api.php';
 		require 'class-mb-relationships-shortcodes.php';

@@ -52,6 +52,8 @@ class MB_Relationships_Relationship_Factory {
 
 		$relationship = new MB_Relationships_Relationship( $settings, $this->object_factory );
 		$relationship->init();
+		$admin_columns = new MB_Relationships_Admin_Columns( $settings, $this->object_factory );
+		$admin_columns->init();
 
 		$this->data[ $settings['id'] ] = $relationship;
 
