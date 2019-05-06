@@ -130,6 +130,7 @@ class MBR_Relationship_Factory {
 		$default = array(
 			'object_type' => 'post',
 			'post_type'   => 'post',
+			'reciprocal'  => false,
 			'query_args'  => array(),
 			'meta_box'    => array(
 				'hidden'        => false,
