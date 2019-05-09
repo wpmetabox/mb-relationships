@@ -33,11 +33,12 @@ class MBR_Term implements MBR_Object_Interface {
 	 */
 	public function get_field_settings( $args ) {
 		return array(
-			'type'       => 'taxonomy_advanced',
-			'clone'      => true,
-			'sort_clone' => true,
-			'taxonomy'   => $args['taxonomy'],
-			'query_args' => $args['query_args'],
+			'type'       	=> 'taxonomy_advanced',
+			'clone'      	=> true,
+			'sort_clone' 	=> true,
+			'relationship' 	=> true,
+			'taxonomy'   	=> $args['taxonomy'],
+			'query_args' 	=> $args['query_args'],
 		);
 	}
 

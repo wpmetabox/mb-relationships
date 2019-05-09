@@ -33,10 +33,11 @@ class MBR_User implements MBR_Object_Interface {
 	 */
 	public function get_field_settings( $args ) {
 		return array(
-			'type'       => 'user',
-			'clone'      => true,
-			'sort_clone' => true,
-			'query_args' => $args['query_args'],
+			'type'       	=> 'user',
+			'clone'      	=> true,
+			'sort_clone' 	=> true,
+			'relationship' 	=> true,
+			'query_args' 	=> $args['query_args'],
 		);
 	}
 

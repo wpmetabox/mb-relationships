@@ -37,11 +37,12 @@ class MBR_Post implements MBR_Object_Interface {
 	 */
 	public function get_field_settings( $args ) {
 		return array(
-			'type'       => 'post',
-			'clone'      => true,
-			'sort_clone' => true,
-			'post_type'  => $args['post_type'],
-			'query_args' => $args['query_args'],
+			'type'       	=> 'post',
+			'clone'      	=> true,
+			'sort_clone' 	=> true,
+			'relationship' 	=> true,
+			'post_type'  	=> $args['post_type'],
+			'query_args' 	=> $args['query_args'],
 		);
 	}
 
