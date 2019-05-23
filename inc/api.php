@@ -99,19 +99,22 @@ class MB_Relationships_API {
 		return $relationship ? $relationship->has( $from, $to ) : false;
 	}
 
-	/**
-	 * Add a relationship for 2 objects.
-	 *
-	 * @param int    $from From object ID.
-	 * @param int    $to   To object ID.
-	 * @param string $id   Relationship ID.
-	 *
-	 * @return bool
-	 */
-	public static function add( $from, $to, $id ) {
-		$relationship = self::$factory->get( $id );
-		return $relationship ? $relationship->add( $from, $to ) : false;
-	}
+    /**
+     * Add a relationship for 2 objects.
+     *
+     * @param int    $from From object ID.
+     * @param int    $to   To object ID.
+     * @param string $id   Relationship ID.
+     * @param int $orderFrom
+     * @param int $orderTo
+     *
+     * @return bool
+     */
+    public static function add( $from, $to, $id, $orderFrom = 1, $orderTo = 1 ) {
+        $relationship = self::$factory->get( $id );
+
+        return $relationship ? $relationship->add( $from, $to, $orderFrom, $orderTo) : false;
+    }
 
 	/**
 	 * Delete a relationship for 2 objects.

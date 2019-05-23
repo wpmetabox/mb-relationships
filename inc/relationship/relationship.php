@@ -74,35 +74,41 @@ class MBR_Relationship {
 		return (bool) $rel_id;
 	}
 
-	/**
-	 * Add a relationship for 2 objects.
-	 *
-	 * @param int $from From object ID.
-	 * @param int $to   To object ID.
-	 *
-	 * @return bool
-	 */
-	public function add( $from, $to ) {
-		global $wpdb;
+    /**
+     * Add a relationship for 2 objects.
+     *
+     * @param int $from From object ID.
+     * @param int $to   To object ID.
+     * @param int $orderFrom
+     * @param int $orderTo
+     *
+     * @return bool
+     */
+    public function add( $from, $to, $orderFrom, $orderTo ) {
+        global $wpdb;
 
-		if ( $this->has( $from, $to ) ) {
-			return false;
-		}
+        if ( $this->has( $from, $to ) ) {
+            return false;
+        }
 
-		return $wpdb->insert(
-			$wpdb->mb_relationships,
-			array(
-				'from' => $from,
-				'to'   => $to,
-				'type' => $this->id,
-			),
-			array(
-				'%d',
-				'%d',
-				'%s',
-			)
-		);
-	}
+        return $wpdb->insert(
+            $wpdb->mb_relationships,
+            array(
+                'from' => $from,
+                'to'   => $to,
+                'type' => $this->id,
+                'order_from' => $orderFrom,
+                'order_to' => $orderTo,
+            ),
+            array(
+                '%d',
+                '%d',
+                '%s',
+                '%d',
+                '%d',
+            )
+        );
+    }
 
 	/**
 	 * Delete a relationship for 2 objects.
