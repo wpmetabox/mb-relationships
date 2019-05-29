@@ -42,6 +42,9 @@ class MBR_Query {
 			$this->handle_query_sibling( $clauses, $id_column );
 		}
 
+		global $wpdb;
+		$clauses['groupby'] .= empty( $clauses['groupby'] ) ? "$wpdb->posts.ID" : ", $wpdb->posts.ID";
+
 		return $clauses;
 	}
 
