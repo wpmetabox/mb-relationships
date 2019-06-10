@@ -84,7 +84,9 @@ class MBR_Meta_Boxes {
 		if ( ! $this->from['meta_box']['hidden'] ) {
 			$meta_boxes[] = $this->parse_meta_box_from();
 		}
-		$meta_boxes[] = $this->parse_meta_box_to();
+		if ( ! $this->to['meta_box']['hidden'] ) {
+			$meta_boxes[] = $this->parse_meta_box_to();
+		}
 
 		return $meta_boxes;
 	}
