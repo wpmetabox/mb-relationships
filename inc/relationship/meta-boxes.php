@@ -100,6 +100,9 @@ class MBR_Meta_Boxes {
 		$field         = $this->to_object->get_field_settings( $this->to );
 		$field['id']   = "{$this->id}_to";
 		$field['name'] = $this->from['meta_box']['field_title'];
+		if ( '' !== $this->from['meta_box']['field_placeholder']) {
+			$field['placeholder'] = $this->from['meta_box']['field_placeholder'];
+		}
 
 		$meta_box = array(
 			'id'           => "{$this->id}_relationships_to",
@@ -121,6 +124,9 @@ class MBR_Meta_Boxes {
 		$field         = $this->from_object->get_field_settings( $this->from );
 		$field['id']   = "{$this->id}_from";
 		$field['name'] = $this->to['meta_box']['field_title'];
+		if ( '' !== $this->from['meta_box']['field_placeholder']) {
+			$field['placeholder'] = $this->from['meta_box']['field_placeholder'];
+		}
 
 		$meta_box = array(
 			'id'           => "{$this->id}_relationships_from",
