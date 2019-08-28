@@ -106,13 +106,15 @@ class MBR_Relationship_Factory {
 		$settings         = wp_parse_args(
 			$settings,
 			array(
-				'id'   => '',
-				'from' => '',
-				'to'   => '',
+				'id'         => '',
+				'from'       => '',
+				'to'         => '',
+				'label_from' => 'Connects From', // Translation is done in normalize_side
+				'label_to'   => 'Connects To', // Translation is done in normalize_side
 			)
 		);
-		$settings['from'] = $this->normalize_side( $settings['from'], 'from' );
-		$settings['to']   = $this->normalize_side( $settings['to'], 'to' );
+		$settings['from'] = $this->normalize_side( $settings['from'], 'from', $settings['label_from'] );
+		$settings['to']   = $this->normalize_side( $settings['to'], 'to', $settings['label_to'] );
 
 		return $settings;
 	}
@@ -125,22 +127,23 @@ class MBR_Relationship_Factory {
 	 *
 	 * @return array
 	 */
-	protected function normalize_side( $settings, $direction ) {
-		$title   = 'from' === $direction ? __( 'Connects To', 'mb-relationships' ) : __( 'Connected From', 'mb-relationship' );
+	protected function normalize_side( $settings, $direction, $label ) {
+		$title   = __( $label, 'mb-relationships' );
 		$default = array(
 			'object_type' => 'post',
 			'post_type'   => 'post',
 			'reciprocal'  => false,
 			'query_args'  => array(),
 			'meta_box'    => array(
-				'hidden'        => false,
-				'autosave'      => false,
-				'closed'        => false,
-				'context'       => 'side',
-				'priority'      => 'low',
-				'title'         => $title,
-				'field_title'   => '',
-				'empty_message' => __( 'No connections', 'mb-relationships' ),
+				'hidden'            => false,
+				'autosave'          => false,
+				'closed'            => false,
+				'context'           => 'side',
+				'priority'          => 'low',
+				'title'             => $title,
+				'field_title'       => '',
+				'field_placeholder' => '',
+				'empty_message'     => __( 'No connections', 'mb-relationships' ),
 			),
 		);
 
