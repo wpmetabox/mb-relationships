@@ -103,6 +103,7 @@ class MBR_Meta_Boxes {
 		if ( '' !== $this->from['meta_box']['field_placeholder']) {
 			$field['placeholder'] = $this->from['meta_box']['field_placeholder'];
 		}
+		$field['bulk_clone'] = $this->from['meta_box']['field_bulk_clone'];
 
 		$meta_box = array(
 			'id'           => "{$this->id}_relationships_to",
@@ -127,6 +128,7 @@ class MBR_Meta_Boxes {
 		if ( '' !== $this->from['meta_box']['field_placeholder']) {
 			$field['placeholder'] = $this->from['meta_box']['field_placeholder'];
 		}
+		$field['bulk_clone'] = $this->from['meta_box']['field_bulk_clone'];
 
 		$meta_box = array(
 			'id'           => "{$this->id}_relationships_from",

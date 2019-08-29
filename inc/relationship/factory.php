@@ -143,6 +143,7 @@ class MBR_Relationship_Factory {
 				'title'             => $title,
 				'field_title'       => '',
 				'field_placeholder' => '',
+				'field_bulk_clone'  => false,
 				'empty_message'     => __( 'No connections', 'mb-relationships' ),
 			),
 		);
