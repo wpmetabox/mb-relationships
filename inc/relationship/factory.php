@@ -128,32 +128,33 @@ class MBR_Relationship_Factory {
 	 * @return array
 	 */
 	protected function normalize_side( $settings, $direction, $label ) {
-		$title   = __( $label, 'mb-relationships' );
 		$default = array(
-			'object_type' => 'post',
-			'post_type'   => 'post',
-			'reciprocal'  => false,
-			'query_args'  => array(),
-			'meta_box'    => array(
-				'hidden'            => false,
-				'autosave'          => false,
-				'closed'            => false,
-				'context'           => 'side',
-				'priority'          => 'low',
-				'title'             => $title,
-				'field_title'       => '',
-				'field_placeholder' => '',
-				'empty_message'     => __( 'No connections', 'mb-relationships' ),
+			'object_type'   => 'post',
+			'reciprocal'    => false,
+			'empty_message' => __( 'No connections', 'mb-relationships' ),
+			'meta_box'      => array(
+				'title'    => $label,
+				'hidden'   => false,
+				'context'  => 'side',
+				'priority' => 'low',
+			),
+			'field'         => array(
+				'type'       => 'post',
+				'post_type'  => 'post',
+				'query_args' => array(),
 			),
 		);
 
 		if ( is_string( $settings ) ) {
 			$settings = array(
-				'post_type' => $settings,
+				'field' => array(
+					'post_type' => $settings,
+				),
 			);
 		}
 		$settings             = array_merge( $default, $settings );
 		$settings['meta_box'] = array_merge( $default['meta_box'], $settings['meta_box'] );
+		$settings['field']    = array_merge( $default['field'], $settings['field'] );
 
 		return $settings;
 	}

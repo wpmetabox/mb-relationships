@@ -18,28 +18,16 @@ class MBR_Term implements MBR_Object_Interface {
 	 * @return array
 	 */
 	public function get_meta_box_settings( $args ) {
-		$settings = array(
-			'taxonomies' => $args['taxonomy'],
-		);
-		return $settings;
+		return array( 'taxonomies' => $args['field']['taxonomy'] );
 	}
 
 	/**
-	 * Get query arguments.
+	 * Get field type.
 	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
+	 * @return string
 	 */
-	public function get_field_settings( $args ) {
-		return array(
-			'type'       	=> 'taxonomy_advanced',
-			'clone'      	=> true,
-			'sort_clone' 	=> true,
-			'relationship' 	=> true,
-			'taxonomy'   	=> $args['taxonomy'],
-			'query_args' 	=> $args['query_args'],
-		);
+	public function get_field_type() {
+		return 'taxonomy_advanced';
 	}
 
 	/**
