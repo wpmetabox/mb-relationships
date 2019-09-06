@@ -156,6 +156,45 @@ class MBR_Relationship_Factory {
 		$settings['meta_box'] = array_merge( $default['meta_box'], $settings['meta_box'] );
 		$settings['field']    = array_merge( $default['field'], $settings['field'] );
 
+		$this->migrate_old_settings( $settings );
+
 		return $settings;
+	}
+
+	/**
+	 * Migrate from old syntax to the new one.
+	 * @param  array $settings Relationship settings for a side.
+	 * @return array
+	 */
+	private function migrate_old_settings( &$settings ) {
+		if ( ! empty( $settings['meta_box']['empty_message'] ) ) {
+			$settings['empty_message'] = $settings['meta_box']['empty_message'];
+			unset( $settings['meta_box']['empty_message'] );
+		}
+
+		if ( ! empty( $settings['meta_box']['field_title'] ) ) {
+			$settings['field']['name'] = $settings['meta_box']['field_title'];
+			unset( $settings['meta_box']['field_title'] );
+		}
+		if ( ! empty( $settings['post_type'] ) ) {
+			$settings['field']['post_type'] = $settings['post_type'];
+			unset( $settings['post_type'] );
+		}
+		if ( 'term' === $settings['object_type'] ) {
+			$settings['field']['type'] = 'taxonomy_advanced';
+			unset( $settings['field']['post_type'] );
+		}
+		if ( ! empty( $settings['taxonomy'] ) ) {
+			$settings['field']['taxonomy'] = $settings['taxonomy'];
+			unset( $settings['taxonomy'] );
+		}
+		if ( 'user' === $settings['object_type'] ) {
+			$settings['field']['type'] = 'user';
+			unset( $settings['field']['post_type'] );
+		}
+		if ( ! empty( $settings['query_args'] ) ) {
+			$settings['field']['query_args'] = $settings['query_args'];
+			unset( $settings['query_args'] );
+		}
 	}
 }
