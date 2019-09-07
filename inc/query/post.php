@@ -85,8 +85,8 @@ class MBR_Query_Post {
 	/**
 	 * Query and get list of items.
 	 *
-	 * @param array                         $args         Relationship arguments.
-	 * @param array                         $query_vars   Extra query variables.
+	 * @param array            $args         Relationship arguments.
+	 * @param array            $query_vars   Extra query variables.
 	 * @param MBR_Relationship $relationship Relationship object.
 	 *
 	 * @return array

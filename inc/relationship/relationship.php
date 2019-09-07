@@ -32,7 +32,7 @@ class MBR_Relationship {
 	/**
 	 * Register a relationship.
 	 *
-	 * @param array                           $settings       Relationship settings.
+	 * @param array              $settings       Relationship settings.
 	 * @param MBR_Object_Factory $object_factory The instance of the API class.
 	 */
 	public function __construct( $settings, MBR_Object_Factory $object_factory ) {
@@ -77,12 +77,14 @@ class MBR_Relationship {
 	/**
 	 * Add a relationship for 2 objects.
 	 *
-	 * @param int $from From object ID.
-	 * @param int $to   To object ID.
+	 * @param int $from       From object ID.
+	 * @param int $to         To object ID.
+	 * @param int $order_from The order on the "from" side.
+	 * @param int $order_to   The order on the "to" side.
 	 *
 	 * @return bool
 	 */
-	public function add( $from, $to ) {
+	public function add( $from, $to, $order_from, $order_to ) {
 		global $wpdb;
 
 		if ( $this->has( $from, $to ) ) {
@@ -92,14 +94,18 @@ class MBR_Relationship {
 		return $wpdb->insert(
 			$wpdb->mb_relationships,
 			array(
-				'from' => $from,
-				'to'   => $to,
-				'type' => $this->id,
+				'from'       => $from,
+				'to'         => $to,
+				'type'       => $this->id,
+				'order_from' => $order_from,
+				'order_to'   => $order_to,
 			),
 			array(
 				'%d',
 				'%d',
 				'%s',
+				'%d',
+				'%d',
 			)
 		);
 	}

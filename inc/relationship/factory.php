@@ -50,7 +50,7 @@ class MBR_Relationship_Factory {
 	public function build( $settings ) {
 		$settings = $this->normalize( $settings );
 
-		$relationship = new MBR_Relationship( $settings, $this->object_factory );
+		$relationship  = new MBR_Relationship( $settings, $this->object_factory );
 		$admin_columns = new MBR_Admin_Columns( $settings, $this->object_factory );
 		$admin_columns->init();
 		$meta_boxes = new MBR_Meta_Boxes( $settings );

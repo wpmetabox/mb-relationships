@@ -32,7 +32,7 @@ class MBR_Admin_Columns {
 	/**
 	 * Constructor.
 	 *
-	 * @param array                           $settings       Relationship settings.
+	 * @param array              $settings       Relationship settings.
 	 * @param MBR_Object_Factory $object_factory The instance of the API class.
 	 */
 	public function __construct( $settings, MBR_Object_Factory $object_factory ) {

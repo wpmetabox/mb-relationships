@@ -102,15 +102,18 @@ class MB_Relationships_API {
 	/**
 	 * Add a relationship for 2 objects.
 	 *
-	 * @param int    $from From object ID.
-	 * @param int    $to   To object ID.
-	 * @param string $id   Relationship ID.
+	 * @param int    $from       From object ID.
+	 * @param int    $to         To object ID.
+	 * @param string $id         Relationship ID.
+	 * @param int    $order_from The order on the "from" side.
+	 * @param int    $order_to   The order on the "to" side.
 	 *
 	 * @return bool
 	 */
-	public static function add( $from, $to, $id ) {
+	public static function add( $from, $to, $id, $order_from = 1, $order_to = 1 ) {
 		$relationship = self::$factory->get( $id );
-		return $relationship ? $relationship->add( $from, $to ) : false;
+
+		return $relationship ? $relationship->add( $from, $to, $order_from, $order_to ) : false;
 	}
 
 	/**
