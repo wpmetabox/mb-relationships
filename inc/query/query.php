@@ -43,7 +43,7 @@ class MBR_Query {
 		}
 
 		global $wpdb;
-		$clauses['groupby'] .= empty( $clauses['groupby'] ) ? "$wpdb->posts.ID" : ", $wpdb->posts.ID";
+		$clauses['groupby'] = empty( $clauses['groupby'] ) ? "$wpdb->posts.ID" : "{$clauses['groupby']}, $wpdb->posts.ID";
 
 		return $clauses;
 	}
