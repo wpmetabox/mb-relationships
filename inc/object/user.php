@@ -11,37 +11,6 @@
  */
 class MBR_User implements MBR_Object_Interface {
 	/**
-	 * Get meta box settings.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_meta_box_settings( $args ) {
-		$settings = array(
-			'type' => 'user',
-		);
-		return $settings;
-	}
-
-	/**
-	 * Get query arguments.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_field_settings( $args ) {
-		return array(
-			'type'       	=> 'user',
-			'clone'      	=> true,
-			'sort_clone' 	=> true,
-			'relationship' 	=> true,
-			'query_args' 	=> $args['query_args'],
-		);
-	}
-
-	/**
 	 * Get current object ID.
 	 *
 	 * @return int

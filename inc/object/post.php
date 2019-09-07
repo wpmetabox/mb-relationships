@@ -11,42 +11,6 @@
  */
 class MBR_Post implements MBR_Object_Interface {
 	/**
-	 * Get meta box settings.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_meta_box_settings( $args ) {
-		$settings = array(
-			'context'    => $args['meta_box']['context'],
-			'priority'   => $args['meta_box']['priority'],
-			'autosave'   => $args['meta_box']['autosave'],
-			'closed'     => $args['meta_box']['closed'],
-			'post_types' => $args['post_type'],
-		);
-		return $settings;
-	}
-
-	/**
-	 * Get query arguments.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_field_settings( $args ) {
-		return array(
-			'type'       	=> 'post',
-			'clone'      	=> true,
-			'sort_clone' 	=> true,
-			'relationship' 	=> true,
-			'post_type'  	=> $args['post_type'],
-			'query_args' 	=> $args['query_args'],
-		);
-	}
-
-	/**
 	 * Get current object ID.
 	 *
 	 * @return int

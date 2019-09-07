@@ -73,13 +73,13 @@ class MBR_Admin_Columns {
 
 		switch ( $settings['object_type'] ) {
 			case 'post':
-				add_filter( "manage_{$settings['post_type']}_posts_columns", array( $this, "{$side}_columns" ) );
-				add_action( "manage_{$settings['post_type']}_posts_custom_column", array( $this, "post_{$side}_column_data" ), 10, 2 );
+				add_filter( "manage_{$settings['field']['post_type']}_posts_columns", array( $this, "{$side}_columns" ) );
+				add_action( "manage_{$settings['field']['post_type']}_posts_custom_column", array( $this, "post_{$side}_column_data" ), 10, 2 );
 				break;
 
 			case 'term':
-				add_filter( "manage_edit-{$settings['taxonomy']}_columns", array( $this, "{$side}_columns" ) );
-				add_filter( "manage_{$settings['taxonomy']}_custom_column", array( $this, "{$side}_column_data" ), 10, 3 );
+				add_filter( "manage_edit-{$settings['field']['taxonomy']}_columns", array( $this, "{$side}_columns" ) );
+				add_filter( "manage_{$settings['field']['taxonomy']}_custom_column", array( $this, "{$side}_column_data" ), 10, 3 );
 				break;
 
 			case 'user':

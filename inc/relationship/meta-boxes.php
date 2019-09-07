@@ -23,36 +23,12 @@ class MBR_Meta_Boxes {
 	private $settings;
 
 	/**
-	 * The object factory.
-	 *
-	 * @var MBR_Object_Factory
-	 */
-	private $object_factory;
-
-	/**
-	 * The object that connects "from".
-	 *
-	 * @var MBR_Object_Interface
-	 */
-	private $from_object;
-
-	/**
-	 * The object that connects "to".
-	 *
-	 * @var MBR_Object_Interface
-	 */
-	private $to_object;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param array                           $settings       Relationship settings.
-	 * @param MBR_Object_Factory $object_factory The instance of the API class.
+	 * @param array $settings Relationship settings.
 	 */
-	public function __construct( $settings, MBR_Object_Factory $object_factory ) {
-		$this->settings    = $settings;
-		$this->from_object = $object_factory->build( $this->from['object_type'] );
-		$this->to_object   = $object_factory->build( $this->to['object_type'] );
+	public function __construct( $settings ) {
+		$this->settings = $settings;
 	}
 
 	/**
@@ -82,59 +58,30 @@ class MBR_Meta_Boxes {
 	 */
 	public function register_meta_boxes( $meta_boxes ) {
 		if ( ! $this->from['meta_box']['hidden'] ) {
-			$meta_boxes[] = $this->parse_meta_box_from();
+			$meta_boxes[] = $this->parse_meta_box( 'from' );
 		}
 		if ( ! $this->to['meta_box']['hidden'] ) {
-			$meta_boxes[] = $this->parse_meta_box_to();
+			$meta_boxes[] = $this->parse_meta_box( 'to' );
 		}
 
 		return $meta_boxes;
 	}
 
 	/**
-	 * Parse meta box for "from" object.
+	 * Parse meta box settings.
 	 *
+	 * @param  string $source "from" or "to".
 	 * @return array
 	 */
-	private function parse_meta_box_from() {
-		$field         = $this->to_object->get_field_settings( $this->to );
-		$field['id']   = "{$this->id}_to";
-		$field['name'] = $this->from['meta_box']['field_title'];
-		if ( '' !== $this->from['meta_box']['field_placeholder']) {
-			$field['placeholder'] = $this->from['meta_box']['field_placeholder'];
-		}
+	private function parse_meta_box( $source ) {
+		$target = 'from' === $source ? 'to' : 'from';
 
-		$meta_box = array(
-			'id'           => "{$this->id}_relationships_to",
-			'title'        => $this->from['meta_box']['title'],
-			'storage_type' => 'relationships_table',
-			'fields'       => array( $field ),
-		);
-		$meta_box = array_merge( $meta_box, $this->from_object->get_meta_box_settings( $this->from ) );
+		$field       = $this->{$target}['field'];
+		$field['id'] = "{$this->id}_{$target}";
 
-		return $meta_box;
-	}
-
-	/**
-	 * Parse meta box for "to" object.
-	 *
-	 * @return array
-	 */
-	private function parse_meta_box_to() {
-		$field         = $this->from_object->get_field_settings( $this->from );
-		$field['id']   = "{$this->id}_from";
-		$field['name'] = $this->to['meta_box']['field_title'];
-		if ( '' !== $this->from['meta_box']['field_placeholder']) {
-			$field['placeholder'] = $this->from['meta_box']['field_placeholder'];
-		}
-
-		$meta_box = array(
-			'id'           => "{$this->id}_relationships_from",
-			'title'        => $this->to['meta_box']['title'],
-			'storage_type' => 'relationships_table',
-			'fields'       => array( $field ),
-		);
-		$meta_box = array_merge( $meta_box, $this->to_object->get_meta_box_settings( $this->to ) );
+		$meta_box           = $this->{$source}['meta_box'];
+		$meta_box['id']     = "{$this->id}_relationships_{$target}";
+		$meta_box['fields'] = array( $field );
 
 		return $meta_box;
 	}
