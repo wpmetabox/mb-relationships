@@ -23,36 +23,12 @@ class MBR_Meta_Boxes {
 	private $settings;
 
 	/**
-	 * The object factory.
-	 *
-	 * @var MBR_Object_Factory
-	 */
-	private $object_factory;
-
-	/**
-	 * The object that connects "from".
-	 *
-	 * @var MBR_Object_Interface
-	 */
-	private $from_object;
-
-	/**
-	 * The object that connects "to".
-	 *
-	 * @var MBR_Object_Interface
-	 */
-	private $to_object;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param array                           $settings       Relationship settings.
-	 * @param MBR_Object_Factory $object_factory The instance of the API class.
+	 * @param array $settings Relationship settings.
 	 */
-	public function __construct( $settings, MBR_Object_Factory $object_factory ) {
-		$this->settings    = $settings;
-		$this->from_object = $object_factory->build( $this->from['object_type'] );
-		$this->to_object   = $object_factory->build( $this->to['object_type'] );
+	public function __construct( $settings ) {
+		$this->settings = $settings;
 	}
 
 	/**
@@ -98,22 +74,14 @@ class MBR_Meta_Boxes {
 	 * @return array
 	 */
 	private function parse_meta_box( $source ) {
-		$target        = 'from' === $source ? 'to' : 'from';
-		$source_object = "{$source}_object";
-		$target_object = "{$target}_object";
+		$target = 'from' === $source ? 'to' : 'from';
 
-		$field                 = $this->{$target}['field'];
-		$field['type']         = $this->{$target_object}->get_field_type();
-		$field['id']           = "{$this->id}_{$target}";
-		$field['clone']        = true;
-		$field['sort_clone']   = true;
-		$field['relationship'] = true;
+		$field       = $this->{$target}['field'];
+		$field['id'] = "{$this->id}_{$target}";
 
-		$meta_box                 = $this->{$source}['meta_box'];
-		$meta_box['id']           = "{$this->id}_relationships_{$target}";
-		$meta_box['storage_type'] = 'relationships_table';
-		$meta_box['fields']       = array( $field );
-		$meta_box                 = array_merge( $meta_box, $this->{$source_object}->get_meta_box_settings( $this->{$source} ) );
+		$meta_box           = $this->{$source}['meta_box'];
+		$meta_box['id']     = "{$this->id}_relationships_{$target}";
+		$meta_box['fields'] = array( $field );
 
 		return $meta_box;
 	}

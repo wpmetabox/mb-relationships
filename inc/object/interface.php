@@ -11,22 +11,6 @@
  */
 interface MBR_Object_Interface {
 	/**
-	 * Get meta box settings.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_meta_box_settings( $args );
-
-	/**
-	 * Get field type.
-	 *
-	 * @return string
-	 */
-	public function get_field_type();
-
-	/**
 	 * Get current object ID in the admin area.
 	 *
 	 * @return int

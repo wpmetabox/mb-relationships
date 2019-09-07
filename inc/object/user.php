@@ -11,26 +11,6 @@
  */
 class MBR_User implements MBR_Object_Interface {
 	/**
-	 * Get meta box settings.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_meta_box_settings( $args ) {
-		return array( 'type' => 'user' );
-	}
-
-	/**
-	 * Get field type.
-	 *
-	 * @return string
-	 */
-	public function get_field_type() {
-		return 'user';
-	}
-
-	/**
 	 * Get current object ID.
 	 *
 	 * @return int

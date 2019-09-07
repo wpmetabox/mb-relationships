@@ -11,26 +11,6 @@
  */
 class MBR_Post implements MBR_Object_Interface {
 	/**
-	 * Get meta box settings.
-	 *
-	 * @param array $args Relationship settings.
-	 *
-	 * @return array
-	 */
-	public function get_meta_box_settings( $args ) {
-		return array( 'post_types' => $args['field']['post_type'] );
-	}
-
-	/**
-	 * Get field type.
-	 *
-	 * @return string
-	 */
-	public function get_field_type() {
-		return 'post';
-	}
-
-	/**
 	 * Get current object ID.
 	 *
 	 * @return int
