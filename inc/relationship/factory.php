@@ -142,8 +142,11 @@ class MBR_Relationship_Factory {
 			),
 			'field'         => array(
 				'type'       => 'post',
+				'ajax'       => true,
 				'post_type'  => 'post',
-				'query_args' => array(),
+				'query_args' => array(
+					'posts_per_page' => 10,
+				),
 			),
 		);
 
