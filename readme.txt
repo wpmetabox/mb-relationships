@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
-Tested up to: 5.2.2
-Stable tag: 1.6.1
+Tested up to: 5.2.3
+Stable tag: 1.7.0
 License: GPLv2 or later
 
 A lightweight solution for creating many-to-many posts to posts relationships.
@@ -91,6 +91,13 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.7.0 - 2019-09-18 =
+
+**Added**
+
+- Add a separate `field` array for field settings
+- Add `order_from` and `order_to` to API::add method
 
 = 1.6.1 - 2019-07-17 =
 

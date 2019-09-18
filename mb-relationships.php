@@ -1,12 +1,12 @@
 <?php
 /**
  * Plugin Name: MB Relationships
- * Plugin URI: https://metabox.io/plugins/mb-relationships/
+ * Plugin URI:  https://metabox.io/plugins/mb-relationships/
  * Description: Create many-to-many relationships between posts, users, terms, etc.
- * Version: 1.6.1
- * Author: MetaBox.io
- * Author URI: https://metabox.io
- * License: GPL2+
+ * Version:     1.7.0
+ * Author:      MetaBox.io
+ * Author URI:  https://metabox.io
+ * License:     GPL2+
  * Text Domain: mb-relationships
  * Domain Path: /languages/
  *
@@ -15,7 +15,7 @@
  */
 
 // Prevent loading this file directly.
-defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || die;
 
 if ( ! class_exists( 'MBR_Loader' ) ) {
 	require 'inc/loader.php';
