@@ -30,6 +30,7 @@ class MBR_Table {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// Create new table.
+		$charset_collate = $wpdb->get_charset_collate();
 		$sql = "
 			CREATE TABLE {$wpdb->mb_relationships} (
 				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -42,7 +43,7 @@ class MBR_Table {
 				KEY `from` (`from`),
 				KEY `to` (`to`),
 				KEY `type` (`type`)
-			) COLLATE {$wpdb->collate};
+			) COLLATE $charset_collate;
 		";
 		dbDelta( $sql );
 	}
