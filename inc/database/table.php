@@ -43,7 +43,7 @@ class MBR_Table {
 				KEY `from` (`from`),
 				KEY `to` (`to`),
 				KEY `type` (`type`)
-			) COLLATE $charset_collate;
+			) $charset_collate;
 		";
 		dbDelta( $sql );
 	}
