@@ -150,6 +150,12 @@ class MBR_Relationship_Factory {
 			),
 		);
 
+		if ( isset( $settings['field']['bulk_clone'] ) && $settings['field']['bulk_clone'] ) {
+			$default['field']['ajax'] = false;
+			$default['field']['query_args']['posts_per_page'] = 200; // This default is an arbitrary of function/speed
+		}
+
+
 		if ( is_string( $settings ) ) {
 			$settings = array(
 				'field' => array(
@@ -157,9 +163,22 @@ class MBR_Relationship_Factory {
 				),
 			);
 		}
-		$settings             = array_merge( $default, $settings );
-		$settings['meta_box'] = array_merge( $default['meta_box'], $settings['meta_box'] );
-		$settings['field']    = array_merge( $default['field'], $settings['field'] );
+
+		// Prevent warning message
+		if ( !isset( $settings['field'] ) ) {
+			$settings['field'] = array();
+		}
+
+		// Prevent warning message
+		if ( !isset( $settings['field']['query_args'] ) ) {
+			$settings['field']['query_args'] = array();
+		}
+
+		// Populate arrays defaults and overrides.
+		$settings                        = array_merge( $default, $settings );
+		$settings['meta_box']            = array_merge( $default['meta_box'], $settings['meta_box'] );
+		$settings['field']               = array_merge( $default['field'], $settings['field'] );
+		$settings['field']['query_args'] = array_merge( $default['field']['query_args'], $settings['field']['query_args'] );
 
 		$this->migrate_syntax( $settings );
 
