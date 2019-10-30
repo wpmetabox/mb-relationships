@@ -189,10 +189,14 @@ class MBR_Relationship_Factory {
 			unset( $meta_box['empty_message'] );
 		}
 
-		// Field genral settings.
+		// Field general settings.
 		if ( ! empty( $meta_box['field_title'] ) ) {
 			$field['name'] = $meta_box['field_title'];
 			unset( $meta_box['field_title'] );
+		}
+		if ( ! empty( $meta_box['field_placeholder'] ) ) {
+			$field['placeholder'] = $meta_box['field_placeholder'];
+			unset( $meta_box['field_placeholder'] );
 		}
 		if ( ! empty( $settings['query_args'] ) ) {
 			$field['query_args'] = $settings['query_args'];
