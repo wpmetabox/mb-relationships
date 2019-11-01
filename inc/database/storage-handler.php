@@ -3,7 +3,7 @@
  * Storage handler, which sets the correct storage for meta box objects.
  *
  * @package    Meta Box
- * @subpackage MB Custom Table
+ * @subpackage MB Relationships
  */
 
 /**
@@ -59,8 +59,7 @@ class MBR_Storage_Handler {
 			return $storage;
 		}
 		if ( ! $this->storage ) {
-			$this->storage = new RWMBR_Table_Storage();
-			$this->storage->set_table( $wpdb->mb_relationships );
+			$this->storage = new MBR_Storage();
 		}
 
 		return $this->storage;

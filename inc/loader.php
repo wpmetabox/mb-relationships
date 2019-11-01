@@ -83,7 +83,7 @@ class MBR_Loader {
 	 * Load plugin files.
 	 */
 	protected function load_files() {
-		require 'database/relationships-table-storage.php';
+		require 'database/storage.php';
 		require 'database/storage-handler.php';
 
 		require 'object/interface.php';
