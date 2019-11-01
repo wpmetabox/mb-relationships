@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
-Tested up to: 5.2.3
-Stable tag: 1.7.0
+Tested up to: 5.2.4
+Stable tag: 1.7.1
 License: GPLv2 or later
 
 A lightweight solution for creating many-to-many posts to posts relationships.
