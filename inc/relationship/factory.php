@@ -58,6 +58,9 @@ class MBR_Relationship_Factory {
 
 		$this->data[ $settings['id'] ] = $relationship;
 
+		// hook into post-registration action
+		do_action( 'mb_relationships_registered', $settings );
+
 		return $this->data[ $settings['id'] ];
 	}
 
