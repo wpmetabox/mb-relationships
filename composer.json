@@ -1,6 +1,6 @@
 {
   "name": "wpmetabox/mb-relationships",
-  "type": "library",
+  "type": "wordpress-plugin",
   "keywords": [
     "wordpress",
     "ui",
@@ -22,13 +22,8 @@
     {
       "name": "Tran Ngoc Tuan Anh",
       "email": "anhtnt@elightup.com",
-      "homepage": "https://deluxeblogtips.com",
+      "homepage": "https://metabox.io",
       "role": "Developer"
     }
-  ],
-  "autoload": {
-    "files": [
-      "mb-relationships.php"
-    ]
-  }
+  ]
 }
