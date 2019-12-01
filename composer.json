@@ -30,8 +30,5 @@
     "files": [
       "mb-relationships.php"
     ]
-  },
-  "require": {
-    "wpmetabox/meta-box": "^4.16"
   }
 }
