@@ -1,27 +1,16 @@
 <?php
 /**
  * The relationship query class that alters the WordPress query to get the connected items.
- *
- * @package    Meta Box
- * @subpackage MB Relationship
  */
 
-/**
- * The relationship query class.
- */
 class MBR_Query {
 	/**
 	 * The relationship query variables.
 	 *
 	 * @var array
 	 */
-	protected $args;
+	private $args;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param array $args Relationship query variables.
-	 */
 	public function __construct( $args ) {
 		$this->args = $args;
 	}
@@ -69,29 +58,44 @@ class MBR_Query {
 			$relationships[] = $this->args;
 		}
 
-		$criteria = [];
+		$joins = [];
 		foreach ( $relationships as $relationship ) {
-			$source = $relationship['direction'];
-			$target = 'from' === $source ? 'to' : 'from';
-			$items  = array_map( 'absint', $relationship['items'] );
+			$joins[] = $this->build_join( $relationship, $clauses, $id_column, $pass_thru_order );
+		}
+		$joins = implode( " $join_type ", $joins );
 
-			if ( ! $pass_thru_order ) {
-				$orderby            = "mbr.order_$source";
-				$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
-			}
+		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $joins";
+	}
 
-			$fields             = "mbr.$source AS mb_origin";
-			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
+	private function build_join( $relationship, &$clauses, $id_column, $pass_thru_order ) {
+		global $wpdb;
 
-			$criteria[] = sprintf(
-				" (mbr.$target = $id_column AND mbr.type = %s AND mbr.$source IN (%s)) ",
-				$wpdb->prepare( '%s', $relationship['id'] ),
-				implode( ',', $items )
+		$source = $relationship['direction'];
+		$target = 'from' === $source ? 'to' : 'from';
+		$items  = implode( ',', array_map( 'absint', $relationship['items'] ) );
+
+		if ( $relationship['reciprocal'] ) {
+			return sprintf(
+				" ((mbr.from = $id_column OR mbr.to = $id_column) AND mbr.type = '%s' AND (mbr.from IN (%s) OR mbr.to IN (%s))) ",
+				$relationship['id'],
+				$items,
+				$items
 			);
 		}
-		$criteria = implode( " $join_type ", $criteria );
 
-		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $criteria";
+		if ( ! $pass_thru_order ) {
+			$orderby            = "mbr.order_$source";
+			$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
+		}
+
+		$fields             = "mbr.$source AS mb_origin";
+		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
+
+		return sprintf(
+			" (mbr.$target = $id_column AND mbr.type = '%s' AND mbr.$source IN (%s)) ",
+			$relationship['id'],
+			$items
+		);
 	}
 
 	/**
@@ -110,7 +114,7 @@ class MBR_Query {
 		$items  = "(
 			SELECT DISTINCT `$target`
 			FROM $wpdb->mb_relationships
-			WHERE `type` = {$wpdb->prepare( '%s', $this->args['id'] )}
+			WHERE `type` = '{$this->args['id']}'
 			AND `$source` IN ($ids)
 		)";
 		$tmp    = $source;
@@ -120,8 +124,8 @@ class MBR_Query {
 		$clauses['join'] = " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$target = $id_column";
 
 		$where  = sprintf(
-			"mbr.type = %s AND mbr.$source IN (%s)",
-			$wpdb->prepare( '%s', $this->args['id'] ),
+			"mbr.type = '%s' AND mbr.$source IN (%s)",
+			$this->args['id'],
 			$items
 		);
 		$where .= " AND mbr.$target NOT IN ($ids)";
