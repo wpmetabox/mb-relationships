@@ -25,12 +25,12 @@ class MBR_Storage {
 		global $wpdb;
 
 		$target       = $this->get_direction( $meta_key );
-		$origin       = 'to' === $target ? 'from' : 'to';
-		$order_column = "order_$origin";
+		$source       = 'to' === $target ? 'from' : 'to';
+		$order_column = "order_$source";
 
 		return $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT `{$target}` FROM {$wpdb->mb_relationships} WHERE `{$origin}`=%d AND `type`=%s ORDER BY {$order_column}",
+				"SELECT `{$target}` FROM {$wpdb->mb_relationships} WHERE `{$source}`=%d AND `type`=%s ORDER BY {$order_column}",
 				$object_id,
 				$this->get_type( $meta_key )
 			)
@@ -67,10 +67,10 @@ class MBR_Storage {
 
 		$meta_value = array_filter( (array) $meta_value );
 		$target     = $this->get_direction( $meta_key );
-		$origin     = 'to' === $target ? 'from' : 'to';
+		$source     = 'to' === $target ? 'from' : 'to';
 		$type       = $this->get_type( $meta_key );
 
-		$order = $this->get_target_order( $object_id, $type, $origin, $target );
+		$order = $this->get_target_order( $object_id, $type, $source, $target );
 
 		$values = array();
 		foreach ( $meta_value as $id ) {
@@ -86,10 +86,10 @@ class MBR_Storage {
 			$wpdb->insert(
 				$wpdb->mb_relationships,
 				array(
-					$origin         => $object_id,
+					$source         => $object_id,
 					$target         => $id,
 					'type'          => $type,
-					"order_$origin" => $x,
+					"order_$source" => $x,
 					"order_$target" => $order,
 				),
 				array(
@@ -124,12 +124,12 @@ class MBR_Storage {
 		global $wpdb;
 
 		$type   = $this->get_type( $meta_key );
-		$origin = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
+		$source = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
 
 		$wpdb->delete(
 			$wpdb->mb_relationships,
 			array(
-				$origin => $object_id,
+				$source => $object_id,
 				'type'  => $type,
 			)
 		);
@@ -163,11 +163,11 @@ class MBR_Storage {
 	 *
 	 * @param  int    $object_id Object ID.
 	 * @param  string $type      Relationship ID.
-	 * @param  string $origin    Origin column. 'from' or 'to'.
+	 * @param  string $source    Origin column. 'from' or 'to'.
 	 * @param  string $target    Target column. 'from' or 'to'.
 	 * @return array             Array of [object_id => order].
 	 */
-	protected function get_target_order( $object_id, $type, $origin, $target ) {
+	protected function get_target_order( $object_id, $type, $source, $target ) {
 		global $wpdb;
 
 		$items = $wpdb->get_results(
@@ -175,7 +175,7 @@ class MBR_Storage {
 				"
 					SELECT `{$target}` AS `id`, `order_{$target}` AS `order`
 					FROM {$wpdb->mb_relationships}
-					WHERE `{$origin}` = %d AND `type` = %s
+					WHERE `{$source}` = %d AND `type` = %s
 				",
 				$object_id,
 				$type
