@@ -70,17 +70,15 @@ class MBR_Query_Normalizer {
 	 * @param array $args Query arguments.
 	 */
 	protected function normalize_args( $args ) {
-		$direction        = isset( $args['from'] ) ? 'from' : 'to';
-		$relationship     = $this->factory->get( $args['id'] );
-		$args['id_field'] = $relationship->get_db_field( $direction );
+		$direction    = isset( $args['from'] ) ? 'from' : 'to';
+		$relationship = $this->factory->get( $args['id'] );
 
-		$args['direction'] = $direction;
-		$items             = $args[ $direction ];
-		$items             = $this->get_ids( $items, $args['id_field'] );
-		$args['items']     = $items;
+		$args['id_field']   = $relationship->get_db_field( $direction );
+		$args['direction']  = $direction;
+		$args['items']      = $this->get_ids( $args[ $direction ], $args['id_field'] );
+		$args['reciprocal'] = $relationship->reciprocal;
 
 		unset( $args[ $direction ] );
-
 		return $args;
 	}
 }

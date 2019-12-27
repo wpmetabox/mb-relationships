@@ -38,7 +38,7 @@ class MBR_Query {
 	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
 		$this->handle_query_join( $clauses, $id_column, $pass_thru_order );
 
-		if ( ! isset( $this->args['relation'] ) && ! empty( $this->args['sibling'] ) ) {
+		if ( empty( $this->args['relation'] ) && ! empty( $this->args['sibling'] ) ) {
 			$this->handle_query_sibling( $clauses, $id_column );
 		}
 
@@ -58,9 +58,8 @@ class MBR_Query {
 	public function handle_query_join( &$clauses, $id_column, $pass_thru_order ) {
 		global $wpdb;
 
-		$join_type     = '';
-		$criteria      = '';
-		$relationships = array();
+		$join_type     = 'AND';
+		$relationships = [];
 
 		if ( isset( $this->args['relation'] ) ) {
 			$join_type = $this->args['relation'];
@@ -70,14 +69,11 @@ class MBR_Query {
 			$relationships[] = $this->args;
 		}
 
+		$criteria = [];
 		foreach ( $relationships as $relationship ) {
 			$source = $relationship['direction'];
 			$target = 'from' === $source ? 'to' : 'from';
 			$items  = array_map( 'absint', $relationship['items'] );
-
-			if ( strlen( $criteria ) > 0 ) {
-				$criteria .= " $join_type ";
-			}
 
 			if ( ! $pass_thru_order ) {
 				$orderby            = "mbr.order_$source";
@@ -87,12 +83,13 @@ class MBR_Query {
 			$fields             = "mbr.$source AS mb_origin";
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 
-			$criteria .= sprintf(
+			$criteria[] = sprintf(
 				" (mbr.$target = $id_column AND mbr.type = %s AND mbr.$source IN (%s)) ",
 				$wpdb->prepare( '%s', $relationship['id'] ),
-				is_array( $items ) ? implode( ',', $items ) : $items
+				implode( ',', $items )
 			);
 		}
+		$criteria = implode( " $join_type ", $criteria );
 
 		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $criteria";
 	}
