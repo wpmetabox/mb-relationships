@@ -1,75 +1,41 @@
 <?php
 /**
  * Public API helper functions.
- *
- * @package    Meta Box
- * @subpackage MB Relationships
  */
 
-/**
- * The API class.
- */
 class MB_Relationships_API {
 	/**
 	 * Reference to relationship factory.
-	 *
-	 * @var MBR_Relationship_Factory
 	 */
-	protected static $factory;
+	private static $factory;
 
 	/**
 	 * Reference to post query object.
-	 *
-	 * @var MBR_Query_Post
 	 */
-	protected static $post_query;
+	private static $post_query;
 
 	/**
 	 * Reference to term query object.
-	 *
-	 * @var MBR_Query_Term
 	 */
-	protected static $term_query;
+	private static $term_query;
 
 	/**
 	 * Reference to user query object.
-	 *
-	 * @var MBR_Query_User
 	 */
-	protected static $user_query;
+	private static $user_query;
 
-	/**
-	 * Set relationship factory.
-	 *
-	 * @param MBR_Relationship_Factory $factory The object factory.
-	 */
 	public static function set_relationship_factory( MBR_Relationship_Factory $factory ) {
 		self::$factory = $factory;
 	}
 
-	/**
-	 * Set post query.
-	 *
-	 * @param MBR_Query_Post $post_query The post query object.
-	 */
 	public static function set_post_query( MBR_Query_Post $post_query ) {
 		self::$post_query = $post_query;
 	}
 
-	/**
-	 * Set term query.
-	 *
-	 * @param MBR_Query_Term $term_query The term query object.
-	 */
 	public static function set_term_query( MBR_Query_Term $term_query ) {
 		self::$term_query = $term_query;
 	}
 
-	/**
-	 * Set user query.
-	 *
-	 * @param MBR_Query_User $user_query The user query object.
-	 */
 	public static function set_user_query( MBR_Query_User $user_query ) {
 		self::$user_query = $user_query;
 	}
@@ -78,7 +44,6 @@ class MB_Relationships_API {
 	 * Register a relationship.
 	 *
 	 * @param array $settings Relationship parameters.
-	 *
 	 * @return MBR_Relationship
 	 */
 	public static function register( $settings ) {
@@ -91,7 +56,6 @@ class MB_Relationships_API {
 	 * @param int    $from From object ID.
 	 * @param int    $to   To object ID.
 	 * @param string $id   Relationship ID.
-	 *
 	 * @return bool
 	 */
 	public static function has( $from, $to, $id ) {
@@ -107,7 +71,6 @@ class MB_Relationships_API {
 	 * @param string $id         Relationship ID.
 	 * @param int    $order_from The order on the "from" side.
 	 * @param int    $order_to   The order on the "to" side.
-	 *
 	 * @return bool
 	 */
 	public static function add( $from, $to, $id, $order_from = 1, $order_to = 1 ) {
@@ -122,7 +85,6 @@ class MB_Relationships_API {
 	 * @param int    $from From object ID.
 	 * @param int    $to   To object ID.
 	 * @param string $id   Relationship ID.
-	 *
 	 * @return bool
 	 */
 	public static function delete( $from, $to, $id ) {
@@ -137,13 +99,10 @@ class MB_Relationships_API {
 	 * @param array $query_vars Extra query variables.
 	 */
 	public static function each_connected( $args, $query_vars = array() ) {
-		$args         = wp_parse_args(
-			$args,
-			array(
-				'id'       => '',
-				'property' => 'connected',
-			)
-		);
+		$args         = wp_parse_args( $args, [
+			'id'       => '',
+			'property' => 'connected',
+		] );
 		$relationship = self::$factory->get( $args['id'] );
 		if ( ! $relationship ) {
 			return;
@@ -163,16 +122,12 @@ class MB_Relationships_API {
 	 * Get connected items.
 	 *
 	 * @param array $args Relationship arguments.
-	 *
 	 * @return array
 	 */
 	public static function get_connected( $args ) {
-		$args         = wp_parse_args(
-			$args,
-			array(
-				'id' => '',
-			)
-		);
+		$args         = wp_parse_args( $args, [
+			'id' => '',
+		] );
 		$relationship = self::$factory->get( $args['id'] );
 		if ( ! $relationship ) {
 			return array();
@@ -193,10 +148,9 @@ class MB_Relationships_API {
 	 * @param array  $connected List of connected objects.
 	 * @param string $property  Name of connected array property.
 	 * @param string $id_key    ID key of the objects.
-	 *
 	 * @return array
 	 */
-	protected static function distribute( &$items, $connected, $property, $id_key ) {
+	private static function distribute( &$items, $connected, $property, $id_key ) {
 		foreach ( $items as &$item ) {
 			$item->$property = self::filter( $connected, $item->$id_key );
 		}
@@ -204,20 +158,17 @@ class MB_Relationships_API {
 	}
 
 	/**
-	 * Filter to find the matched items with "mb_origin" value.
+	 * Filter to find the matched items.
+	 * Non-reciprocal relationships: uses mbr_origin key.
+	 * Reciprocal relationships: uses mbr_from and mbr_to keys.
 	 *
-	 * @param array  $list  List of objects.
-	 * @param string $value "mb_origin" value.
-	 *
+	 * @param array  $items     Connected items.
+	 * @param string $object_id Connected object ID.
 	 * @return array
 	 */
-	protected static function filter( $list, $value ) {
-		$filtered = array();
-		foreach ( $list as $item ) {
-			if ( $value == $item->mb_origin ) {
-				$filtered[] = $item;
-			}
-		}
-		return $filtered;
+	private static function filter( $items, $object_id ) {
+		return array_filter( $items, function( $item ) use ( $object_id ) {
+			return ( isset( $item->mbr_origin ) && $item->mb_origin == $object_id ) || $item->mbr_from == $object_id || $item->mbr_to == $object_id;
+		} );
 	}
 }

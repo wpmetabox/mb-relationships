@@ -75,6 +75,9 @@ class MBR_Query {
 		$items  = implode( ',', array_map( 'absint', $relationship['items'] ) );
 
 		if ( $relationship['reciprocal'] ) {
+			$fields             = 'mbr.from AS mbr_from, mbr.to AS mbr_to';
+			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
+
 			return sprintf(
 				" (mbr.type = '%s' AND ((mbr.from = $id_column AND mbr.to IN (%s)) OR (mbr.to = $id_column AND mbr.from IN (%s)))) ",
 				$relationship['id'],
@@ -88,7 +91,7 @@ class MBR_Query {
 			$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
 		}
 
-		$fields             = "mbr.$source AS mb_origin";
+		$fields             = "mbr.$source AS mbr_origin";
 		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 
 		return sprintf(
