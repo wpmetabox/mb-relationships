@@ -1,16 +1,7 @@
 <?php
-/**
- * Custom table storage
- *
- * @package    Meta Box
- * @subpackage MB Relationships
- */
-
 class MBR_Storage {
 	/**
-	 * Reference to relationship factory.
-	 *
-	 * @var MBR_Relationship_Factory
+	 * Relationship factory.
 	 */
 	private $factory;
 
@@ -34,6 +25,22 @@ class MBR_Storage {
 	 */
 	public function get( $object_id, $meta_key, $args = false ) {
 		global $wpdb;
+
+		$type         = $this->get_type( $meta_key );
+		$relationship = $this->factory->get( $type );
+
+		if ( $relationship->reciprocal ) {
+			$results = $wpdb->get_results( $wpdb->prepare(
+				"SELECT `from`, `to` FROM {$wpdb->mb_relationships} WHERE `from`=%d OR `to`=%d AND `type`=%s",
+				$object_id,
+				$object_id,
+				$type
+			), ARRAY_N );
+			return array_map( function( $pair ) use ( $object_id ) {
+				$pair = array_diff( $pair, [$object_id] );
+				return reset( $pair );
+			}, $results );
+		}
 
 		$target = $this->get_target( $meta_key );
 		$source = $this->get_source( $meta_key );
@@ -78,36 +85,20 @@ class MBR_Storage {
 		$source     = $this->get_source( $meta_key );
 		$type       = $this->get_type( $meta_key );
 
-		$order = $this->get_target_order( $object_id, $type, $source, $target );
-
-		$values = [];
-		foreach ( $meta_value as $id ) {
-			$value         = isset( $order[ $id ] ) ? $order[ $id ] : 0;
-			$values[ $id ] = $value;
-		}
-
 		$this->delete( $object_id, $meta_key );
 
+		$orders = $this->get_target_orders( $object_id, $type, $source, $target );
 		$x = 0;
-		foreach ( $values as $id => $order ) {
+		foreach ( $meta_value as $id ) {
 			$x++;
-			$wpdb->insert(
-				$wpdb->mb_relationships,
-				[
-					$source         => $object_id,
-					$target         => $id,
-					'type'          => $type,
-					"order_$source" => $x,
-					"order_$target" => $order,
-				],
-				[
-					'%d',
-					'%d',
-					'%s',
-					'%d',
-					'%d',
-				]
-			);
+			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
+			$wpdb->insert( $wpdb->mb_relationships, [
+				$source         => $object_id,
+				$target         => $id,
+				'type'          => $type,
+				"order_$source" => $x,
+				"order_$target" => $order,
+			], ['%d', '%d', '%s', '%d', '%d'] );
 		}
 		return true;
 	}
@@ -138,6 +129,15 @@ class MBR_Storage {
 			$source => $object_id,
 			'type'  => $type,
 		] );
+
+		$relationship = $this->factory->get( $type );
+		if ( $relationship->reciprocal ) {
+			$target = $this->get_target( $meta_key );
+			$wpdb->delete( $wpdb->mb_relationships, [
+				$target => $object_id,
+				'type'  => $type,
+			] );
+		}
 		return true;
 	}
 
@@ -145,7 +145,6 @@ class MBR_Storage {
 	 * Get relationship type from submitted field name "{$type}_to" or "{$type}_from".
 	 *
 	 * @param string $name Submitted field name.
-	 *
 	 * @return string
 	 */
 	private function get_type( $name ) {
@@ -174,26 +173,18 @@ class MBR_Storage {
 	}
 
 	/**
-	 * Get existing order of connected objects (in the target column).
+	 * Get orders of connected objects (in the target column).
 	 *
-	 * @param  int    $object_id Object ID.
-	 * @param  string $type      Relationship ID.
-	 * @param  string $source    Origin column. 'from' or 'to'.
-	 * @param  string $target    Target column. 'from' or 'to'.
-	 * @return array             Array of [object_id => order].
+	 * @return array Array of [object_id => order].
 	 */
-	private function get_target_order( $object_id, $type, $source, $target ) {
+	private function get_target_orders( $object_id, $type, $source, $target ) {
 		global $wpdb;
 
 		$items = $wpdb->get_results( $wpdb->prepare(
 			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->mb_relationships} WHERE `$source` = %d AND `type` = %s",
 			$object_id,
 			$type
-		) );
-		$order = [];
-		foreach ( $items as $key => $item ) {
-			$order[ $item->id ] = $item->order;
-		}
-		return $order;
+		), ARRAY_A );
+		return wp_list_pluck( $items, 'order', 'id' );
 	}
 }
