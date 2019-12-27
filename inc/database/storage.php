@@ -8,6 +8,17 @@
 
 class MBR_Storage {
 	/**
+	 * Reference to relationship factory.
+	 *
+	 * @var MBR_Relationship_Factory
+	 */
+	private $factory;
+
+	public function __construct( MBR_Relationship_Factory $factory ) {
+		$this->factory = $factory;
+	}
+
+	/**
 	 * Retrieve metadata for the specified object.
 	 *
 	 * @param int        $object_id ID of the object metadata is for. In this case, it will be a row's id
@@ -24,13 +35,13 @@ class MBR_Storage {
 	public function get( $object_id, $meta_key, $args = false ) {
 		global $wpdb;
 
-		$target = $this->get_direction( $meta_key );
-		$source = 'to' === $target ? 'from' : 'to';
+		$target = $this->get_target( $meta_key );
+		$source = $this->get_source( $meta_key );
 
 		return $wpdb->get_col( $wpdb->prepare(
 			"SELECT `$target` FROM {$wpdb->mb_relationships} WHERE `$source`=%d AND `type`=%s ORDER BY order_$source",
 			$object_id,
-			$this->get_type( $meta_key )
+			$type
 		) );
 	}
 
@@ -63,8 +74,8 @@ class MBR_Storage {
 		global $wpdb;
 
 		$meta_value = array_filter( (array) $meta_value );
-		$target     = $this->get_direction( $meta_key );
-		$source     = 'to' === $target ? 'from' : 'to';
+		$target     = $this->get_target( $meta_key );
+		$source     = $this->get_source( $meta_key );
 		$type       = $this->get_type( $meta_key );
 
 		$order = $this->get_target_order( $object_id, $type, $source, $target );
@@ -121,7 +132,7 @@ class MBR_Storage {
 		global $wpdb;
 
 		$type   = $this->get_type( $meta_key );
-		$source = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
+		$source = $this->get_source( $meta_key );
 
 		$wpdb->delete( $wpdb->mb_relationships, [
 			$source => $object_id,
@@ -137,19 +148,29 @@ class MBR_Storage {
 	 *
 	 * @return string
 	 */
-	protected function get_type( $name ) {
-		return substr( $name, 0, -1 - strlen( $this->get_direction( $name ) ) );
+	private function get_type( $name ) {
+		return substr( $name, 0, -1 - strlen( $this->get_target( $name ) ) );
 	}
 
 	/**
-	 * Get relationship direction from submitted field name "{$type}_to" or "{$type}_from".
+	 * Get relationship target from submitted field name "{$type}_to" or "{$type}_from".
 	 *
 	 * @param string $name Submitted field name.
-	 *
 	 * @return string
 	 */
-	protected function get_direction( $name ) {
+	private function get_target( $name ) {
 		return '_to' === substr( $name, -3 ) ? 'to' : 'from';
+	}
+
+	/**
+	 * Get relationship source from submitted field name "{$type}_to" or "{$type}_from".
+	 *
+	 * @param string $name Submitted field name.
+	 * @return string
+	 */
+	private function get_source( $name ) {
+		$target = $this->get_target( $name );
+		return 'to' === $target ? 'from' : 'to';
 	}
 
 	/**
@@ -161,7 +182,7 @@ class MBR_Storage {
 	 * @param  string $target    Target column. 'from' or 'to'.
 	 * @return array             Array of [object_id => order].
 	 */
-	protected function get_target_order( $object_id, $type, $source, $target ) {
+	private function get_target_order( $object_id, $type, $source, $target ) {
 		global $wpdb;
 
 		$items = $wpdb->get_results( $wpdb->prepare(
