@@ -76,7 +76,7 @@ class MBR_Query {
 
 		if ( $relationship['reciprocal'] ) {
 			return sprintf(
-				" ((mbr.from = $id_column OR mbr.to = $id_column) AND mbr.type = '%s' AND (mbr.from IN (%s) OR mbr.to IN (%s))) ",
+				" (mbr.type = '%s' AND ((mbr.from = $id_column AND mbr.to IN (%s)) OR (mbr.to = $id_column AND mbr.from IN (%s)))) ",
 				$relationship['id'],
 				$items,
 				$items
