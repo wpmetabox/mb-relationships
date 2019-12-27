@@ -24,17 +24,14 @@ class MBR_Storage {
 	public function get( $object_id, $meta_key, $args = false ) {
 		global $wpdb;
 
-		$target       = $this->get_direction( $meta_key );
-		$source       = 'to' === $target ? 'from' : 'to';
-		$order_column = "order_$source";
+		$target = $this->get_direction( $meta_key );
+		$source = 'to' === $target ? 'from' : 'to';
 
-		return $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT `{$target}` FROM {$wpdb->mb_relationships} WHERE `{$source}`=%d AND `type`=%s ORDER BY {$order_column}",
-				$object_id,
-				$this->get_type( $meta_key )
-			)
-		);
+		return $wpdb->get_col( $wpdb->prepare(
+			"SELECT `$target` FROM {$wpdb->mb_relationships} WHERE `$source`=%d AND `type`=%s ORDER BY order_$source",
+			$object_id,
+			$this->get_type( $meta_key )
+		) );
 	}
 
 	/**
@@ -72,7 +69,7 @@ class MBR_Storage {
 
 		$order = $this->get_target_order( $object_id, $type, $source, $target );
 
-		$values = array();
+		$values = [];
 		foreach ( $meta_value as $id ) {
 			$value         = isset( $order[ $id ] ) ? $order[ $id ] : 0;
 			$values[ $id ] = $value;
@@ -85,20 +82,20 @@ class MBR_Storage {
 			$x++;
 			$wpdb->insert(
 				$wpdb->mb_relationships,
-				array(
+				[
 					$source         => $object_id,
 					$target         => $id,
 					'type'          => $type,
 					"order_$source" => $x,
 					"order_$target" => $order,
-				),
-				array(
+				],
+				[
 					'%d',
 					'%d',
 					'%s',
 					'%d',
 					'%d',
-				)
+				]
 			);
 		}
 		return true;
@@ -126,13 +123,10 @@ class MBR_Storage {
 		$type   = $this->get_type( $meta_key );
 		$source = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
 
-		$wpdb->delete(
-			$wpdb->mb_relationships,
-			array(
-				$source => $object_id,
-				'type'  => $type,
-			)
-		);
+		$wpdb->delete( $wpdb->mb_relationships, [
+			$source => $object_id,
+			'type'  => $type,
+		] );
 		return true;
 	}
 
@@ -170,18 +164,12 @@ class MBR_Storage {
 	protected function get_target_order( $object_id, $type, $source, $target ) {
 		global $wpdb;
 
-		$items = $wpdb->get_results(
-			$wpdb->prepare(
-				"
-					SELECT `{$target}` AS `id`, `order_{$target}` AS `order`
-					FROM {$wpdb->mb_relationships}
-					WHERE `{$source}` = %d AND `type` = %s
-				",
-				$object_id,
-				$type
-			)
-		);
-		$order = array();
+		$items = $wpdb->get_results( $wpdb->prepare(
+			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->mb_relationships} WHERE `$source` = %d AND `type` = %s",
+			$object_id,
+			$type
+		) );
+		$order = [];
 		foreach ( $items as $key => $item ) {
 			$order[ $item->id ] = $item->order;
 		}
