@@ -5,6 +5,7 @@ add_action( 'mb_relationships_init', function () {
 		'from'       => 'post',
 		'to'         => 'post',
 		'reciprocal' => true,
+		'label_from' => 'Friends with',
 	] );
 } );
 add_filter( 'the_content', function ( $content ) {
