@@ -110,8 +110,8 @@ class MBR_Relationship_Factory {
 			'id'         => '',
 			'from'       => '',
 			'to'         => '',
-			'label_from' => __( 'Connected From', 'mb-relationships' ),
-			'label_to'   => __( 'Connects To', 'mb-relationships' ),
+			'label_from' => __( 'Connects To', 'mb-relationships' ),
+			'label_to'   => __( 'Connected From', 'mb-relationships' ),
 			'reciprocal' => false,
 		] );
 		$settings['from'] = $this->normalize_side( $settings['from'], 'from', $settings['label_from'] );
