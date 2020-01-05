@@ -106,16 +106,14 @@ class MBR_Relationship_Factory {
 	 * @return array
 	 */
 	protected function normalize( $settings ) {
-		$settings         = wp_parse_args(
-			$settings,
-			array(
-				'id'         => '',
-				'from'       => '',
-				'to'         => '',
-				'label_from' => __( 'Connected From', 'mb-relationships' ),
-				'label_to'   => __( 'Connects To', 'mb-relationships' ),
-			)
-		);
+		$settings         = wp_parse_args( $settings, [
+			'id'         => '',
+			'from'       => '',
+			'to'         => '',
+			'label_from' => __( 'Connects To', 'mb-relationships' ),
+			'label_to'   => __( 'Connected From', 'mb-relationships' ),
+			'reciprocal' => false,
+		] );
 		$settings['from'] = $this->normalize_side( $settings['from'], 'from', $settings['label_from'] );
 		$settings['to']   = $this->normalize_side( $settings['to'], 'to', $settings['label_to'] );
 
@@ -135,7 +133,6 @@ class MBR_Relationship_Factory {
 
 		$default = array(
 			'object_type'   => 'post',
-			'reciprocal'    => false,
 			'empty_message' => __( 'No connections', 'mb-relationships' ),
 			'meta_box'      => array(
 				'title'    => $label,
@@ -144,12 +141,8 @@ class MBR_Relationship_Factory {
 				'priority' => 'low',
 			),
 			'field'         => array(
-				'type'       => 'post',
-				'ajax'       => true,
-				'post_type'  => 'post',
-				'query_args' => array(
-					'posts_per_page' => 10,
-				),
+				'type'      => 'post',
+				'post_type' => 'post',
 			),
 		);
 

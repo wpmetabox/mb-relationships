@@ -1,12 +1,14 @@
 <?php
-/**
- * Custom table storage
- *
- * @package    Meta Box
- * @subpackage MB Relationships
- */
-
 class MBR_Storage {
+	/**
+	 * Relationship factory.
+	 */
+	private $factory;
+
+	public function __construct( MBR_Relationship_Factory $factory ) {
+		$this->factory = $factory;
+	}
+
 	/**
 	 * Retrieve metadata for the specified object.
 	 *
@@ -24,17 +26,30 @@ class MBR_Storage {
 	public function get( $object_id, $meta_key, $args = false ) {
 		global $wpdb;
 
-		$target       = $this->get_direction( $meta_key );
-		$origin       = 'to' === $target ? 'from' : 'to';
-		$order_column = "order_$origin";
+		$type         = $this->get_type( $meta_key );
+		$relationship = $this->factory->get( $type );
 
-		return $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT `{$target}` FROM {$wpdb->mb_relationships} WHERE `{$origin}`=%d AND `type`=%s ORDER BY {$order_column}",
+		if ( $relationship->reciprocal ) {
+			$results = $wpdb->get_results( $wpdb->prepare(
+				"SELECT `from`, `to` FROM {$wpdb->mb_relationships} WHERE `from`=%d OR `to`=%d AND `type`=%s",
 				$object_id,
-				$this->get_type( $meta_key )
-			)
-		);
+				$object_id,
+				$type
+			), ARRAY_N );
+			return array_map( function( $pair ) use ( $object_id ) {
+				$pair = array_diff( $pair, [$object_id] );
+				return reset( $pair );
+			}, $results );
+		}
+
+		$target = $this->get_target( $meta_key );
+		$source = $this->get_source( $meta_key );
+
+		return $wpdb->get_col( $wpdb->prepare(
+			"SELECT `$target` FROM {$wpdb->mb_relationships} WHERE `$source`=%d AND `type`=%s ORDER BY order_$source",
+			$object_id,
+			$type
+		) );
 	}
 
 	/**
@@ -66,40 +81,24 @@ class MBR_Storage {
 		global $wpdb;
 
 		$meta_value = array_filter( (array) $meta_value );
-		$target     = $this->get_direction( $meta_key );
-		$origin     = 'to' === $target ? 'from' : 'to';
+		$target     = $this->get_target( $meta_key );
+		$source     = $this->get_source( $meta_key );
 		$type       = $this->get_type( $meta_key );
-
-		$order = $this->get_target_order( $object_id, $type, $origin, $target );
-
-		$values = array();
-		foreach ( $meta_value as $id ) {
-			$value         = isset( $order[ $id ] ) ? $order[ $id ] : 0;
-			$values[ $id ] = $value;
-		}
 
 		$this->delete( $object_id, $meta_key );
 
+		$orders = $this->get_target_orders( $object_id, $type, $source, $target );
 		$x = 0;
-		foreach ( $values as $id => $order ) {
+		foreach ( $meta_value as $id ) {
 			$x++;
-			$wpdb->insert(
-				$wpdb->mb_relationships,
-				array(
-					$origin         => $object_id,
-					$target         => $id,
-					'type'          => $type,
-					"order_$origin" => $x,
-					"order_$target" => $order,
-				),
-				array(
-					'%d',
-					'%d',
-					'%s',
-					'%d',
-					'%d',
-				)
-			);
+			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
+			$wpdb->insert( $wpdb->mb_relationships, [
+				$source         => $object_id,
+				$target         => $id,
+				'type'          => $type,
+				"order_$source" => $x,
+				"order_$target" => $order,
+			], ['%d', '%d', '%s', '%d', '%d'] );
 		}
 		return true;
 	}
@@ -124,15 +123,21 @@ class MBR_Storage {
 		global $wpdb;
 
 		$type   = $this->get_type( $meta_key );
-		$origin = 'to' === $this->get_direction( $meta_key ) ? 'from' : 'to';
+		$source = $this->get_source( $meta_key );
 
-		$wpdb->delete(
-			$wpdb->mb_relationships,
-			array(
-				$origin => $object_id,
+		$wpdb->delete( $wpdb->mb_relationships, [
+			$source => $object_id,
+			'type'  => $type,
+		] );
+
+		$relationship = $this->factory->get( $type );
+		if ( $relationship->reciprocal ) {
+			$target = $this->get_target( $meta_key );
+			$wpdb->delete( $wpdb->mb_relationships, [
+				$target => $object_id,
 				'type'  => $type,
-			)
-		);
+			] );
+		}
 		return true;
 	}
 
@@ -140,51 +145,46 @@ class MBR_Storage {
 	 * Get relationship type from submitted field name "{$type}_to" or "{$type}_from".
 	 *
 	 * @param string $name Submitted field name.
-	 *
 	 * @return string
 	 */
-	protected function get_type( $name ) {
-		return substr( $name, 0, -1 - strlen( $this->get_direction( $name ) ) );
+	private function get_type( $name ) {
+		return substr( $name, 0, -1 - strlen( $this->get_target( $name ) ) );
 	}
 
 	/**
-	 * Get relationship direction from submitted field name "{$type}_to" or "{$type}_from".
+	 * Get relationship target from submitted field name "{$type}_to" or "{$type}_from".
 	 *
 	 * @param string $name Submitted field name.
-	 *
 	 * @return string
 	 */
-	protected function get_direction( $name ) {
+	private function get_target( $name ) {
 		return '_to' === substr( $name, -3 ) ? 'to' : 'from';
 	}
 
 	/**
-	 * Get existing order of connected objects (in the target column).
+	 * Get relationship source from submitted field name "{$type}_to" or "{$type}_from".
 	 *
-	 * @param  int    $object_id Object ID.
-	 * @param  string $type      Relationship ID.
-	 * @param  string $origin    Origin column. 'from' or 'to'.
-	 * @param  string $target    Target column. 'from' or 'to'.
-	 * @return array             Array of [object_id => order].
+	 * @param string $name Submitted field name.
+	 * @return string
 	 */
-	protected function get_target_order( $object_id, $type, $origin, $target ) {
+	private function get_source( $name ) {
+		$target = $this->get_target( $name );
+		return 'to' === $target ? 'from' : 'to';
+	}
+
+	/**
+	 * Get orders of connected objects (in the target column).
+	 *
+	 * @return array Array of [object_id => order].
+	 */
+	private function get_target_orders( $object_id, $type, $source, $target ) {
 		global $wpdb;
 
-		$items = $wpdb->get_results(
-			$wpdb->prepare(
-				"
-					SELECT `{$target}` AS `id`, `order_{$target}` AS `order`
-					FROM {$wpdb->mb_relationships}
-					WHERE `{$origin}` = %d AND `type` = %s
-				",
-				$object_id,
-				$type
-			)
-		);
-		$order = array();
-		foreach ( $items as $key => $item ) {
-			$order[ $item->id ] = $item->order;
-		}
-		return $order;
+		$items = $wpdb->get_results( $wpdb->prepare(
+			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->mb_relationships} WHERE `$source` = %d AND `type` = %s",
+			$object_id,
+			$type
+		), ARRAY_A );
+		return wp_list_pluck( $items, 'order', 'id' );
 	}
 }

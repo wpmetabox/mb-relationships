@@ -59,7 +59,7 @@ class MBR_Storage_Handler {
 			return $storage;
 		}
 		if ( ! $this->storage ) {
-			$this->storage = new MBR_Storage();
+			$this->storage = new MBR_Storage( $this->factory );
 		}
 
 		return $this->storage;
