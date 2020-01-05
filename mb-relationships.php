@@ -3,7 +3,7 @@
  * Plugin Name: MB Relationships
  * Plugin URI:  https://metabox.io/plugins/mb-relationships/
  * Description: Create many-to-many relationships between posts, users, terms, etc.
- * Version:     1.7.1
+ * Version:     1.8.0
  * Author:      MetaBox.io
  * Author URI:  https://metabox.io
  * License:     GPL2+
@@ -18,7 +18,7 @@
 defined( 'ABSPATH' ) || die;
 
 if ( ! class_exists( 'MBR_Loader' ) ) {
-	require 'inc/loader.php';
+	require __DIR__ . '/inc/loader.php';
 	$loader = new MBR_Loader();
 
 	// Create relationships table only when plugin is activated.

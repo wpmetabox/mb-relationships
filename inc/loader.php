@@ -73,7 +73,7 @@ class MBR_Loader {
 	 * Create relationships table.
 	 */
 	protected function create_table() {
-		require 'database/table.php';
+		require __DIR__ . '/database/table.php';
 
 		$table = new MBR_Table();
 		$table->create();
@@ -83,27 +83,27 @@ class MBR_Loader {
 	 * Load plugin files.
 	 */
 	protected function load_files() {
-		require 'database/storage.php';
-		require 'database/storage-handler.php';
+		require __DIR__ . '/database/storage.php';
+		require __DIR__ . '/database/storage-handler.php';
 
-		require 'object/interface.php';
-		require 'object/post.php';
-		require 'object/term.php';
-		require 'object/user.php';
-		require 'object/factory.php';
+		require __DIR__ . '/object/interface.php';
+		require __DIR__ . '/object/post.php';
+		require __DIR__ . '/object/term.php';
+		require __DIR__ . '/object/user.php';
+		require __DIR__ . '/object/factory.php';
 
-		require 'query/query.php';
-		require 'query/normalizer.php';
-		require 'query/post.php';
-		require 'query/term.php';
-		require 'query/user.php';
+		require __DIR__ . '/query/query.php';
+		require __DIR__ . '/query/normalizer.php';
+		require __DIR__ . '/query/post.php';
+		require __DIR__ . '/query/term.php';
+		require __DIR__ . '/query/user.php';
 
-		require 'relationship/factory.php';
-		require 'relationship/relationship.php';
-		require 'relationship/admin-columns.php';
-		require 'relationship/meta-boxes.php';
+		require __DIR__ . '/relationship/factory.php';
+		require __DIR__ . '/relationship/relationship.php';
+		require __DIR__ . '/relationship/admin-columns.php';
+		require __DIR__ . '/relationship/meta-boxes.php';
 
-		require 'api.php';
-		require 'shortcodes.php';
+		require __DIR__ . '/api.php';
+		require __DIR__ . '/shortcodes.php';
 	}
 }
