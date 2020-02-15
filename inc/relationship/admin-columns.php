@@ -1,19 +1,4 @@
 <?php
-/**
- * The admin columns class.
- * Registers admin columns for relationships objects.
- *
- * @package    Meta Box
- * @subpackage MB Relationships
- */
-
-/**
- * The admin columns class.
- *
- * @property array  $from From side settings.
- * @property array  $to   To side settings.
- * @property string $id   Relationship ID.
- */
 class MBR_Admin_Columns {
 	/**
 	 * The relationship settings.
@@ -116,7 +101,7 @@ class MBR_Admin_Columns {
 	 * @param  int    $object_id Object ID.
 	 */
 	public function post_from_column_data( $column, $object_id ) {
-		if ( $this->settings['id'] . '_to' !== $column ) {
+		if ( $this->id . '_to' !== $column ) {
 			return;
 		}
 
@@ -130,7 +115,7 @@ class MBR_Admin_Columns {
 	 * @param  int    $object_id Object ID.
 	 */
 	public function from_column_data( $content, $column, $object_id ) {
-		if ( $this->settings['id'] . '_to' !== $column ) {
+		if ( $this->id . '_to' !== $column ) {
 			return $content;
 		}
 
@@ -144,7 +129,7 @@ class MBR_Admin_Columns {
 	 * @param  int    $object_id Object ID.
 	 */
 	public function post_to_column_data( $column, $object_id ) {
-		if ( $this->settings['id'] . '_from' !== $column ) {
+		if ( $this->id . '_from' !== $column ) {
 			return;
 		}
 
@@ -158,7 +143,7 @@ class MBR_Admin_Columns {
 	 * @param  int    $object_id Object ID.
 	 */
 	public function to_column_data( $content, $column, $object_id ) {
-		if ( $this->settings['id'] . '_from' !== $column ) {
+		if ( $this->id . '_from' !== $column ) {
 			return $content;
 		}
 
@@ -173,35 +158,11 @@ class MBR_Admin_Columns {
 	 * @return array
 	 */
 	private function register_columns( $columns, $side ) {
-		$config    = $this->$side['admin_column'];
+		$config    = $this->parse_config( $side );
 		$connected = 'from' === $side ? 'to' : 'from';
-		$title     = $this->$side['meta_box']['title'];
-		$id        = "{$this->settings['id']}_{$connected}";
+		$id        = "{$this->id}_{$connected}";
 
-		if ( true === $config ) {
-			$this->add_column( $columns, $id, $title );
-			return $columns;
-		}
-
-		// If position is specified.
-		if ( is_string( $config ) ) {
-			$config                    = strtolower( $config );
-			list( $position, $target ) = array_map( 'trim', explode( ' ', $config . ' ' ) );
-			$this->add_column( $columns, $id, $title, $position, $target );
-			return $columns;
-		}
-
-		// If an array of configuration is specified.
-		$config                    = wp_parse_args(
-			$config,
-			array(
-				'position' => '',
-				'title'    => $title,
-			)
-		);
-		list( $position, $target ) = array_map( 'trim', explode( ' ', $config['position'] . ' ' ) );
-		$this->add_column( $columns, $id, $config['title'], $position, $target );
-
+		$this->add_column( $columns, $id, $config['title'], $config['position'], $config['target'] );
 		return $columns;
 	}
 
@@ -255,14 +216,8 @@ class MBR_Admin_Columns {
 		$columns = $new;
 	}
 
-	/**
-	 * Get column data.
-	 *
-	 * @param  int    $object_id   Object ID.
-	 * @param  string $object_type Object type.
-	 * @param  string $direction   Direction.
-	 */
 	private function get_column_data( $object_id, $object_type, $direction ) {
+		$config = $this->parse_config( $direction );
 		$method = "get_{$object_type}_items";
 		$items  = $this->$method( $object_id, $direction );
 		if ( empty( $items ) ) {
@@ -270,66 +225,68 @@ class MBR_Admin_Columns {
 		}
 
 		$object = $this->object_factory->build( $object_type );
-		$items  = array_map( array( $object, 'render' ), $items );
+		$items  = array_map( function( $item ) use ( $object, $config ) {
+			return $object->render_admin( $item, $config );
+		}, $items );
 
 		return implode( '<br>', $items );
 	}
 
-	/**
-	 * Get connected posts.
-	 *
-	 * @param  int    $object_id Object ID.
-	 * @param  string $direction Direction.
-	 * @return array
-	 */
 	private function get_post_items( $object_id, $direction ) {
-		$query = new WP_Query(
-			array(
-				'relationship'        => array(
-					'id'       => $this->id,
-					$direction => $object_id,
-				),
-				'nopaging'            => true,
-				'ignore_sticky_posts' => true,
-			)
-		);
+		$query = new WP_Query( [
+			'relationship'        => [
+				'id'       => $this->id,
+				$direction => $object_id,
+			],
+			'nopaging'            => true,
+			'ignore_sticky_posts' => true,
+		] );
 		return $query->posts;
 	}
 
-	/**
-	 * Get connected terms.
-	 *
-	 * @param  int    $object_id Object ID.
-	 * @param  string $direction Direction.
-	 * @return array
-	 */
 	private function get_term_items( $object_id, $direction ) {
-		return get_terms(
-			array(
-				'hide_empty'   => false,
-				'relationship' => array(
-					'id'       => $this->settings['id'],
-					$direction => $object_id,
-				),
-			)
-		);
+		return get_terms( [
+			'hide_empty'   => false,
+			'relationship' => [
+				'id'       => $this->settings['id'],
+				$direction => $object_id,
+			],
+		] );
 	}
 
-	/**
-	 * Get connected users.
-	 *
-	 * @param  int    $object_id Object ID.
-	 * @param  string $direction Direction.
-	 * @return array
-	 */
 	private function get_user_items( $object_id, $direction ) {
-		return get_users(
-			array(
-				'relationship' => array(
-					'id'       => $this->settings['id'],
-					$direction => $object_id,
-				),
-			)
-		);
+		return get_users( [
+			'relationship' => [
+				'id'       => $this->settings['id'],
+				$direction => $object_id,
+			],
+		] );
+	}
+
+	private function parse_config( $side ) {
+		$admin_column = $this->$side['admin_column'];
+		$title        = $this->$side['meta_box']['title'];
+
+		$config = [
+			'position' => '',
+			'target'   => '',
+			'title'    => $title,
+			'link'     => 'view',
+		];
+
+		if ( true === $admin_column ) {
+			return $config;
+		}
+
+		// If position is specified.
+		if ( is_string( $admin_column ) ) {
+			list( $position, $target ) = array_map( 'trim', explode( ' ', strtolower( $admin_column ) . ' ' ) );
+			return array_merge( $config, compact( 'position', 'target' ) );
+		}
+
+		// If an array of configuration is specified.
+		$config = array_merge( $config, $admin_column );
+		list( $position, $target ) = array_map( 'trim', explode( ' ', strtolower( $config['position'] ) . ' ' ) );
+		return array_merge( $config, compact( 'position', 'target' ) );
 	}
 }

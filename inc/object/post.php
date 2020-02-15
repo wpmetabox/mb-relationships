@@ -47,11 +47,30 @@ class MBR_Post implements MBR_Object_Interface {
 	 * Render HTML of the object to show in the frontend.
 	 *
 	 * @param WP_Post $item Post object.
-	 *
 	 * @return string
 	 */
 	public function render( $item ) {
 		return '<a href="' . get_permalink( $item ) . '">' . get_the_title( $item ) . '</a>';
+	}
+
+	/**
+	 * Render HTML of the object on the back end (admin column).
+	 *
+	 * @param WP_Post $item Post object.
+	 * @return string
+	 */
+	public function render_admin( $item, $config ) {
+		$text = get_the_title( $item );
+		if ( empty( $config['link'] ) || 'view' === $config['link'] ) {
+			$link = get_permalink( $item );
+		}
+		if ( false === $config['link'] ) {
+			return $text;
+		}
+		if ( 'edit' === $config['link'] ) {
+			$link = get_edit_post_link( $item );
+		}
+		return '<a href="' . esc_url( $link ) . '">' . esc_html( $text ) . '</a>';
 	}
 
 	/**

@@ -52,6 +52,26 @@ class MBR_Term implements MBR_Object_Interface {
 	}
 
 	/**
+	 * Render HTML of the object on the back end (admin column).
+	 *
+	 * @param WP_Post $item Post object.
+	 * @return string
+	 */
+	public function render_admin( $item, $config ) {
+		$text = $item->name;
+		if ( empty( $config['link'] ) || 'view' === $config['link'] ) {
+			$link = get_term_link( $item );
+		}
+		if ( false === $config['link'] ) {
+			return $text;
+		}
+		if ( 'edit' === $config['link'] ) {
+			$link = get_edit_term_link( $item );
+		}
+		return '<a href="' . esc_url( $link ) . '">' . esc_html( $text ) . '</a>';
+	}
+
+	/**
 	 * Get database ID field.
 	 *
 	 * @return string
