@@ -80,7 +80,7 @@ class MBR_Storage {
 	public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
 		global $wpdb;
 
-		$meta_value = array_filter( (array) $meta_value );
+		$meta_value = array_unique( array_filter( (array) $meta_value ) );
 		$target     = $this->get_target( $meta_key );
 		$source     = $this->get_source( $meta_key );
 		$type       = $this->get_type( $meta_key );
