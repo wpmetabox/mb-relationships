@@ -4,7 +4,7 @@ Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
 Tested up to: 5.3.2
-Stable tag: 1.8.0
+Stable tag: 1.9.0
 License: GPLv2 or later
 
 A lightweight solution for creating many-to-many posts to posts relationships.
@@ -91,6 +91,11 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.9.0 - 2020-02-19 =
+
+- Add `link` parameter to `admin_column` which accepts `view` (default), `edit` or `false` (no link).
+- Fix duplicated connections.
 
 = 1.8.0 - 2020-01-05 =
 

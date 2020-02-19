@@ -1,0 +1,11 @@
+/.git
+/.github
+
+.DS_Store
+Thumbs.db
+
+tests
+.distignore
+.gitattributes
+composer.json
+README.md

@@ -10,3 +10,4 @@ tests export-ignore
 .gitattributes export-ignore
 *.json export-ignore
 *.md export-ignore
+*.txt export-ignore
