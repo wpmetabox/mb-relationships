@@ -3,7 +3,7 @@ Contributors: metabox, rilwis, truongwp
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
-Tested up to: 5.3.2
+Tested up to: 5.4
 Stable tag: 1.9.0
 License: GPLv2 or later
 
@@ -91,6 +91,11 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.9.1 - 2020-04-08 =
+
+- Fix query of the storage get function for reciprocal relationships
+- Fix each_connected not working
 
 = 1.9.0 - 2020-02-19 =
 
