@@ -50,6 +50,22 @@ class MB_Relationships_API {
 		return self::$factory->build( $settings );
 	}
 
+	public static function get_relationship( $id ) {
+		return self::$factory->get( $id );
+	}
+
+	public static function get_relationship_settings( $id ) {
+		return self::$factory->get_settings( $id );
+	}
+
+	public static function get_all_relationships() {
+		return self::$factory->all();
+	}
+
+	public static function get_all_relationships_settings() {
+		return self::$factory->all_settings();
+	}
+
 	/**
 	 * Check if 2 objects has a relationship.
 	 *
