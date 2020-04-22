@@ -31,13 +31,21 @@ class MBR_Storage {
 
 		if ( $relationship->reciprocal ) {
 			$results = $wpdb->get_results( $wpdb->prepare(
-				"SELECT `from`, `to` FROM {$wpdb->mb_relationships} WHERE (`from`=%d OR `to`=%d) AND `type`=%s",
+				"SELECT `to`, `order_from` AS `order`
+				FROM {$wpdb->mb_relationships}
+				WHERE `from`=%d AND `type`=%s 
+				UNION
+				SELECT `from`, `order_to` AS `order`
+				FROM {$wpdb->mb_relationships}
+				WHERE `to`=%d AND `type`=%s
+				ORDER BY `order`",
 				$object_id,
+				$type,
 				$object_id,
 				$type
 			), ARRAY_N );
-			return array_map( function( $pair ) use ( $object_id ) {
-				$pair = array_diff( $pair, [$object_id] );
+
+			return array_map( function( $pair ) {
 				return reset( $pair );
 			}, $results );
 		}
