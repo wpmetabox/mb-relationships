@@ -31,14 +31,14 @@ class MBR_Storage {
 
 		if ( $relationship->reciprocal ) {
 			$results = $wpdb->get_results( $wpdb->prepare(
-				"SELECT `to`, `order_from` AS `order`
+				"SELECT `to`, `ID`, `order_from` AS `order`
 				FROM {$wpdb->mb_relationships}
 				WHERE `from`=%d AND `type`=%s 
 				UNION
-				SELECT `from`, `order_to` AS `order`
+				SELECT `from`, `ID`, `order_to` AS `order`
 				FROM {$wpdb->mb_relationships}
 				WHERE `to`=%d AND `type`=%s
-				ORDER BY `order`",
+				ORDER BY `order` ASC, `ID` DESC",
 				$object_id,
 				$type,
 				$object_id,
