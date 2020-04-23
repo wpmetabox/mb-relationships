@@ -75,9 +75,9 @@ class MBR_Query {
 		$items  = implode( ',', array_map( 'absint', $relationship['items'] ) );
 
 		if ( $relationship['reciprocal'] ) {
-			$fields             = 'mbr.from AS mbr_from, mbr.to AS mbr_to, CASE WHEN mbr.to = wp_posts.ID THEN mbr.order_from WHEN mbr.from = wp_posts.ID THEN mbr.order_to END AS `mbr_order`';
+			$fields             = 'mbr.from AS mbr_from, mbr.to AS mbr_to, mbr.ID AS mbr_id, CASE WHEN mbr.to = wp_posts.ID THEN mbr.order_from WHEN mbr.from = wp_posts.ID THEN mbr.order_to END AS `mbr_order`';
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
-			$clauses['orderby'] = '`mbr_order`';
+			$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
 			if ( empty( $clauses['groupby'] ) ) {
 				$clauses['groupby'] = 'mbr_from, mbr_to';
 			}
@@ -87,7 +87,7 @@ class MBR_Query {
 				$relationship['id'],
 				$items,
 				$items
-			);
+			);	
 		}
 
 		if ( ! $pass_thru_order ) {
