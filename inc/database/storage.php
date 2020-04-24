@@ -92,10 +92,10 @@ class MBR_Storage {
 		$target     = $this->get_target( $meta_key );
 		$source     = $this->get_source( $meta_key );
 		$type       = $this->get_type( $meta_key );
+		$orders     = $this->get_target_orders( $object_id, $type, $source, $target );
 
 		$this->delete( $object_id, $meta_key );
 
-		$orders = $this->get_target_orders( $object_id, $type, $source, $target );
 		$x = 0;
 		foreach ( $meta_value as $id ) {
 			$x++;
@@ -189,7 +189,10 @@ class MBR_Storage {
 		global $wpdb;
 
 		$items = $wpdb->get_results( $wpdb->prepare(
-			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->mb_relationships} WHERE `$source` = %d AND `type` = %s",
+			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->mb_relationships} WHERE `$source` = %d AND `type` = %s
+			UNION SELECT `$source` AS `id`, `order_$source` AS `order` FROM {$wpdb->mb_relationships} WHERE `$target` = %d AND `type` = %s",
+			$object_id,
+			$type,
 			$object_id,
 			$type
 		), ARRAY_A );
