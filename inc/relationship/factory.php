@@ -107,6 +107,8 @@ class MBR_Relationship_Factory {
 		$settings['from'] = $this->normalize_side( $settings['from'], $settings['label_from'] );
 		$settings['to']   = $this->normalize_side( $settings['to'], $settings['label_to'] );
 
+		$settings = apply_filters( 'mb_relationships_settings', $settings );
+
 		return $settings;
 	}
 
