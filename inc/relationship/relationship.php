@@ -108,7 +108,7 @@ class MBR_Relationship {
 				'%d',
 			)
 		);
-		do_action( 'mb_relationships_add', $from, $to, $this->id, $order_from, $order_to, $this->id, $result );
+		do_action( 'mb_relationships_add', $from, $to, $this->id, $order_from, $order_to, $result );
 		return $result;
 	}
 
