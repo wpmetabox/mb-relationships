@@ -77,7 +77,9 @@ class MBR_Query {
 		if ( $relationship['reciprocal'] ) {
 			$fields             = "mbr.from AS mbr_from, mbr.to AS mbr_to, mbr.ID AS mbr_id, CASE WHEN mbr.to = {$wpdb->posts}.ID THEN mbr.order_from WHEN mbr.from = {$wpdb->posts}.ID THEN mbr.order_to END AS `mbr_order`";
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
-			$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
+			if ( ! $pass_thru_order ) {
+				$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
+			}
 			if ( empty( $clauses['groupby'] ) ) {
 				$clauses['groupby'] = 'mbr_from, mbr_to';
 			}
