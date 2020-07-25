@@ -32,7 +32,7 @@ class MBR_Query {
 		}
 
 		global $wpdb;
-		$clauses['groupby'] = empty( $clauses['groupby'] ) ? "$wpdb->posts.ID" : "{$clauses['groupby']}, $wpdb->posts.ID";
+		$clauses['groupby'] = empty( $clauses['groupby'] ) ? $id_column : "{$clauses['groupby']}, $id_column";
 
 		return $clauses;
 	}
@@ -68,14 +68,12 @@ class MBR_Query {
 	}
 
 	private function build_join( $relationship, &$clauses, $id_column, $pass_thru_order ) {
-		global $wpdb;
-
 		$source = $relationship['direction'];
 		$target = 'from' === $source ? 'to' : 'from';
 		$items  = implode( ',', array_map( 'absint', $relationship['items'] ) );
 
 		if ( $relationship['reciprocal'] ) {
-			$fields             = "mbr.from AS mbr_from, mbr.to AS mbr_to, mbr.ID AS mbr_id, CASE WHEN mbr.to = {$wpdb->posts}.ID THEN mbr.order_from WHEN mbr.from = {$wpdb->posts}.ID THEN mbr.order_to END AS `mbr_order`";
+			$fields             = "mbr.from AS mbr_from, mbr.to AS mbr_to, mbr.ID AS mbr_id, CASE WHEN mbr.to = $id_column THEN mbr.order_from WHEN mbr.from = $id_column THEN mbr.order_to END AS `mbr_order`";
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 			if ( ! $pass_thru_order ) {
 				$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
