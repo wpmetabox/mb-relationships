@@ -97,7 +97,7 @@ class MBR_Query {
 			$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
 		}
 
-		$alias 							= 'mbr_' .  $relationship['id'] . '_' . $source;
+		$alias              = 'mbr_' .  $relationship['id'] . '_' . $source;
 		$fields             = "mbr.$source AS $alias";
 		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 		if ( empty( $clauses['groupby'] ) ) {
