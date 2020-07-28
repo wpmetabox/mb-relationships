@@ -1,5 +1,5 @@
 === MB Relationships ===
-Contributors: metabox, rilwis, truongwp
+Contributors: metabox, rilwis, truongwp, hsimah
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 4.8
