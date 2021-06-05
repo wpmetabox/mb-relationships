@@ -61,7 +61,21 @@ class MBR_Loader {
 		MB_Relationships_API::set_post_query( $post_query );
 		MB_Relationships_API::set_term_query( $term_query );
 		MB_Relationships_API::set_user_query( $user_query );
-
+		MB_Relationships_API::register( [
+			'id'         => 'rbi_neighboring_countries',
+			'reciprocal' => true,
+			'from'       => [
+				'object_type' => 'term',
+				'taxonomy'    => 'rbi_country',
+				'meta_box'    => [
+					'title' => 'Neighboring countries',
+				],
+			],
+			'to'         => [
+				'object_type' => 'term',
+				'taxonomy'    => 'rbi_country',
+			],
+		] );
 		$shortcodes = new MBR_Shortcodes( $rel_factory, $obj_factory );
 		$shortcodes->init();
 
