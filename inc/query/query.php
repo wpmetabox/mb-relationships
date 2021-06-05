@@ -77,8 +77,14 @@ class MBR_Query {
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 			
 			if ( ! $pass_thru_order ) {
-				$clauses['orderby'] = ( 't.term_id' === $id_column ? 'ORDER BY ' : '' ) . '`mbr_order` ASC, mbr_id';		
-				$clauses['order'] = 'DESC';				
+
+				if ( 't.term_id' === $id_column ) {
+					$clauses['orderby'] = 'ORDER BY `mbr_order` ASC, mbr_id';
+					$clauses['order'] = 'DESC';
+				} else {
+					$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
+				}	
+							
 			}
 
 			if ( empty( $clauses['groupby'] ) ) {
