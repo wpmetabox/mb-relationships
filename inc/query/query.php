@@ -78,13 +78,13 @@ class MBR_Query {
 			
 			if ( ! $pass_thru_order ) {	
 
-				$clauses['orderby'] = ( 't.term_id' === $id_column ? 'ORDER BY ' ) . '`mbr_order` ASC, mbr_id';		
+				$clauses['orderby'] = ( 't.term_id' === $id_column ? 'ORDER BY ' : '' ) . '`mbr_order` ASC, mbr_id';		
 
 				if ( 't.term_id' === $id_column ){					
 					$clauses['order'] = 'DESC';
 				}
 			}
-			
+
 			if ( empty( $clauses['groupby'] ) ) {
 				$clauses['groupby'] = 'mbr_from, mbr_to';
 			}
