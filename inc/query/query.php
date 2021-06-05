@@ -75,9 +75,17 @@ class MBR_Query {
 		if ( $relationship['reciprocal'] ) {
 			$fields             = "mbr.from AS mbr_from, mbr.to AS mbr_to, mbr.ID AS mbr_id, CASE WHEN mbr.to = $id_column THEN mbr.order_from WHEN mbr.from = $id_column THEN mbr.order_to END AS `mbr_order`";
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
-			if ( ! $pass_thru_order ) {
-				$clauses['orderby'] = ( 't.term_id' === $id_column ? 'ORDER BY ' : '' ) . '`mbr_order` ASC, mbr_id';
+
+			if ( ! $pass_thru_order ) {	
+							
+				if ( 't.term_id' === $id_column ){
+					$clauses['orderby'] = 'ORDER BY ';
+					$clauses['order'] = 'DESC';
+				} 
+
+				$clauses['orderby'] .= '`mbr_order` ASC, mbr_id';
 			}
+
 			if ( empty( $clauses['groupby'] ) ) {
 				$clauses['groupby'] = 'mbr_from, mbr_to';
 			}
