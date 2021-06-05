@@ -61,7 +61,7 @@ class MBR_Loader {
 		MB_Relationships_API::set_post_query( $post_query );
 		MB_Relationships_API::set_term_query( $term_query );
 		MB_Relationships_API::set_user_query( $user_query );
-
+		
 		$shortcodes = new MBR_Shortcodes( $rel_factory, $obj_factory );
 		$shortcodes->init();
 
