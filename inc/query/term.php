@@ -83,4 +83,20 @@ class MBR_Query_Term {
 		);
 		return get_terms( $query_vars );
 	}
+	
+	/**
+	 * Modify query join statement to replace bug statement.
+	 *
+	 * @param string $join   Query join statement.
+	 * @param array $query $WP_query object.
+	 */
+	function filter_join_statement( $join, $query ){	
+	
+		if( is_array($query->get( 'relationship' )) ) // No global $wp_query here
+		{	
+			$join = str_replace(['mbr.from = wp_posts.ID AND ', 'mbr.to = wp_posts.ID AND '], [null, null], $join);				   
+		}
+		
+		return $join;
+	}
 }
