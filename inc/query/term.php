@@ -83,4 +83,55 @@ class MBR_Query_Term {
 		);
 		return get_terms( $query_vars );
 	}
+	
+	/**
+	 * Modify query join statement to replace AND statement.
+	 *
+	 * @param string $sql   the request sql statement.
+	 * @param array  $args   $WP_query args object.
+	 */
+	function filter_request_statement( $sql, $args ){	
+		global $wpdb;
+		$prefix = $wpdb->prefix;			
+		$relationships = $args->get( 'relationship' );		
+		
+		if( is_array($relationships) && isset($relationships['relation']) && $relationships['relation'] === 'AND' ) // No global $wp_query here
+		{	
+			$sql = preg_replace('/\s+/', ' ', $sql);
+			$sql_statement = null;
+			$not_first_statement = false;
+
+			foreach($relationships as $relationship){
+				if( $not_first_statement && isset($relationship['id']) && isset($relationship['direction']) ){					
+					$type = $relationship['id'];
+					$post_id = implode(",", $relationship['items']);
+					$direction = $relationship['direction'];
+					$post_id_direction = $direction === 'from' ? 'to' : 'from';					
+					
+					$remove_statements = ["AND (mbr.${post_id_direction} = ${prefix}posts.ID AND mbr.type = '${type}' AND mbr.${direction} IN (${post_id}))"];
+					
+					$sql = str_replace($remove_statements, null, $sql);					
+					$sql_statement = $sql_statement == null ? $sql : $sql_statement;
+					$tagOne = " ON ";
+					$tagTwo = " WHERE ";					
+					$replacement = "(mbr.${post_id_direction} = ${prefix}posts.ID AND mbr.type = '${type}' AND mbr.${direction} IN (${post_id}))";					
+								
+					$startTagPos = strrpos($sql_statement, $tagOne) + 4;
+					$endTagPos = strrpos($sql_statement, $tagTwo);
+					$tagLength = $endTagPos - $startTagPos;	
+					
+					$this_statement_sql = substr_replace($sql_statement, $replacement, $startTagPos, $tagLength);
+					$this_statement_sql = str_replace(["SQL_CALC_FOUND_ROWS ", ".*"], [null, ".ID"], $this_statement_sql);					
+					$this_statement_sql = preg_replace('/posts.ID[\s\S]+? FROM/', 'posts.ID FROM', $this_statement_sql);
+					$this_statement_sql = substr($this_statement_sql, 0, strpos($this_statement_sql, " GROUP BY"));
+
+					$this_statement_sql = " AND ${prefix}posts.ID IN(${this_statement_sql})";
+					$pos = strpos($sql, " GROUP BY ");
+					$sql = substr_replace($sql, $this_statement_sql, $pos, 0);					
+				}
+				$not_first_statement = isset($relationship['id']) && isset($relationship['direction']);				
+			}						   
+		}		
+		return $sql;
+	}	
 }
