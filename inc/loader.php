@@ -67,7 +67,7 @@ class MBR_Loader {
 
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
-		add_filter( 'posts_join_request', array( $term_query, 'filter_join_statement' ), 10, 2 );
+		add_filter( 'posts_request', array( $term_query, 'filter_request_statement' ), 10, 2 );
 	}
 
 	/**
