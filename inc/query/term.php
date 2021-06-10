@@ -83,55 +83,73 @@ class MBR_Query_Term {
 		);
 		return get_terms( $query_vars );
 	}
-	
+
 	/**
 	 * Modify query join statement to replace AND statement.
 	 *
 	 * @param string $sql   the request sql statement.
 	 * @param array  $args   $WP_query args object.
 	 */
-	function filter_request_statement( $sql, $args ){	
+	public function filter_request_statement( $sql, $args ) {
 		global $wpdb;
-		$prefix = $wpdb->prefix;			
-		$relationships = $args->get( 'relationship' );		
-		
-		if( is_array($relationships) && isset($relationships['relation']) && $relationships['relation'] === 'AND' ) // No global $wp_query here
-		{	
-			$sql = preg_replace('/\s+/', ' ', $sql);
-			$sql_statement = null;
-			$not_first_statement = false;
-
-			foreach($relationships as $relationship){
-				if( $not_first_statement && isset($relationship['id']) && isset($relationship['direction']) ){					
-					$type = $relationship['id'];
-					$post_id = implode(",", $relationship['items']);
-					$direction = $relationship['direction'];
-					$post_id_direction = $direction === 'from' ? 'to' : 'from';					
-					
-					$remove_statements = ["AND (mbr.${post_id_direction} = ${prefix}posts.ID AND mbr.type = '${type}' AND mbr.${direction} IN (${post_id}))"];
-					
-					$sql = str_replace($remove_statements, null, $sql);					
-					$sql_statement = $sql_statement == null ? $sql : $sql_statement;
-					$tagOne = " ON ";
-					$tagTwo = " WHERE ";					
-					$replacement = "(mbr.${post_id_direction} = ${prefix}posts.ID AND mbr.type = '${type}' AND mbr.${direction} IN (${post_id}))";					
-								
-					$startTagPos = strrpos($sql_statement, $tagOne) + 4;
-					$endTagPos = strrpos($sql_statement, $tagTwo);
-					$tagLength = $endTagPos - $startTagPos;	
-					
-					$this_statement_sql = substr_replace($sql_statement, $replacement, $startTagPos, $tagLength);
-					$this_statement_sql = str_replace(["SQL_CALC_FOUND_ROWS ", ".*"], [null, ".ID"], $this_statement_sql);					
-					$this_statement_sql = preg_replace('/posts.ID[\s\S]+? FROM/', 'posts.ID FROM', $this_statement_sql);
-					$this_statement_sql = substr($this_statement_sql, 0, strpos($this_statement_sql, " GROUP BY"));
-
-					$this_statement_sql = " AND ${prefix}posts.ID IN(${this_statement_sql})";
-					$pos = strpos($sql, " GROUP BY ");
-					$sql = substr_replace($sql, $this_statement_sql, $pos, 0);					
+		$prefix        = $wpdb->prefix;
+		$relationships = $args->get( 'relationship' );
+		$post_type     = $args->get( 'post_type' );
+		if ( is_array( $relationships ) && isset( $relationships['relation'] ) ) {
+			$relationships_operator = $relationships['relation'];
+			$sql                    = preg_replace( '/\s+/', ' ', $sql );
+			$join_on_clauses        = array();
+			foreach ( $relationships as $relationship ) {
+				if ( isset( $relationship['id'] ) && isset( $relationship['direction'] ) ) {
+					$type              = $relationship['id'];
+					$item_id           = array_shift( $relationship['items'] );
+					$direction         = $relationship['direction'];
+					$item_id_direction = $direction === 'from' ? 'to' : 'from';
+					if ( 'ID' === $relationship['id_field'] ) {
+						$this_statement_sql = "SELECT ${prefix}posts.ID FROM ${prefix}posts INNER JOIN ${prefix}mb_relationships AS mbr
+							ON mbr.${item_id_direction} = ${prefix}posts.ID AND mbr.type = '${type}' AND mbr.${direction} IN (${item_id})";
+						$this_statement_sql = " AND ${prefix}posts.ID IN(${this_statement_sql})";
+						$pos                = strpos( $sql, ' GROUP BY ' );
+						$sql                = substr_replace( $sql, $this_statement_sql, $pos, 0 );
+					} elseif ( 'term_id' === $relationship['id_field'] ) {
+						$taxonomies = get_taxonomies();
+						$this_tax   = null;
+						foreach ( $taxonomies as $tax_type_key => $taxonomy ) {
+							if ( $term_object = get_term_by( 'term_id', $item_id, $taxonomy ) ) {
+								$this_tax = $taxonomy;
+							}
+						}
+						if ( null != $this_tax ) {
+							$args    = array(
+								'tax_query' => array(
+									array(
+										'taxonomy' => $this_tax,
+										'field'    => 'term_id',
+										'terms'    => $item_id,
+									),
+								),
+							);
+							$query   = new WP_Query( $args );
+							$post_id = array();
+							while ( $query->have_posts() ) {
+								$query->the_post();
+								$post_id[] = get_the_ID();
+							}
+							$this_statement_sql = implode( ',', $post_id );
+						}
+					}
+					if ( isset( $this_statement_sql ) && ! empty( $this_statement_sql ) ) {
+						$join_on_clauses[] = "(${prefix}posts.ID IN(${this_statement_sql}) AND mbr.${direction} IN (${item_id}))";
+					}
 				}
-				$not_first_statement = isset($relationship['id']) && isset($relationship['direction']);				
-			}						   
-		}		
+			}
+			$sql = preg_replace(
+				'/' . preg_quote( 'AND ((' ) . '[\s\S]+?' . preg_quote( ')) WHERE' ) . '/',
+				'AND (' . implode( " $relationships_operator ", $join_on_clauses ) . ')) WHERE',
+				$sql
+			);
+			$sql = str_replace( ') AND (', ') OR (', $sql );
+		}
 		return $sql;
-	}	
+	}
 }
