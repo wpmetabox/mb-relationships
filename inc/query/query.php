@@ -31,8 +31,9 @@ class MBR_Query {
 			$this->handle_query_sibling( $clauses, $id_column );
 		}
 
-		global $wpdb;
 		$clauses['groupby'] = empty( $clauses['groupby'] ) ? $id_column : "{$clauses['groupby']}, $id_column";
+
+		$this->filter_request_statement( $clauses, $this->args);
 
 		return $clauses;
 	}
@@ -62,8 +63,9 @@ class MBR_Query {
 		foreach ( $relationships as $relationship ) {
 			$joins[] = $this->build_join( $relationship, $clauses, $id_column, $pass_thru_order );
 		}
-		$joins = implode( " $join_type ", $joins );
+		$joins = implode( " OR ", $joins );
 
+		$clauses['relation'] = $join_type;
 		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $joins";
 	}
 
@@ -150,6 +152,105 @@ class MBR_Query {
 		);
 		$where .= " AND mbr.$target NOT IN ($ids)";
 
-		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";
+		$clauses['where'] .= empty( $clauses['where'] ) ? $where : " AND $where";		
+	}
+
+	/**
+	 * Modify query join statement to replace AND statement.
+	 *
+	 * @param string $clauses   Query clauses.
+	 * @param array  $args   $WP_query args object.
+	 */	
+	public function filter_request_statement( &$clauses, $args ) {
+		global $wpdb;		
+		$relationships = $args;
+		
+		if ( is_array( $relationships ) ) {
+			$count_clause = 0;
+			foreach ( $relationships as $relationship ) {
+				$count_clause += isset( $relationship['id'] );
+			}
+			if( $count_clause == 1 ) return;
+			$relationships_operator = $clauses['relation'];			
+			$join_on_clauses        = array();
+			$in_post_id				= array();
+			
+			foreach ( $relationships as $relationship ) {
+				if ( isset( $relationship['id'] ) && isset( $relationship['direction'] ) ) {
+					$type              = $relationship['id'];
+					$item_id           = array_shift( $relationship['items'] );
+					$direction         = $relationship['direction'];
+					$item_id_direction = $direction === 'from' ? 'to' : 'from';
+					
+					if ( 'ID' === $relationship['id_field'] ) {
+						$relationship_args    = array(
+							'relationship' => array(
+								array(
+									'id' => $type,
+                    				$direction => $item_id,
+								),
+								'relation' => 'AND'
+							),
+						);
+						$relationship_query   = new WP_Query( $relationship_args );
+						$post_id = array();
+						while ( $relationship_query->have_posts() ) {
+							$relationship_query->the_post();
+							$post_id[] = get_the_ID();
+						}
+						if(empty($in_post_id) || 'OR' === $relationships_operator){
+							$in_post_id = array_merge($in_post_id, $post_id);
+						}else{
+							$in_post_id = array_intersect($in_post_id, $post_id);
+						}
+						
+					} elseif ( 'term_id' === $relationship['id_field'] ) {
+						$taxonomies = get_taxonomies();
+						$this_tax   = null;
+						foreach ( $taxonomies as $tax_type_key => $taxonomy ) {
+							if ( $term_object = get_term_by( 'term_id', $item_id, $taxonomy ) ) {
+								$this_tax = $taxonomy;
+							}
+						}
+						if ( null != $this_tax ) {
+							$args    = array(
+								'tax_query' => array(
+									array(
+										'taxonomy' => $this_tax,
+										'field'    => 'term_id',
+										'terms'    => $item_id,
+									),
+								),
+							);
+							$query   = new WP_Query( $args );
+							$post_id = array();
+							while ( $query->have_posts() ) {
+								$query->the_post();
+								$post_id[] = get_the_ID();
+							}
+							$this_statement_sql = implode( ',', $post_id );
+							if ( ! empty( $this_statement_sql ) ) {
+								$join_on_clauses[] = "($wpdb->posts.ID IN(${this_statement_sql}) AND mbr.${direction} IN (${item_id}))";
+							}
+						}
+					}
+					
+					
+				}
+			}
+			if ($in_post_id){
+				$this_statement_sql = implode(",", $in_post_id);
+				$this_statement_sql = " AND $wpdb->posts.ID IN(${this_statement_sql})";
+				$clauses['where'] .= $this_statement_sql;				
+			}
+			if ($join_on_clauses){
+				$tag_beginning = 'AND ((';
+				$pos                = strpos( $clauses['join'], $tag_beginning );
+				$clauses['join'] = substr( $clauses['join'], 0, $pos + strlen($tag_beginning) - 2);
+				$clauses['join'] .= implode( " $relationships_operator ", $join_on_clauses );
+				$clauses['join'] .= ')';
+			}
+		}
+		
 	}
 }
