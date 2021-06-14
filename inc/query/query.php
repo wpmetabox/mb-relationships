@@ -235,6 +235,7 @@ class MBR_Query {
 		$join_on_clause = null;
 		if ( isset( $relationship['id'] ) && isset( $relationship['direction'] ) && 'term_id' === $relationship['id_field'] ) {
 			$item_id    = array_shift( $relationship['items'] );
+			$direction  = $relationship['direction'];
 			$taxonomies = get_taxonomies();
 			$this_tax   = null;
 			foreach ( $taxonomies as $tax_type_key => $taxonomy ) {
