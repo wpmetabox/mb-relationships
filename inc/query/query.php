@@ -189,7 +189,7 @@ class MBR_Query {
 		}
 		$tag_beginning = 'AND ((';
 		$pos           = strpos( $clauses['join'], $tag_beginning );
-		$pos           = false === $pos ? strlen( 'INNER JOIN wp_mb_relationships AS mbr ON' ) : $pos;
+		$pos           = false === $pos ? strlen( "INNER JOIN $wpdb->mb_relationships AS mbr ON" ) : $pos;
 		if ( $join_on_clauses && false !== $pos ) {
 			$clauses['join']  = substr( $clauses['join'], 0, $pos + strlen( $tag_beginning ) - 2 );
 			$clauses['join'] .= implode( " $relationships_operator ", $join_on_clauses );
