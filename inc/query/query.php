@@ -162,89 +162,108 @@ class MBR_Query {
 	 */
 	public function filter_query_clauses( &$clauses, $args ) {
 		global $wpdb;
-		$relationships = $args;
-		if ( is_array( $relationships ) ) {
-			$count_clause = 0;
-			foreach ( $relationships as $relationship ) {
-				$count_clause += isset( $relationship['id'] );
+		if ( 1 >= count( $args ) ) {
+			return;
+		}
+		$relationships          = $args;
+		$relationships_operator = $clauses['relation'];
+		$join_on_clauses        = array();
+		$in_post_id             = array();
+		foreach ( $relationships as $relationship ) {
+
+			$post_id = $this->get_posts_id( $relationship );
+			if ( empty( $post_id ) || 'OR' === $relationships_operator ) {
+				$in_post_id = array_merge( $in_post_id, $post_id );
+			} else {
+				$in_post_id = array_intersect( $in_post_id, $post_id );
 			}
-			if ( 1 == $count_clause ) {
-				return;
-			}
-			$relationships_operator = $clauses['relation'];
-			$join_on_clauses        = array();
-			$in_post_id             = array();
-			foreach ( $relationships as $relationship ) {
-				if ( isset( $relationship['id'] ) && isset( $relationship['direction'] ) ) {
-					$type              = $relationship['id'];
-					$item_id           = array_shift( $relationship['items'] );
-					$direction         = $relationship['direction'];
-					$item_id_direction = 'from' === $direction ? 'to' : 'from';
-					if ( 'ID' === $relationship['id_field'] ) {
-						$relationship_args  = array(
-							'relationship' => array(
-								array(
-									'id'       => $type,
-									$direction => $item_id,
-								),
-								'relation' => 'AND',
-							),
-						);
-						$relationship_query = new WP_Query( $relationship_args );
-						$post_id            = array();
-						while ( $relationship_query->have_posts() ) {
-							$relationship_query->the_post();
-							$post_id[] = get_the_ID();
-						}
-						if ( empty( $in_post_id ) || 'OR' === $relationships_operator ) {
-							$in_post_id = array_merge( $in_post_id, $post_id );
-						} else {
-							$in_post_id = array_intersect( $in_post_id, $post_id );
-						}
-					} elseif ( 'term_id' === $relationship['id_field'] ) {
-						$taxonomies = get_taxonomies();
-						$this_tax   = null;
-						foreach ( $taxonomies as $tax_type_key => $taxonomy ) {
-							if ( $term_object = get_term_by( 'term_id', $item_id, $taxonomy ) ) {
-								$this_tax = $taxonomy;
-							}
-						}
-						if ( null !== $this_tax ) {
-							$args    = array(
-								'tax_query' => array(
-									array(
-										'taxonomy' => $this_tax,
-										'field'    => 'term_id',
-										'terms'    => $item_id,
-									),
-								),
-							);
-							$query   = new WP_Query( $args );
-							$post_id = array();
-							while ( $query->have_posts() ) {
-								$query->the_post();
-								$post_id[] = get_the_ID();
-							}
-							$this_statement_sql = implode( ',', $post_id );
-							if ( ! empty( $this_statement_sql ) ) {
-								$join_on_clauses[] = "($wpdb->posts.ID IN(${this_statement_sql}) AND mbr.${direction} IN (${item_id}))";
-							}
-						}
-					}
-				}
-			}
-			if ( $in_post_id ) {
-				$this_statement_sql = implode( ',', $in_post_id );
-				$this_statement_sql = " AND $wpdb->posts.ID IN(${this_statement_sql})";
-				$clauses['where']  .= $this_statement_sql;
-			}
-			if ( $join_on_clauses ) {
-				$tag_beginning    = 'AND ((';
-				$pos              = strpos( $clauses['join'], $tag_beginning );
-				$clauses['join']  = substr( $clauses['join'], 0, $pos + strlen( $tag_beginning ) - 2 );
-				$clauses['join'] .= implode( " $relationships_operator ", $join_on_clauses );
-				$clauses['join'] .= ')';
+			$join_on_clause = $this->get_join_clause( $relationship );
+			if ( null !== $join_on_clause ) {
+				$join_on_clauses[] = $join_on_clause;
 			}
 		}
+		if ( $in_post_id ) {
+			$this_statement_sql = implode( ',', $in_post_id );
+			$this_statement_sql = " AND $wpdb->posts.ID IN(${this_statement_sql})";
+			$clauses['where']  .= $this_statement_sql;
+		}
+		$tag_beginning = 'AND ((';
+		$pos           = strpos( $clauses['join'], $tag_beginning );
+		$pos           = false === $pos ? strlen( 'INNER JOIN wp_mb_relationships AS mbr ON' ) : $pos;
+		if ( $join_on_clauses && false !== $pos ) {
+			$clauses['join']  = substr( $clauses['join'], 0, $pos + strlen( $tag_beginning ) - 2 );
+			$clauses['join'] .= implode( " $relationships_operator ", $join_on_clauses );
+			$clauses['join'] .= ')';
+		}
+	}
+
+	/**
+	 * Get the posts' ID in this relationship.   *
+	 *
+	 * @param array $relationship .
+	 */
+	public function get_posts_id( $relationship ) {
+		$post_id = array();
+		if ( isset( $relationship['id'] ) && isset( $relationship['direction'] ) && 'ID' === $relationship['id_field'] ) {
+			$type               = $relationship['id'];
+			$item_id            = array_shift( $relationship['items'] );
+			$direction          = $relationship['direction'];
+			$relationship_args  = array(
+				'relationship' => array(
+					array(
+						'id'       => $type,
+						$direction => $item_id,
+					),
+					'relation' => 'AND',
+				),
+			);
+			$relationship_query = new WP_Query( $relationship_args );
+			while ( $relationship_query->have_posts() ) {
+				$relationship_query->the_post();
+				$post_id[] = get_the_ID();
+			}
+		}
+		return $post_id;
+	}
+
+	/**
+	 * Get the JOIN clause in this relationship.     *
+	 *
+	 * @param array $relationship .
+	 */
+	public function get_join_clause( $relationship ) {
+		$join_on_clause = null;
+		if ( isset( $relationship['id'] ) && isset( $relationship['direction'] ) && 'term_id' === $relationship['id_field'] ) {
+			$item_id    = array_shift( $relationship['items'] );
+			$taxonomies = get_taxonomies();
+			$this_tax   = null;
+			foreach ( $taxonomies as $tax_type_key => $taxonomy ) {
+				if ( $term_object = get_term_by( 'term_id', $item_id, $taxonomy ) ) {
+					$this_tax = $taxonomy;
+				}
+			}
+			if ( null !== $this_tax ) {
+				$args    = array(
+					'tax_query' => array(
+						array(
+							'taxonomy' => $this_tax,
+							'field'    => 'term_id',
+							'terms'    => $item_id,
+						),
+					),
+				);
+				$query   = new WP_Query( $args );
+				$post_id = array();
+				while ( $query->have_posts() ) {
+					$query->the_post();
+					$post_id[] = get_the_ID();
+				}
+				$this_statement_sql = implode( ',', $post_id );
+				if ( ! empty( $this_statement_sql ) ) {
+					$join_on_clause = "($wpdb->posts.ID IN(${this_statement_sql}) AND mbr.${direction} IN (${item_id}))";
+				}
+			}
+		}
+		return $join_on_clause;
 	}
 }
