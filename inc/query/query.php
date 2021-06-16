@@ -11,6 +11,11 @@ class MBR_Query {
 	 */
 	private $args;
 
+	/**
+	 * Relation for multiple relationships.
+	 */
+	private $relation;
+
 	public function __construct( $args ) {
 		$this->args = $args;
 	}
@@ -35,7 +40,7 @@ class MBR_Query {
 		}
 		// Multiple relationships.
 		else {
-			$this->handle_multiple_relationships( $clauses, $this->args );
+			$this->handle_multiple_relationships( $clauses, $id_column );
 		}
 
 		$clauses['groupby'] = empty( $clauses['groupby'] ) ? $id_column : "{$clauses['groupby']}, $id_column";
@@ -148,9 +153,14 @@ class MBR_Query {
 	 * @param string $clauses   Query clauses.
 	 * @param array  $args   $WP_query args object.
 	 */
-	public function handle_multiple_relationships( &$clauses, $args ) {
+	public function handle_multiple_relationships( &$clauses, $id_column ) {
 		global $wpdb;
-		$relationships = $args;
+
+		$this->relation = $this->args['relation'];
+		unset( $this->args['relation'] );
+
+		$relationships = $this->args;
+
 		$objects       = array();
 		$object_ids    = array();
 
@@ -193,10 +203,9 @@ class MBR_Query {
 
 	public function alter_where_clause( &$clauses, $object_ids ) {
 		global $wpdb;
-		$mb_relatioship_type = $clauses['relation'];
 		$merge_object_ids    = array_shift( $object_ids );
 		foreach ( $object_ids as $object ) {
-			$merge_object_ids = 'OR' === $mb_relatioship_type
+			$merge_object_ids = 'OR' === $this->relation
 				? array_merge( $merge_object_ids, $object )
 				: array_intersect( $merge_object_ids, $object );
 		}
@@ -206,12 +215,11 @@ class MBR_Query {
 
 	public function alter_join_clause( &$clauses, $objects ) {
 		global $wpdb;
-		$mb_relatioship_type = $clauses['relation'];
 		$pos                 = strrpos( $clauses['join'], 'AND ((' );
 		$clauses['join']     = 0 < $pos
 			? substr( $clauses['join'], 0, $pos + 4 )
 			: "INNER JOIN $wpdb->mb_relationships AS mbr ON (";
-		$clauses['join']    .= implode( " $mb_relatioship_type ", $objects ) . ')';
+		$clauses['join']    .= implode( " $this->relation ", $objects ) . ')';
 	}
 
 	public function get_relationship_object_ids( $relationship, $object_type ) {
