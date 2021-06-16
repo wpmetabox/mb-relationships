@@ -163,16 +163,35 @@ class MBR_Query {
 	 * @param array  $args   $WP_query args object.
 	 */
 	public function handle_multiple_relationship( &$clauses, $args ) {
+		global $wpdb;
 		$relationships = $args;
 		$objects       = array();
 		$object_ids    = array();
+
 		foreach ( $relationships as $relationship ) {
-			$object = $this->get_relationship_object_ids( $relationship );
+
+			$relationship_type     = $relationship['id'];
+			$relationship_source   = $relationship['direction'];
+			$object_id             = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT ID FROM $wpdb->posts WHERE post_type='mb-relationship' AND post_name=%s",
+					$relationship_type
+				)
+			);
+			$relationship_settings = get_post_meta( $object_id, 'settings' );
+			$relationship_settings = array_shift( $relationship_settings );
+			$object_type           = $relationship_settings[ $relationship_source ]['object_type'];
+
+			$object = 'post' === $object_type || 'user' === $object_type
+				? $this->get_relationship_object_ids( $relationship, $object_type )
+				: null;
 			if ( $object ) {
 				$object_ids[] = $object;
 			}
 
-			$object = $this->get_relationship_objects( $relationship );
+			$object = 'term' === $object_type
+				? $this->get_relationship_objects( $relationship )
+				: null;
 			if ( null !== $object ) {
 				$objects[] = $object;
 			}
@@ -214,23 +233,12 @@ class MBR_Query {
 	 *
 	 * @param array $relationship .
 	 */
-	public function get_relationship_object_ids( $relationship ) {
+	public function get_relationship_object_ids( $relationship, $object_type ) {
 		global $wpdb;
 		$relationship_type    = $relationship['id'];
 		$relationship_item_id = array_shift( $relationship['items'] );
 		$relationship_source  = $relationship['direction'];
-
-		$object_id             = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT ID FROM $wpdb->posts WHERE post_type='mb-relationship' AND post_name=%s",
-				$relationship_type
-			)
-		);
-		$relationship_settings = get_post_meta( $object_id, 'settings' );
-		$relationship_settings = array_shift( $relationship_settings );
-
-		$object_type = $relationship_settings[ $relationship_source ]['object_type'];
-		$object_ids  = array();
+		$object_ids           = array();
 		if ( 'post' === $object_type ) {
 			$objects = $wpdb->get_results(
 				$wpdb->prepare(
@@ -263,9 +271,6 @@ class MBR_Query {
 	 * @param array $relationship .
 	 */
 	public function get_relationship_objects( $relationship ) {
-		if ( 'term_id' !== $relationship['id_field'] ) {
-			return null;
-		}
 		global $wpdb;
 		$relationship_type    = $relationship['id'];
 		$relationship_item_id = array_shift( $relationship['items'] );
