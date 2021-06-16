@@ -25,23 +25,26 @@ class MBR_Query {
 	 * @return mixed
 	 */
 	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
-		$this->handle_single_relationship_join( $clauses, $id_column, $pass_thru_order );
-
-		if ( empty( $this->args['relation'] ) && ! empty( $this->args['sibling'] ) ) {
-			$this->handle_single_relationship_sibling( $clauses, $id_column );
+		// Single relationship.
+		if ( empty( $this->args['relation'] ) ) {
+			if ( empty( $this->args['sibling'] ) ) {
+				$this->handle_single_relationship_join( $clauses, $id_column, $pass_thru_order );
+			} else {
+				$this->handle_single_relationship_sibling( $clauses, $id_column );
+			}
+		}
+		// Multiple relationships.
+		else {
+			$this->handle_multiple_relationships( $clauses, $this->args );
 		}
 
 		$clauses['groupby'] = empty( $clauses['groupby'] ) ? $id_column : "{$clauses['groupby']}, $id_column";
-
-		if ( 1 < count( $this->args ) ) {
-			$this->handle_multiple_relationship( $clauses, $this->args );
-		}
 
 		return $clauses;
 	}
 
 	/**
-	 * Modify query JOIN statement. Support querying by multiple relationships.
+	 * Modify query JOIN statement. Do not support querying by multiple relationships.
 	 *
 	 * @param array  $clauses         Query clauses.
 	 * @param string $id_column       Database column for object ID.
@@ -50,25 +53,8 @@ class MBR_Query {
 	public function handle_single_relationship_join( &$clauses, $id_column, $pass_thru_order ) {
 		global $wpdb;
 
-		$join_type     = 'AND';
-		$relationships = array();
-
-		if ( isset( $this->args['relation'] ) ) {
-			$join_type = $this->args['relation'];
-			unset( $this->args['relation'] );
-			$relationships = $this->args;
-		} else {
-			$relationships[] = $this->args;
-		}
-
-		$joins = array();
-		foreach ( $relationships as $relationship ) {
-			$joins[] = $this->build_single_relationship_join( $relationship, $clauses, $id_column, $pass_thru_order );
-		}
-		$joins = implode( ' OR ', $joins );
-
-		$clauses['relation'] = $join_type;
-		$clauses['join']    .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $joins";
+		$join = $this->build_single_relationship_join( $this->args, $clauses, $id_column, $pass_thru_order );
+		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $join";
 	}
 
 	private function build_single_relationship_join( $relationship, &$clauses, $id_column, $pass_thru_order ) {
@@ -162,7 +148,7 @@ class MBR_Query {
 	 * @param string $clauses   Query clauses.
 	 * @param array  $args   $WP_query args object.
 	 */
-	public function handle_multiple_relationship( &$clauses, $args ) {
+	public function handle_multiple_relationships( &$clauses, $args ) {
 		global $wpdb;
 		$relationships = $args;
 		$objects       = array();
@@ -228,11 +214,6 @@ class MBR_Query {
 		$clauses['join']    .= implode( " $mb_relatioship_type ", $objects ) . ')';
 	}
 
-	/**
-	 *
-	 *
-	 * @param array $relationship .
-	 */
 	public function get_relationship_object_ids( $relationship, $object_type ) {
 		global $wpdb;
 		$relationship_type    = $relationship['id'];
@@ -242,7 +223,7 @@ class MBR_Query {
 		if ( 'post' === $object_type ) {
 			$objects = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT `from`,`to` FROM $wpdb->mb_relationships 
+					"SELECT `from`,`to` FROM $wpdb->mb_relationships
 				WHERE `type`=%s AND %s=%d",
 					$relationship_type,
 					$relationship_source,
@@ -265,11 +246,6 @@ class MBR_Query {
 		return $object_ids;
 	}
 
-	/**
-	 *
-	 *
-	 * @param array $relationship .
-	 */
 	public function get_relationship_objects( $relationship ) {
 		global $wpdb;
 		$relationship_type    = $relationship['id'];
