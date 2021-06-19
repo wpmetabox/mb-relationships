@@ -58,7 +58,7 @@ class MBR_Query {
 	public function handle_single_relationship_join( &$clauses, $id_column, $pass_thru_order ) {
 		global $wpdb;
 
-		$join = $this->build_single_relationship_join( $this->args, $clauses, $id_column, $pass_thru_order );
+		$join             = $this->build_single_relationship_join( $this->args, $clauses, $id_column, $pass_thru_order );
 		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $join";
 	}
 
@@ -155,125 +155,41 @@ class MBR_Query {
 	 */
 	public function handle_multiple_relationships( &$clauses, $id_column ) {
 		global $wpdb;
-
 		$this->relation = $this->args['relation'];
 		unset( $this->args['relation'] );
-
 		$relationships = $this->args;
-
 		$objects       = array();
-		$object_ids    = array();
 
 		foreach ( $relationships as $relationship ) {
+			$relationship_type   = $relationship['id'];
+			$relationship_source = $relationship['direction'];
+			$relationship_item   = array_shift( $relationship['items'] );
 
-			$relationship_type     = $relationship['id'];
-			$relationship_source   = $relationship['direction'];
-			$object_id             = $wpdb->get_var(
+			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT ID FROM $wpdb->posts WHERE post_type='mb-relationship' AND post_name=%s",
-					$relationship_type
+					"SELECT `from`,`to` FROM $wpdb->mb_relationships
+					WHERE `type`=%s AND `$relationship_source`=%d",
+					$relationship_type,
+					$relationship_item
 				)
 			);
-			$relationship_settings = get_post_meta( $object_id, 'settings' );
-			$relationship_settings = array_shift( $relationship_settings );
-			$object_type           = $relationship_settings[ $relationship_source ]['object_type'];
-
-			$object = 'post' === $object_type || 'user' === $object_type
-				? $this->get_relationship_object_ids( $relationship, $object_type )
-				: null;
-			if ( $object ) {
-				$object_ids[] = $object;
+			$object_ids    = array();
+			foreach ( $query_results as $result ) {
+				$object_ids[] = 'from' === $relationship_source ? $result->to : $result->from;
 			}
-
-			$object = 'term' === $object_type
-				? $this->get_relationship_objects( $relationship )
-				: null;
-			if ( null !== $object ) {
-				$objects[] = $object;
+			if ( $object_ids ) {
+				$objects[] = $object_ids;
 			}
 		}
-		if ( $object_ids ) {
-			$this->alter_where_clause( $clauses, $object_ids );
-		}
-		if ( $objects ) {
-			$this->alter_join_clause( $clauses, $objects );
-		}
-	}
 
-
-	public function alter_where_clause( &$clauses, $object_ids ) {
-		global $wpdb;
-		$merge_object_ids    = array_shift( $object_ids );
-		foreach ( $object_ids as $object ) {
+		$merge_object_ids = array_shift( $objects );
+		foreach ( $objects as $object ) {
 			$merge_object_ids = 'OR' === $this->relation
 				? array_merge( $merge_object_ids, $object )
 				: array_intersect( $merge_object_ids, $object );
 		}
-		$merge_object_ids  = implode( ',', $merge_object_ids );
-		$clauses['where'] .= " AND $wpdb->posts.ID IN($merge_object_ids)";
-	}
+		$merge_object_ids = implode( ',', $merge_object_ids );
 
-	public function alter_join_clause( &$clauses, $objects ) {
-		global $wpdb;
-		$pos                 = strrpos( $clauses['join'], 'AND ((' );
-		$clauses['join']     = 0 < $pos
-			? substr( $clauses['join'], 0, $pos + 4 )
-			: "INNER JOIN $wpdb->mb_relationships AS mbr ON (";
-		$clauses['join']    .= implode( " $this->relation ", $objects ) . ')';
-	}
-
-	public function get_relationship_object_ids( $relationship, $object_type ) {
-		global $wpdb;
-		$relationship_type    = $relationship['id'];
-		$relationship_item_id = array_shift( $relationship['items'] );
-		$relationship_source  = $relationship['direction'];
-		$object_ids           = array();
-		if ( 'post' === $object_type ) {
-			$objects = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT `from`,`to` FROM $wpdb->mb_relationships
-				WHERE `type`=%s AND %s=%d",
-					$relationship_type,
-					$relationship_source,
-					$relationship_item_id
-				)
-			);
-			foreach ( $objects as $object ) {
-				$object_ids[] = 'from' === $relationship_source ? $object->to : $object->from;
-			}
-		}
-		if ( 'user' === $object_type ) {
-			$objects    = $wpdb->get_results(
-				$wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author=%d", $relationship_item_id )
-			);
-			$object_ids = array();
-			foreach ( $objects as $object ) {
-				$object_ids[] = $object->ID;
-			}
-		}
-		return $object_ids;
-	}
-
-	public function get_relationship_objects( $relationship ) {
-		global $wpdb;
-		$relationship_type    = $relationship['id'];
-		$relationship_item_id = array_shift( $relationship['items'] );
-		$relationship_source  = $relationship['direction'];
-
-		$objects    = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT object_id FROM $wpdb->term_relationships WHERE term_taxonomy_id=%d",
-				$relationship_item_id
-			)
-		);
-		$object_ids = array();
-		foreach ( $objects as $object ) {
-			$object_ids[] = $object->object_id;
-		}
-		if ( empty( $object_ids ) ) {
-			return null;
-		}
-		$object_ids = implode( ',', $object_ids );
-		return "($wpdb->posts.ID IN($object_ids) AND mbr.$relationship_source IN ($relationship_item_id))";
+		$clauses['where'] .= ( empty( $clauses['where'] ) ? '' : ' AND' ) . " {$id_column} IN($merge_object_ids)";
 	}
 }
