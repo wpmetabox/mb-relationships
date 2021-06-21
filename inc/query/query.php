@@ -156,16 +156,15 @@ class MBR_Query {
 		$objects       = array();
 
 		foreach ( $relationships as $relationship ) {
-			$type   = $relationship['id'];
-			$source = $relationship['direction'];
-			$items  = implode( ',', $relationship['items'] );
-
+			$type          = $relationship['id'];
+			$source        = $relationship['direction'];
+			$items         = implode( ',', $relationship['items'] );
+			$items         = 1 == $relationship['reciprocal'] ? "(`from` IN ($items) OR `to` IN ($items))" : "`$source` IN ($items)";
 			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT `from`,`to` FROM $wpdb->mb_relationships
-					WHERE `type`=%s AND `$source` IN (%s)",
-					$type,
-					$items
+					WHERE `type`=%s AND $items",
+					$type
 				)
 			);
 			$object_ids    = array();
