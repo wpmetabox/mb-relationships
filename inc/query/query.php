@@ -11,11 +11,6 @@ class MBR_Query {
 	 */
 	private $args;
 
-	/**
-	 * Relation for multiple relationships.
-	 */
-	private $relation;
-
 	public function __construct( $args ) {
 		$this->args = $args;
 	}
@@ -155,27 +150,27 @@ class MBR_Query {
 	 */
 	public function handle_multiple_relationships( &$clauses, $id_column ) {
 		global $wpdb;
-		$this->relation = $this->args['relation'];
+		$relation = $this->args['relation'];
 		unset( $this->args['relation'] );
 		$relationships = $this->args;
 		$objects       = array();
 
 		foreach ( $relationships as $relationship ) {
-			$relationship_type   = $relationship['id'];
-			$relationship_source = $relationship['direction'];
-			$relationship_item   = array_shift( $relationship['items'] );
+			$type   = $relationship['id'];
+			$source = $relationship['direction'];
+			$items  = implode( ',', $relationship['items'] );
 
 			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT `from`,`to` FROM $wpdb->mb_relationships
-					WHERE `type`=%s AND `$relationship_source`=%d",
-					$relationship_type,
-					$relationship_item
+					WHERE `type`=%s AND `$source` IN (%s)",
+					$type,
+					$items
 				)
 			);
 			$object_ids    = array();
 			foreach ( $query_results as $result ) {
-				$object_ids[] = 'from' === $relationship_source ? $result->to : $result->from;
+				$object_ids[] = 'from' === $source ? $result->to : $result->from;
 			}
 			if ( $object_ids ) {
 				$objects[] = $object_ids;
@@ -184,7 +179,7 @@ class MBR_Query {
 
 		$merge_object_ids = array_shift( $objects );
 		foreach ( $objects as $object ) {
-			$merge_object_ids = 'OR' === $this->relation
+			$merge_object_ids = 'OR' === $relation
 				? array_merge( $merge_object_ids, $object )
 				: array_intersect( $merge_object_ids, $object );
 		}
