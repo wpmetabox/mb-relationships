@@ -159,7 +159,7 @@ class MBR_Query {
 			$type          = $relationship['id'];
 			$source        = $relationship['direction'];
 			$items         = implode( ',', $relationship['items'] );
-			$items         = empty($relationship['reciprocal']) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
+			$items         = empty( $relationship['reciprocal'] ) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
 			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT `from`,`to` FROM $wpdb->mb_relationships
@@ -169,13 +169,13 @@ class MBR_Query {
 			);
 			$object_ids    = array();
 			foreach ( $query_results as $result ) {
-				if ( empty($relationship['reciprocal']) ){
+				if ( empty( $relationship['reciprocal'] ) ) {
 					$object_ids[] = 'from' === $source ? $result->to : $result->from;
 				}
-				if ( ! empty($relationship['reciprocal']) && 'from' === $source && in_array( $result->from, $relationship['items'] )){
+				if ( ! empty( $relationship['reciprocal'] ) && 'from' === $source && in_array( $result->from, $relationship['items'] ) ) {
 					$object_ids[] = $result->to;
 				}
-				if ( ! empty($relationship['reciprocal']) && 'to' === $source && in_array( $result->to, $relationship['items'] )){
+				if ( ! empty( $relationship['reciprocal'] ) && 'to' === $source && in_array( $result->to, $relationship['items'] ) ) {
 					$object_ids[] = $result->from;
 				}
 			}
