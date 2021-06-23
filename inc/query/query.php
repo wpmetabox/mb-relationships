@@ -159,7 +159,7 @@ class MBR_Query {
 			$type          = $relationship['id'];
 			$source        = $relationship['direction'];
 			$items         = implode( ',', $relationship['items'] );
-			$items         = 1 == $relationship['reciprocal'] ? "(`from` IN ($items) OR `to` IN ($items))" : "`$source` IN ($items)";
+			$items         = empty($relationship['reciprocal']) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
 			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT `from`,`to` FROM $wpdb->mb_relationships
@@ -170,6 +170,10 @@ class MBR_Query {
 			$object_ids    = array();
 			foreach ( $query_results as $result ) {
 				$object_ids[] = 'from' === $source ? $result->to : $result->from;
+				if ( ! empty($relationship['reciprocal']) ){
+					$object_ids[] = $result->to;
+					$object_ids[] = $result->from;
+				}
 			}
 			if ( $object_ids ) {
 				$objects[] = $object_ids;
@@ -182,6 +186,7 @@ class MBR_Query {
 				? array_merge( $merge_object_ids, $object )
 				: array_intersect( $merge_object_ids, $object );
 		}
+		$merge_object_ids = array_unique( $merge_object_ids );
 		$merge_object_ids = implode( ',', $merge_object_ids );
 
 		$clauses['where'] .= ( empty( $clauses['where'] ) ? '' : ' AND' ) . " {$id_column} IN($merge_object_ids)";
