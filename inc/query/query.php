@@ -169,9 +169,13 @@ class MBR_Query {
 			);
 			$object_ids    = array();
 			foreach ( $query_results as $result ) {
-				$object_ids[] = 'from' === $source ? $result->to : $result->from;
-				if ( ! empty($relationship['reciprocal']) ){
+				if ( empty($relationship['reciprocal']) ){
+					$object_ids[] = 'from' === $source ? $result->to : $result->from;
+				}
+				if ( ! empty($relationship['reciprocal']) && 'from' === $source && in_array( $result->from, $relationship['items'] )){
 					$object_ids[] = $result->to;
+				}
+				if ( ! empty($relationship['reciprocal']) && 'to' === $source && in_array( $result->to, $relationship['items'] )){
 					$object_ids[] = $result->from;
 				}
 			}
