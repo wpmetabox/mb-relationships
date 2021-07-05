@@ -16,7 +16,7 @@ class MBR_Loader {
 	 */
 	public function activate() {
 		$this->create_table();
-		update_option('mb_is_table_created', 1);
+		update_option( 'mbr_table_created', 1 );
 	}
 
 	/**
@@ -33,10 +33,10 @@ class MBR_Loader {
 		 * If plugin is embed in another plugin, the table is not created during activation.
 		 * Thus, we have to create it while initializing.
 		 */
-		$is_table_created = get_option('mb_is_table_created');
+		$is_table_created = get_option( 'mbr_table_created' );
 		if ( ! $is_table_created ) {
 			$this->create_table();
-			update_option('mb_is_table_created', 1);
+			update_option( 'mbr_table_created', 1 );
 		}
 
 		$obj_factory = new MBR_Object_Factory();
