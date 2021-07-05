@@ -18,7 +18,6 @@ class MBR_Table {
 
 		// Register new table.
 		$wpdb->tables[]         = 'mb_relationships';
-		$wpdb->mb_relationships = $wpdb->prefix . 'mb_relationships';
 	}
 
 	/**
@@ -32,7 +31,7 @@ class MBR_Table {
 		// Create new table.
 		$charset_collate = $wpdb->get_charset_collate();
 		$sql = "
-			CREATE TABLE {$wpdb->mb_relationships} (
+			CREATE TABLE {$wpdb->prefix}mb_relationships (
 				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				`from` bigint(20) unsigned NOT NULL,
 				`to` bigint(20) unsigned NOT NULL,

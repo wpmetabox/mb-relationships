@@ -32,11 +32,11 @@ class MBR_Storage {
 		if ( $relationship->reciprocal ) {
 			$results = $wpdb->get_results( $wpdb->prepare(
 				"SELECT `to`, `ID`, `order_from` AS `order`
-				FROM {$wpdb->mb_relationships}
+				FROM {$wpdb->prefix}mb_relationships
 				WHERE `from`=%d AND `type`=%s 
 				UNION
 				SELECT `from`, `ID`, `order_to` AS `order`
-				FROM {$wpdb->mb_relationships}
+				FROM {$wpdb->prefix}mb_relationships
 				WHERE `to`=%d AND `type`=%s
 				ORDER BY `order` ASC, `ID` DESC",
 				$object_id,
@@ -54,7 +54,7 @@ class MBR_Storage {
 		$source = $this->get_source( $meta_key );
 
 		return $wpdb->get_col( $wpdb->prepare(
-			"SELECT `$target` FROM {$wpdb->mb_relationships} WHERE `$source`=%d AND `type`=%s ORDER BY order_$source",
+			"SELECT `$target` FROM {$wpdb->prefix}mb_relationships WHERE `$source`=%d AND `type`=%s ORDER BY order_$source",
 			$object_id,
 			$type
 		) );
@@ -100,7 +100,7 @@ class MBR_Storage {
 		foreach ( $meta_value as $id ) {
 			$x++;
 			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
-			$wpdb->insert( $wpdb->mb_relationships, [
+			$wpdb->insert( $wpdb->prefix . 'mb_relationships', [
 				$source         => $object_id,
 				$target         => $id,
 				'type'          => $type,
@@ -133,7 +133,7 @@ class MBR_Storage {
 		$type   = $this->get_type( $meta_key );
 		$source = $this->get_source( $meta_key );
 
-		$wpdb->delete( $wpdb->mb_relationships, [
+		$wpdb->delete( $wpdb->prefix . 'mb_relationships', [
 			$source => $object_id,
 			'type'  => $type,
 		] );
@@ -141,7 +141,7 @@ class MBR_Storage {
 		$relationship = $this->factory->get( $type );
 		if ( $relationship->reciprocal ) {
 			$target = $this->get_target( $meta_key );
-			$wpdb->delete( $wpdb->mb_relationships, [
+			$wpdb->delete( $wpdb->prefix . 'mb_relationships', [
 				$target => $object_id,
 				'type'  => $type,
 			] );
@@ -189,8 +189,8 @@ class MBR_Storage {
 		global $wpdb;
 
 		$items = $wpdb->get_results( $wpdb->prepare(
-			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->mb_relationships} WHERE `$source` = %d AND `type` = %s
-			UNION SELECT `$source` AS `id`, `order_$source` AS `order` FROM {$wpdb->mb_relationships} WHERE `$target` = %d AND `type` = %s",
+			"SELECT `$target` AS `id`, `order_$target` AS `order` FROM {$wpdb->prefix}mb_relationships WHERE `$source` = %d AND `type` = %s
+			UNION SELECT `$source` AS `id`, `order_$source` AS `order` FROM {$wpdb->prefix}mb_relationships WHERE `$target` = %d AND `type` = %s",
 			$object_id,
 			$type,
 			$object_id,

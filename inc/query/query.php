@@ -54,7 +54,7 @@ class MBR_Query {
 		global $wpdb;
 
 		$join             = $this->build_single_relationship_join( $this->args, $clauses, $id_column, $pass_thru_order );
-		$clauses['join'] .= " INNER JOIN $wpdb->mb_relationships AS mbr ON $join";
+		$clauses['join'] .= " INNER JOIN {$wpdb->prefix}mb_relationships AS mbr ON $join";
 	}
 
 	private function build_single_relationship_join( $relationship, &$clauses, $id_column, $pass_thru_order ) {
@@ -122,7 +122,7 @@ class MBR_Query {
 		$ids    = implode( ',', $items );
 		$items  = "(
 			SELECT DISTINCT `$target`
-			FROM $wpdb->mb_relationships
+			FROM {$wpdb->prefix}mb_relationships
 			WHERE `type` = '{$this->args['id']}'
 			AND `$source` IN ($ids)
 		)";
@@ -130,7 +130,7 @@ class MBR_Query {
 		$source = $target;
 		$target = $tmp;
 
-		$clauses['join'] = " INNER JOIN $wpdb->mb_relationships AS mbr ON mbr.$target = $id_column";
+		$clauses['join'] = " INNER JOIN {$wpdb->prefix}mb_relationships AS mbr ON mbr.$target = $id_column";
 
 		$where  = sprintf(
 			"mbr.type = '%s' AND mbr.$source IN (%s)",
@@ -162,7 +162,7 @@ class MBR_Query {
 			$items         = empty( $relationship['reciprocal'] ) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
 			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT `from`,`to` FROM $wpdb->mb_relationships
+					"SELECT `from`,`to` FROM {$wpdb->prefix}mb_relationships
 					WHERE `type`=%s AND $items",
 					$type
 				)

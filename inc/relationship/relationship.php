@@ -64,7 +64,7 @@ class MBR_Relationship {
 
 		$rel_id = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT `ID` FROM {$wpdb->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
+				"SELECT `ID` FROM {$wpdb->prefix}mb_relationships WHERE `from`=%d AND `to`=%d AND `type`=%s",
 				$from,
 				$to,
 				$this->id
@@ -92,7 +92,7 @@ class MBR_Relationship {
 		}
 
 		$result = $wpdb->insert(
-			$wpdb->mb_relationships,
+			$wpdb->prefix . 'mb_relationships',
 			array(
 				'from'       => $from,
 				'to'         => $to,
@@ -124,7 +124,7 @@ class MBR_Relationship {
 		global $wpdb;
 
 		$result = $wpdb->delete(
-			$wpdb->mb_relationships,
+			$wpdb->prefix . 'mb_relationships',
 			array(
 				'from' => $from,
 				'to'   => $to,
