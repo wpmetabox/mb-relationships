@@ -16,6 +16,7 @@ class MBR_Loader {
 	 */
 	public function activate() {
 		$this->create_table();
+		update_option('mb_is_table_created', 1);
 	}
 
 	/**
