@@ -34,7 +34,6 @@ class MBR_Query_Normalizer {
 	public function normalize( &$args ) {
 		// Query by single relationship.
 		if ( ! isset( $args['relation'] ) ) {
-			$args = isset( $args['id'] ) ? $args : array_shift( $args );
 			$args = $this->normalize_args( $args );
 			return;
 		}
