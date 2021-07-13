@@ -236,10 +236,10 @@ class MBR_Admin_Columns {
 	}
 
 	private function get_post_items( $object_id, $direction ) {
-		$relationship     = MB_Relationships_API::get_relationship( $this->id );
-		$direction_across = 'from' === $direction ? 'to' : 'from';
-		$post_type        = isset( $relationship->$direction_across['field'] )
-			? $relationship->$direction_across['field']['post_type']
+		$relationship = MB_Relationships_API::get_relationship( $this->id );
+		$across       = 'from' === $direction ? 'to' : 'from';
+		$post_type    = isset( $relationship->$across['field'] )
+			? $relationship->$across['field']['post_type']
 			: 'any';
 		$query            = new WP_Query(
 			array(
