@@ -233,7 +233,9 @@ class MBR_Admin_Columns {
 	}
 
 	private function get_post_items( $object_id, $direction ) {
+		$post_types = get_post_types( '', 'names' );
 		$query = new WP_Query( [
+			'post_type'           => $post_types,
 			'relationship'        => [
 				'id'       => $this->id,
 				$direction => $object_id,
