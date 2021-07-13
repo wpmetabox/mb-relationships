@@ -225,60 +225,69 @@ class MBR_Admin_Columns {
 		}
 
 		$object = $this->object_factory->build( $object_type );
-		$items  = array_map( function( $item ) use ( $object, $config ) {
-			return $object->render_admin( $item, $config );
-		}, $items );
+		$items  = array_map(
+			function( $item ) use ( $object, $config ) {
+				return $object->render_admin( $item, $config );
+			},
+			$items
+		);
 
 		return implode( '<br>', $items );
 	}
 
 	private function get_post_items( $object_id, $direction ) {
-		$relationship = MB_Relationships_API::get_relationship($this->id);
+		$relationship     = MB_Relationships_API::get_relationship( $this->id );
 		$direction_across = 'from' === $direction ? 'to' : 'from';
-		$post_type = isset( $relationship->$direction_across['field'] )
+		$post_type        = isset( $relationship->$direction_across['field'] )
 			? $relationship->$direction_across['field']['post_type']
 			: 'any';
-		$query = new WP_Query( [
-			'post_type'           => $post_type,
-			'relationship'        => [
-				'id'       => $this->id,
-				$direction => $object_id,
-			],
-			'nopaging'            => true,
-			'ignore_sticky_posts' => true,
-		] );
+		$query            = new WP_Query(
+			array(
+				'post_type'           => $post_type,
+				'relationship'        => array(
+					'id'       => $this->id,
+					$direction => $object_id,
+				),
+				'nopaging'            => true,
+				'ignore_sticky_posts' => true,
+			)
+		);
 		return $query->posts;
 	}
 
 	private function get_term_items( $object_id, $direction ) {
-		return get_terms( [
-			'hide_empty'   => false,
-			'relationship' => [
-				'id'       => $this->settings['id'],
-				$direction => $object_id,
-			],
-		] );
+		return get_terms(
+			array(
+				'hide_empty'   => false,
+				'relationship' => array(
+					'id'       => $this->settings['id'],
+					$direction => $object_id,
+				),
+			)
+		);
 	}
 
 	private function get_user_items( $object_id, $direction ) {
-		return get_users( [
-			'relationship' => [
-				'id'       => $this->settings['id'],
-				$direction => $object_id,
-			],
-		] );
+		return get_users(
+			array(
+				'relationship' => array(
+					'id'       => $this->settings['id'],
+					$direction => $object_id,
+				),
+			)
+		);
 	}
 
 	private function parse_config( $side ) {
 		$admin_column = $this->$side['admin_column'];
 		$title        = $this->$side['meta_box']['title'];
 
-		$config = [
+		$config = array(
 			'position' => '',
 			'target'   => '',
 			'title'    => $title,
 			'link'     => 'view',
-		];
+		);
 
 		if ( true === $admin_column ) {
 			return $config;
@@ -291,7 +300,7 @@ class MBR_Admin_Columns {
 		}
 
 		// If an array of configuration is specified.
-		$config = array_merge( $config, $admin_column );
+		$config                    = array_merge( $config, $admin_column );
 		list( $position, $target ) = array_map( 'trim', explode( ' ', strtolower( $config['position'] ) . ' ' ) );
 		return array_merge( $config, compact( 'position', 'target' ) );
 	}
