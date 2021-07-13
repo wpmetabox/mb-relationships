@@ -237,9 +237,9 @@ class MBR_Admin_Columns {
 
 	private function get_post_items( $object_id, $direction ) {
 		$relationship = MB_Relationships_API::get_relationship( $this->id );
-		$across       = 'from' === $direction ? 'to' : 'from';
-		$post_type    = isset( $relationship->$across['field'] )
-			? $relationship->$across['field']['post_type']
+		$target       = 'from' === $direction ? 'to' : 'from';
+		$post_type    = isset( $relationship->$target['field'] )
+			? $relationship->$target['field']['post_type']
 			: 'any';
 		$query            = new WP_Query(
 			array(
