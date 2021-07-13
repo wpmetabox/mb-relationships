@@ -233,12 +233,13 @@ class MBR_Admin_Columns {
 	}
 
 	private function get_post_items( $object_id, $direction ) {
-		$mbr = MB_Relationships_API::get_relationship($this->id);
-		$post_types = isset( $mbr->from['field'] ) && isset( $mbr->to['field'] )
-			? array( $mbr->from['field']['post_type'], $mbr->to['field']['post_type'] )
+		$relationship = MB_Relationships_API::get_relationship($this->id);
+		$direction_across = 'from' === $direction ? 'to' : 'from';
+		$post_type = isset( $relationship->$direction_across['field'] )
+			? $relationship->$direction_across['field']['post_type']
 			: 'any';
 		$query = new WP_Query( [
-			'post_type'           => $post_types,
+			'post_type'           => $post_type,
 			'relationship'        => [
 				'id'       => $this->id,
 				$direction => $object_id,
