@@ -54,7 +54,7 @@ class MBR_Query_Post {
 		if ( ! $post_type ) {
 			$relationship = MB_Relationships_API::get_relationship( $args['id'] );
 			$target       = 'from' === $args['direction'] ? 'to' : 'from';
-			$post_type    = isset( $relationship->$target['field'] )
+			$post_type    = isset( $relationship->$target['field']['post_type'] )
 				? $relationship->$target['field']['post_type']
 				: 'any';
 			$query->set( 'post_type', $post_type );
