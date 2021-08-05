@@ -183,7 +183,9 @@ class MBR_Query {
 				$objects[] = $object_ids;
 			}
 		}
-
+		if ( empty( $objects ) ) {
+			return ;
+		}
 		$merge_object_ids = array_shift( $objects );
 		foreach ( $objects as $object ) {
 			$merge_object_ids = 'OR' === $relation
