@@ -184,6 +184,7 @@ class MBR_Query {
 			}
 		}
 		if ( empty( $objects ) ) {
+			$clauses['where'] .= ( empty( $clauses['where'] ) ? '' : ' AND' ) . " {$id_column} IN(-1)";
 			return ;
 		}
 		$merge_object_ids = array_shift( $objects );
