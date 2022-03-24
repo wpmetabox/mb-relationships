@@ -67,7 +67,7 @@ class MBR_Post implements MBR_Object_Interface {
 		if ( empty( $config['link'] ) || 'view' === $config['link'] ) {
 			$link = get_permalink( $item );
 		}
-		if ( false === $config['link'] ) {
+		if ( 'no-link' === $config['link'] ) {
 			return $text;
 		}
 		if ( 'edit' === $config['link'] ) {

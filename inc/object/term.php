@@ -65,7 +65,7 @@ class MBR_Term implements MBR_Object_Interface {
 		if ( empty( $config['link'] ) || 'view' === $config['link'] ) {
 			$link = get_term_link( $item );
 		}
-		if ( false === $config['link'] ) {
+		if ( 'no-link' === $config['link'] ) {
 			return $text;
 		}
 		if ( 'edit' === $config['link'] ) {
