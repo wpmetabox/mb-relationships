@@ -70,7 +70,7 @@ class MBR_User implements MBR_Object_Interface {
 		if ( empty( $config['link'] ) || 'view' === $config['link'] ) {
 			$link = get_author_posts_url( $item->ID );
 		}
-		if ( false === $config['link'] ) {
+		if ( 'false' === $config['link'] ) {
 			return $text;
 		}
 		if ( 'edit' === $config['link'] ) {
