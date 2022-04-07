@@ -168,6 +168,21 @@ class MBR_Relationship_Factory {
 		$meta_box = &$settings['meta_box'];
 		$field    = &$settings['field'];
 
+		// Parser $query_args from Backend
+		if ( isset( $field['query_args'] ) && ! empty( $field['query_args'] ) ) {
+			$query_args = $field['query_args'];
+			foreach ( $query_args as $key => $query_arg ) {
+				if ( is_array( $query_arg ) ) {
+					unset( $field['query_args'][ $key ] );
+					if ( array_key_exists( 'id', $query_arg ) && array_key_exists( 'key', $query_arg ) && array_key_exists( 'value', $query_arg ) ) {
+						$field['query_args'][ $query_arg['key'] ] = $query_arg['value'];
+					} else {
+						$field['query_args'][ $key ] = $query_arg;
+					}
+				}
+			}
+		}        
+        
 		// General settings.
 		if ( ! empty( $meta_box['empty_message'] ) ) {
 			$settings['empty_message'] = $meta_box['empty_message'];
