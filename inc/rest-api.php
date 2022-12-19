@@ -253,25 +253,7 @@ class MB_Relationships_REST_API {
 			return $from;
 		}
 
-		if ( MB_Relationships_API::has( $from, $to, $relationship ) ) {
-			return rest_ensure_response(
-				array(
-					'has_relationship' => true,
-					'relationship'     => $relationship,
-					'to'               => $to,
-					'from'             => $from,
-				)
-			);
-		} else {
-			return rest_ensure_response(
-				array(
-					'has_relationship' => false,
-					'relationship'     => $relationship,
-					'to'               => $to,
-					'from'             => $from,
-				)
-			);
-		}
+		return $this->generic_response( $from, $to, $relationship );
 	}
 
 	/**
@@ -307,25 +289,29 @@ class MB_Relationships_REST_API {
 			$order_from = 1;
 		}
 
-		if ( MB_Relationships_API::add( $from, $to, $relationship, $order_from, $order_to ) ) {
-			return rest_ensure_response(
-				array(
-					'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
-					'relationship'     => $relationship,
-					'to'               => $to,
-					'from'             => $from,
-				)
-			);
-		} else {
-			return rest_ensure_response(
-				array(
-					'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
-					'relationship'     => $relationship,
-					'to'               => $to,
-					'from'             => $from,
-				)
-			);
-		}
+		$added = MB_Relationships_API::add( $from, $to, $relationship, $order_from, $order_to );
+
+		return $this->generic_response( $from, $to, $relationship );
+	}
+
+	/**
+	 * Generic API response.
+	 *
+	 * @param int    $from         “From” ID.
+	 * @param int    $to           “To” ID.
+	 * @param string $relationship Relationship ID.
+	 *
+	 * @return WP_REST_Response Response object.
+	 */
+	private function generic_response( $from, $to, $relationship ) {
+		return rest_ensure_response(
+			array(
+				'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
+				'relationship'     => $relationship,
+				'to'               => $to,
+				'from'             => $from,
+			)
+		);
 	}
 
 	/**
