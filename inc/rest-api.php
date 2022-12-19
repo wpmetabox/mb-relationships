@@ -529,8 +529,8 @@ class MB_Relationships_REST_API {
 			array(
 				'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
 				'relationship'     => $relationship,
-				'to'               => $to,
 				'from'             => $from,
+				'to'               => $to,
 			)
 		);
 	}
