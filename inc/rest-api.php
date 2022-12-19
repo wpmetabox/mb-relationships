@@ -44,7 +44,7 @@ class MB_Relationships_REST_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'args'                => $this->relationship_args(),
-				'permission_callback' => array( $this, 'has_relationship_permission' ),
+				'permission_callback' => array( $this, 'read_relationship_permission' ),
 				'callback'            => array( $this, 'has_relationship' ),
 			)
 		);
@@ -170,7 +170,7 @@ class MB_Relationships_REST_API {
 	 *
 	 * @return WP_Error|bool
 	 */
-	public function has_relationship_permission() {
+	public function read_relationship_permission() {
 
 		/**
 		 * Whether the REST API allows unauthenticated users to read relationships.
