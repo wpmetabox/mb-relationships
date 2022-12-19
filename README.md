@@ -42,6 +42,7 @@ Besides, for each side, there's a meta box that shows what are connected from/to
 ## Plugin features
 
 - **Simple APIs**: the plugin provides simple APIs for registering relationships and retrieving connected items. It integrates with existing WordPress APIs such as `WP_Query`,` get_terms` and `get_users`. See [documentation](https://docs.metabox.io/extensions/mb-relationships/) for more information.
+- **REST API**: the plugin provides a REST API to manage relationships programatically. See [documentation](https://docs.metabox.io/extensions/mb-relationships/#rest-api) for more information.
 - Uses **custom relationship table** to store relationships. That helps optimize the database storage and query performance.
 - You can **create relationships between any kind of content** in WordPress: posts to posts, posts to users, etc. For posts to terms and posts to users, it's required the [MB Term Meta](https://metabox.io/plugins/mb-term-meta/) and [MB User Meta](https://metabox.io/plugins/mb-user-meta/).
 - Supports creating **reciprocal relationships** (posts-posts, users-users, ...).
