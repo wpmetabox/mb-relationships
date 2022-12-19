@@ -168,7 +168,7 @@ class MB_Relationships_REST_API {
 		 *
 		 * @return bool
 		 */
-		$allow_public_access = apply_filters( 'mb_relationships_can_read_rest_api_public', true );
+		$allow_public_access = apply_filters( 'mb_relationships_rest_api_can_read_relationships_public', true );
 
 		if ( $allow_public_access ) {
 			return true;
@@ -183,7 +183,7 @@ class MB_Relationships_REST_API {
 		 *
 		 * @param bool $allow_authenticated_user_read Whether the REST API allows authenticated users to read relationships.
 		 */
-		$permission = apply_filters( 'mb_relationships_rest_api_can_read_rest_api_has_relationships', 'read' );
+		$permission = apply_filters( 'mb_relationships_rest_api_can_read_relationships', 'read' );
 
 		if ( ! current_user_can( $permission ) ) {
 			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 403 ) );
@@ -200,13 +200,13 @@ class MB_Relationships_REST_API {
 	public function create_relationship_permission() {
 
 		/**
-		 * Whether the REST API allows unauthenticated users to read relationships.
+		 * Whether the REST API allows unauthenticated users to create relationships.
 		 *
-		 * @param bool $allow_public_rest_api_read Whether the REST API allows unauthenticated users to read relationships.
+		 * @param bool $allow_public_rest_api_create Whether the REST API allows unauthenticated users to create relationships.
 		 *
 		 * @return bool
 		 */
-		$allow_public_access = apply_filters( 'mb_relationships_can_read_rest_api_public', false );
+		$allow_public_access = apply_filters( 'mb_relationships_rest_api_can_create_relationships_public', false );
 
 		if ( $allow_public_access ) {
 			return true;
@@ -217,11 +217,11 @@ class MB_Relationships_REST_API {
 		}
 
 		/**
-		 * Whether the REST API allows authenticated users to read relationships.
+		 * Whether the REST API allows authenticated users to create relationships.
 		 *
 		 * @param bool $allow_authenticated_user_create Whether the REST API allows authenticated users to create relationships.
 		 */
-		$permission = apply_filters( 'mb_relationships_rest_api_can_create_rest_api_has_relationships', 'publish_posts' );
+		$permission = apply_filters( 'mb_relationships_rest_api_can_create_relationships', 'publish_posts' );
 
 		if ( current_user_can( $permission ) ) {
 			return true;
