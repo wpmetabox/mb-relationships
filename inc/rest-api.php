@@ -42,10 +42,21 @@ class MB_Relationships_REST_API {
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/exists',
 			array(
-				'method'              => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::READABLE,
 				'args'                => $this->relationship_args(),
 				'permission_callback' => array( $this, 'has_relationship_permission' ),
 				'callback'            => array( $this, 'has_relationship' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/(?P<relationship>[a-zA-Z0-9-_]+)/',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'args'                => $this->create_relationship_args(),
+				'permission_callback' => array( $this, 'create_relationship_permission' ),
+				'callback'            => array( $this, 'create_relationship' ),
 			)
 		);
 	}
@@ -182,6 +193,44 @@ class MB_Relationships_REST_API {
 	}
 
 	/**
+	 * Determine whether the current user has permission to use the create_relationship endpoint.
+	 *
+	 * @return WP_Error|bool
+	 */
+	public function create_relationship_permission() {
+
+		/**
+		 * Whether the REST API allows unauthenticated users to read relationships.
+		 *
+		 * @param bool $allow_public_rest_api_read Whether the REST API allows unauthenticated users to read relationships.
+		 *
+		 * @return bool
+		 */
+		$allow_public_access = apply_filters( 'mb_relationships_can_read_rest_api_public', false );
+
+		if ( $allow_public_access ) {
+			return true;
+		}
+
+		if ( 0 === get_current_user_id() ) {
+			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 401 ) );
+		}
+
+		/**
+		 * Whether the REST API allows authenticated users to read relationships.
+		 *
+		 * @param bool $allow_authenticated_user_create Whether the REST API allows authenticated users to create relationships.
+		 */
+		$permission = apply_filters( 'mb_relationships_rest_api_can_create_rest_api_has_relationships', 'publish_posts' );
+
+		if ( current_user_can( $permission ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 403 ) );
+	}
+
+	/**
 	 * Checks if the given from and to have a relationship for the given relationship ID.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -217,6 +266,60 @@ class MB_Relationships_REST_API {
 			return rest_ensure_response(
 				array(
 					'has_relationship' => false,
+					'relationship'     => $relationship,
+					'to'               => $to,
+					'from'             => $from,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Creates a relationship.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success or WP_Error object on failure.
+	 */
+	public function create_relationship( $request ) {
+		$relationship = $this->get_url_field_from_request( $request, 'relationship' );
+		if ( is_wp_error( $relationship ) ) {
+			return $relationship;
+		}
+
+		$to = $this->get_body_field_from_request( $request, 'to' );
+		if ( is_wp_error( $to ) ) {
+			return $to;
+		}
+
+		$from = $this->get_body_field_from_request( $request, 'from' );
+		if ( is_wp_error( $from ) ) {
+			return $from;
+		}
+
+		$order_to = $this->get_body_field_from_request( $request, 'order_to' );
+		if ( is_wp_error( $order_to ) ) {
+			$order_to = 1;
+		}
+
+		$order_from = $this->get_body_field_from_request( $request, 'order_from' );
+		if ( is_wp_error( $order_from ) ) {
+			$order_from = 1;
+		}
+
+		if ( MB_Relationships_API::add( $from, $to, $relationship, $order_from, $order_to ) ) {
+			return rest_ensure_response(
+				array(
+					'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
+					'relationship'     => $relationship,
+					'to'               => $to,
+					'from'             => $from,
+				)
+			);
+		} else {
+			return rest_ensure_response(
+				array(
+					'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
 					'relationship'     => $relationship,
 					'to'               => $to,
 					'from'             => $from,
