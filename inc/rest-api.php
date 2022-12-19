@@ -51,6 +51,28 @@ class MB_Relationships_REST_API {
 
 		register_rest_route(
 			self::NAMESPACE,
+			'/(?P<relationship>[a-zA-Z0-9-_]+)/connected-from/(?P<from>[\d]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'args'                => $this->connected_from_relationship_args(),
+				'permission_callback' => array( $this, 'read_relationship_permission' ),
+				'callback'            => array( $this, 'connected_from_relationship' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/(?P<relationship>[a-zA-Z0-9-_]+)/connected-to/(?P<to>[\d]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'args'                => $this->connected_to_relationship_args(),
+				'permission_callback' => array( $this, 'read_relationship_permission' ),
+				'callback'            => array( $this, 'connected_to_relationship' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -102,6 +124,32 @@ class MB_Relationships_REST_API {
 				'sanitize_callback' => 'absint',
 			),
 		);
+	}
+
+	/**
+	 * Arguments for the connected from API endpoint.
+	 *
+	 * @return array
+	 */
+	public function connected_from_relationship_args() {
+		$arguments = $this->relationship_args();
+
+		unset( $arguments['to'] );
+
+		return $arguments;
+	}
+
+	/**
+	 * Arguments for the connected to API endpoint.
+	 *
+	 * @return array
+	 */
+	public function connected_to_relationship_args() {
+		$arguments = $this->relationship_args();
+
+		unset( $arguments['from'] );
+
+		return $arguments;
 	}
 
 	/**
@@ -303,6 +351,102 @@ class MB_Relationships_REST_API {
 		}
 
 		return $this->generic_response( $from, $to, $relationship );
+	}
+
+	/**
+	 * Returns objects connected to the specified from object.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success or WP_Error object on failure.
+	 */
+	public function connected_from_relationship( $request ) {
+		$relationship = $this->get_url_field_from_request( $request, 'relationship' );
+		if ( is_wp_error( $relationship ) ) {
+			return $relationship;
+		}
+
+		$from = $this->get_url_field_from_request( $request, 'from' );
+		if ( is_wp_error( $from ) ) {
+			return $from;
+		}
+
+		$relationship_object = MB_Relationships_API::get_relationship( $relationship );
+
+		switch ( $relationship_object->to['object_type'] ) {
+			case 'term':
+				$field = 'term_id';
+				break;
+
+			case 'post':
+			case 'user':
+			default:
+				$field = 'ID';
+				break;
+		}
+
+		$objects = MB_Relationships_API::get_connected(
+			array(
+				'id'   => $relationship,
+				'from' => $from,
+			)
+		);
+
+		return rest_ensure_response(
+			array(
+				'relationship' => $relationship,
+				'from'         => $from,
+				'to'           => wp_list_pluck( $objects, $field ),
+			),
+		);
+	}
+
+	/**
+	 * Returns objects connected to the specified from object.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success or WP_Error object on failure.
+	 */
+	public function connected_to_relationship( $request ) {
+		$relationship = $this->get_url_field_from_request( $request, 'relationship' );
+		if ( is_wp_error( $relationship ) ) {
+			return $relationship;
+		}
+
+		$to = $this->get_url_field_from_request( $request, 'to' );
+		if ( is_wp_error( $to ) ) {
+			return $to;
+		}
+
+		$relationship_object = MB_Relationships_API::get_relationship( $relationship );
+
+		switch ( $relationship_object->from['object_type'] ) {
+			case 'term':
+				$field = 'term_id';
+				break;
+
+			case 'post':
+			case 'user':
+			default:
+				$field = 'ID';
+				break;
+		}
+
+		$objects = MB_Relationships_API::get_connected(
+			array(
+				'id' => $relationship,
+				'to' => $to,
+			)
+		);
+
+		return rest_ensure_response(
+			array(
+				'relationship' => $relationship,
+				'from'         => wp_list_pluck( $objects, $field ),
+				'to'           => $to,
+			),
+		);
 	}
 
 	/**
