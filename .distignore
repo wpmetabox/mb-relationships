@@ -9,3 +9,4 @@ tests
 .gitattributes
 composer.json
 README.md
+phpcs.xml

@@ -11,3 +11,4 @@ tests export-ignore
 *.json export-ignore
 *.md export-ignore
 *.txt export-ignore
+phpcs.xml export-ignore
