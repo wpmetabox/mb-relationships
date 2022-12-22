@@ -153,7 +153,7 @@ class MBR_Query {
 		$relation = $this->args['relation'];
 		unset( $this->args['relation'] );
 		$relationships = $this->args;
-		$objects       = array();
+		$objects       = [];
 
 		foreach ( $relationships as $relationship ) {
 			$type          = $relationship['id'];
@@ -167,7 +167,7 @@ class MBR_Query {
 					$type
 				)
 			);
-			$object_ids    = array();
+			$object_ids    = [];
 			foreach ( $query_results as $result ) {
 				if ( empty( $relationship['reciprocal'] ) ) {
 					$object_ids[] = 'from' === $source ? $result->to : $result->from;
@@ -184,7 +184,7 @@ class MBR_Query {
 		}
 		if ( empty( $objects ) ) {
 			$clauses['where'] .= ( empty( $clauses['where'] ) ? '' : ' AND' ) . " {$id_column} IN(-1)";
-			return ;
+			return;
 		}
 		$merge_object_ids = $objects[0];
 		foreach ( $objects as $object ) {
@@ -194,7 +194,7 @@ class MBR_Query {
 		}
 		if ( empty( $merge_object_ids ) ) {
 			$clauses['where'] .= ( empty( $clauses['where'] ) ? '' : ' AND' ) . " {$id_column} IN(-1)";
-			return ;
+			return;
 		}
 		$merge_object_ids = array_unique( $merge_object_ids );
 		$merge_object_ids = implode( ',', $merge_object_ids );

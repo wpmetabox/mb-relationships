@@ -22,8 +22,8 @@ if ( ! class_exists( 'MBR_Loader' ) ) {
 	$loader = new MBR_Loader();
 
 	// Create relationships table only when plugin is activated.
-	register_activation_hook( __FILE__, array( $loader, 'activate' ) );
+	register_activation_hook( __FILE__, [ $loader, 'activate' ] );
 
 	// Hook to 'init' with priority 5 to make sure all actions are registered before Meta Box runs.
-	add_action( 'init', array( $loader, 'init' ), 5 );
+	add_action( 'init', [ $loader, 'init' ], 5 );
 }

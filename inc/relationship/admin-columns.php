@@ -58,18 +58,18 @@ class MBR_Admin_Columns {
 
 		switch ( $settings['object_type'] ) {
 			case 'post':
-				add_filter( "manage_{$settings['field']['post_type']}_posts_columns", array( $this, "{$side}_columns" ) );
-				add_action( "manage_{$settings['field']['post_type']}_posts_custom_column", array( $this, "post_{$side}_column_data" ), 10, 2 );
+				add_filter( "manage_{$settings['field']['post_type']}_posts_columns", [ $this, "{$side}_columns" ] );
+				add_action( "manage_{$settings['field']['post_type']}_posts_custom_column", [ $this, "post_{$side}_column_data" ], 10, 2 );
 				break;
 
 			case 'term':
-				add_filter( "manage_edit-{$settings['field']['taxonomy']}_columns", array( $this, "{$side}_columns" ) );
-				add_filter( "manage_{$settings['field']['taxonomy']}_custom_column", array( $this, "{$side}_column_data" ), 10, 3 );
+				add_filter( "manage_edit-{$settings['field']['taxonomy']}_columns", [ $this, "{$side}_columns" ] );
+				add_filter( "manage_{$settings['field']['taxonomy']}_custom_column", [ $this, "{$side}_column_data" ], 10, 3 );
 				break;
 
 			case 'user':
-				add_filter( 'manage_users_columns', array( $this, "{$side}_columns" ) );
-				add_filter( 'manage_users_custom_column', array( $this, "{$side}_column_data" ), 10, 3 );
+				add_filter( 'manage_users_columns', [ $this, "{$side}_columns" ] );
+				add_filter( 'manage_users_custom_column', [ $this, "{$side}_column_data" ], 10, 3 );
 				break;
 		}
 	}
@@ -183,7 +183,7 @@ class MBR_Admin_Columns {
 		}
 
 		// Add new column in a specific position.
-		$new = array();
+		$new = [];
 		switch ( $position ) {
 			case 'replace':
 				foreach ( $columns as $key => $value ) {
@@ -241,40 +241,40 @@ class MBR_Admin_Columns {
 		$post_type    = isset( $relationship->$target['field'] )
 			? $relationship->$target['field']['post_type']
 			: 'any';
-		$query            = new WP_Query(
-			array(
+		$query        = new WP_Query(
+			[
 				'post_type'           => $post_type,
-				'relationship'        => array(
+				'relationship'        => [
 					'id'       => $this->id,
 					$direction => $object_id,
-				),
+				],
 				'nopaging'            => true,
 				'ignore_sticky_posts' => true,
-			)
+			]
 		);
 		return $query->posts;
 	}
 
 	private function get_term_items( $object_id, $direction ) {
 		return get_terms(
-			array(
+			[
 				'hide_empty'   => false,
-				'relationship' => array(
+				'relationship' => [
 					'id'       => $this->settings['id'],
 					$direction => $object_id,
-				),
-			)
+				],
+			]
 		);
 	}
 
 	private function get_user_items( $object_id, $direction ) {
 		return get_users(
-			array(
-				'relationship' => array(
+			[
+				'relationship' => [
 					'id'       => $this->settings['id'],
 					$direction => $object_id,
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -282,12 +282,12 @@ class MBR_Admin_Columns {
 		$admin_column = $this->$side['admin_column'];
 		$title        = $this->$side['meta_box']['title'];
 
-		$config = array(
+		$config = [
 			'position' => '',
 			'target'   => '',
 			'title'    => $title,
 			'link'     => 'view',
-		);
+		];
 
 		if ( true === $admin_column ) {
 			return $config;

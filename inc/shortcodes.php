@@ -39,7 +39,7 @@ class MBR_Shortcodes {
 	 * Initialization.
 	 */
 	public function init() {
-		add_shortcode( 'mb_relationships', array( $this, 'render' ) );
+		add_shortcode( 'mb_relationships', [ $this, 'render' ] );
 	}
 
 	/**
@@ -62,14 +62,14 @@ class MBR_Shortcodes {
 		$object      = $this->obj_factory->build( $object_type );
 
 		$atts = shortcode_atts(
-			array(
+			[
 				'id'        => '',
 				'items'     => $object->get_current_id(),
 				'direction' => 'from',
 				'mode'      => 'ul',
 				'separator' => '',
 				'link'      => 'true',
-			),
+			],
 			$atts
 		);
 

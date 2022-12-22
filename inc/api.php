@@ -114,7 +114,7 @@ class MB_Relationships_API {
 	 * @param array $args       Relationship query arguments.
 	 * @param array $query_vars Extra query variables.
 	 */
-	public static function each_connected( $args, $query_vars = array() ) {
+	public static function each_connected( $args, $query_vars = [] ) {
 		$args         = wp_parse_args( $args, [
 			'id'       => '',
 			'property' => 'connected',
@@ -131,8 +131,8 @@ class MB_Relationships_API {
 		$query_object = $object_type . '_query';
 
 		// if this is not reciprocal we need to derive the relationship key
-		$relationship_key = 'mbr_' .  $args['id'] . '_' . $direction;
-		$items = self::$$query_object->query( $args, $query_vars, $relationship );
+		$relationship_key = 'mbr_' . $args['id'] . '_' . $direction;
+		$items            = self::$$query_object->query( $args, $query_vars, $relationship );
 		self::distribute( $args[ $direction ], $items, $args['property'], $id_key, $relationship_key );
 	}
 
@@ -148,25 +148,25 @@ class MB_Relationships_API {
 		] );
 		$relationship = self::$factory->get( $args['id'] );
 		if ( ! $relationship ) {
-			return array();
+			return [];
 		}
 
 		$connected    = isset( $args['from'] ) ? 'to' : 'from';
 		$object_type  = $relationship->get_object_type( $connected );
 		$query_object = $object_type . '_query';
 
-		return self::$$query_object->query( $args, array(), $relationship );
+		return self::$$query_object->query( $args, [], $relationship );
 	}
 
 	/**
 	 * Given a list of objects and another list of connected items,
 	 * distribute each connected item to it's respective counterpart.
 	 *
-	 * @param array  $items     				List of objects.
-	 * @param array  $connected 				List of connected objects.
-	 * @param string $property  				Name of connected array property.
-	 * @param string $id_key    				ID key of the objects.
-	 * @param string $relationship_key	Non-reciprocal constructed key.
+	 * @param array  $items             List of objects.
+	 * @param array  $connected         List of connected objects.
+	 * @param string $property          Name of connected array property.
+	 * @param string $id_key            ID key of the objects.
+	 * @param string $relationship_key  Non-reciprocal constructed key.
 	 * @return array
 	 */
 	private static function distribute( &$items, $connected, $property, $id_key, $relationship_key ) {
@@ -181,9 +181,9 @@ class MB_Relationships_API {
 	 * Non-reciprocal relationships: uses constructed key.
 	 * Reciprocal relationships: uses mbr_from and mbr_to keys.
 	 *
-	 * @param array  $items     				Connected items.
-	 * @param string $object_id 				Connected object ID.
-	 * @param string $relationship_key	Non-reciprocal constructed key.
+	 * @param array  $items             Connected items.
+	 * @param string $object_id         Connected object ID.
+	 * @param string $relationship_key  Non-reciprocal constructed key.
 	 * @return array
 	 */
 	private static function filter( $items, $object_id, $relationship_key ) {

@@ -39,9 +39,9 @@ class MBR_Query_Normalizer {
 		}
 
 		// Query by multiple relationships.
-		$new_args = array(
+		$new_args = [
 			'relation' => $args['relation'],
-		);
+		];
 		unset( $args['relation'] );
 		foreach ( $args as $value ) {
 			$value = $this->normalize_args( $value );

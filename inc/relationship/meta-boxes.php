@@ -46,7 +46,7 @@ class MBR_Meta_Boxes {
 	 * Setup hooks to create meta boxes for relationships, using Meta Box API.
 	 */
 	public function init() {
-		add_filter( 'rwmb_meta_boxes', array( $this, 'register_meta_boxes' ) );
+		add_filter( 'rwmb_meta_boxes', [ $this, 'register_meta_boxes' ] );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class MBR_Meta_Boxes {
 
 		$meta_box           = $this->{$source}['meta_box'];
 		$meta_box['id']     = "{$this->id}_relationships_{$target}";
-		$meta_box['fields'] = array( $field );
+		$meta_box['fields'] = [ $field ];
 
 		return $meta_box;
 	}

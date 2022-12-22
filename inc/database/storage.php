@@ -106,7 +106,7 @@ class MBR_Storage {
 				'type'          => $type,
 				"order_$source" => $x,
 				"order_$target" => $order,
-			], ['%d', '%d', '%s', '%d', '%d'] );
+			], [ '%d', '%d', '%s', '%d', '%d' ] );
 		}
 		return true;
 	}

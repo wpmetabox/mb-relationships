@@ -1,13 +1,6 @@
 <?php
 /**
  * REST API to manage relationships via JSON API
- *
- * @package    Meta Box
- * @subpackage MB Relationships
- */
-
-/**
- * REST API class.
  */
 class MB_Relationships_REST_API {
 
@@ -23,115 +16,103 @@ class MB_Relationships_REST_API {
 	 *
 	 * @var array<int, string>
 	 */
-	private array $relationships = array();
+	private $relationships = [];
 
-	/**
-	 * Initialize the class.
-	 */
 	public function init() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
 	}
 
-	/**
-	 * Register REST API routes.
-	 *
-	 * @return void
-	 */
 	public function register_routes() {
 		register_rest_route(
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/exists',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
 				'args'                => $this->relationship_args(),
-				'permission_callback' => array( $this, 'read_relationship_permission' ),
-				'callback'            => array( $this, 'has_relationship' ),
-			)
+				'permission_callback' => [ $this, 'read_relationship_permission' ],
+				'callback'            => [ $this, 'has_relationship' ],
+			]
 		);
 
 		register_rest_route(
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/connected-from/(?P<from>[\d]+)',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
 				'args'                => $this->connected_from_relationship_args(),
-				'permission_callback' => array( $this, 'read_relationship_permission' ),
-				'callback'            => array( $this, 'connected_from_relationship' ),
-			)
+				'permission_callback' => [ $this, 'read_relationship_permission' ],
+				'callback'            => [ $this, 'connected_from_relationship' ],
+			]
 		);
 
 		register_rest_route(
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/connected-to/(?P<to>[\d]+)',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
 				'args'                => $this->connected_to_relationship_args(),
-				'permission_callback' => array( $this, 'read_relationship_permission' ),
-				'callback'            => array( $this, 'connected_to_relationship' ),
-			)
+				'permission_callback' => [ $this, 'read_relationship_permission' ],
+				'callback'            => [ $this, 'connected_to_relationship' ],
+			]
 		);
 
 		register_rest_route(
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'args'                => $this->create_relationship_args(),
-				'permission_callback' => array( $this, 'create_relationship_permission' ),
-				'callback'            => array( $this, 'create_relationship' ),
-			)
+				'permission_callback' => [ $this, 'create_relationship_permission' ],
+				'callback'            => [ $this, 'create_relationship' ],
+			]
 		);
 
 		register_rest_route(
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/',
-			array(
+			[
 				'methods'             => WP_REST_Server::DELETABLE,
 				'args'                => $this->relationship_args(),
-				'permission_callback' => array( $this, 'delete_relationship_permission' ),
-				'callback'            => array( $this, 'delete_relationship' ),
-			)
+				'permission_callback' => [ $this, 'delete_relationship_permission' ],
+				'callback'            => [ $this, 'delete_relationship' ],
+			]
 		);
 	}
 
 	/**
 	 * API arguments.
-	 *
-	 * @return array
 	 */
-	public function relationship_args() {
-		return array(
-			'relationship' => array(
+	public function relationship_args() : array {
+		return [
+			'relationship' => [
 				'description'       => esc_html__( 'The ID of the relationship', 'mb-relationships' ),
 				'required'          => true,
 				'type'              => 'string',
 				'enum'              => $this->all_relationships(),
-				'validate_callback' => array( $this, 'validate_relationship_id' ),
+				'validate_callback' => [ $this, 'validate_relationship_id' ],
 				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'from'         => array(
+			],
+			'from'         => [
 				'description'       => esc_html__( 'The ID of “from” resource', 'mb-relationships' ),
 				'required'          => true,
 				'type'              => 'integer',
-				'validate_callback' => array( $this, 'validate_integer' ),
+				'validate_callback' => [ $this, 'validate_integer' ],
 				'sanitize_callback' => 'absint',
-			),
-			'to'           => array(
+			],
+			'to'           => [
 				'description'       => esc_html__( 'The ID of “to” resource', 'mb-relationships' ),
 				'required'          => true,
 				'type'              => 'integer',
-				'validate_callback' => array( $this, 'validate_integer' ),
+				'validate_callback' => [ $this, 'validate_integer' ],
 				'sanitize_callback' => 'absint',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Arguments for the connected from API endpoint.
-	 *
-	 * @return array
 	 */
-	public function connected_from_relationship_args() {
+	public function connected_from_relationship_args() : array {
 		$arguments = $this->relationship_args();
 
 		unset( $arguments['to'] );
@@ -141,10 +122,8 @@ class MB_Relationships_REST_API {
 
 	/**
 	 * Arguments for the connected to API endpoint.
-	 *
-	 * @return array
 	 */
-	public function connected_to_relationship_args() {
+	public function connected_to_relationship_args() : array {
 		$arguments = $this->relationship_args();
 
 		unset( $arguments['from'] );
@@ -154,24 +133,22 @@ class MB_Relationships_REST_API {
 
 	/**
 	 * Additional arguments for the create API endpoint.
-	 *
-	 * @return array
 	 */
-	public function create_relationship_args() {
+	public function create_relationship_args() : array {
 		return array_merge(
 			$this->relationship_args(),
-			array(
-				'order_from' => array(
+			[
+				'order_from' => [
 					'description'       => esc_html__( 'The order of the “from” resource; defaults to “1”', 'mb-relationships' ),
 					'type'              => 'integer',
-					'validate_callback' => array( $this, 'validate_integer' ),
-				),
-				'order_to'   => array(
+					'validate_callback' => [ $this, 'validate_integer' ],
+				],
+				'order_to'   => [
 					'description'       => esc_html__( 'The order of the “to” resource; defaults to “1”', 'mb-relationships' ),
 					'type'              => 'integer',
-					'validate_callback' => array( $this, 'validate_integer' ),
-				),
-			),
+					'validate_callback' => [ $this, 'validate_integer' ],
+				],
+			]
 		);
 	}
 
@@ -186,7 +163,7 @@ class MB_Relationships_REST_API {
 	public function validate_integer( $value, $request, $param ) {
 		if ( ! absint( $value ) > 0 ) {
 			// Translators: % is the key.
-			return new WP_Error( 'rest_invalid_param', sprintf( __( 'The % argument must be a positive integer.', 'mb-relationships' ), $param ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_invalid_param', sprintf( __( 'The % argument must be a positive integer.', 'mb-relationships' ), $param ), [ 'status' => 400 ] );
 		}
 
 		return true;
@@ -202,12 +179,12 @@ class MB_Relationships_REST_API {
 	 */
 	public function validate_relationship_id( $value, $request, $param ) {
 		if ( ! is_string( $value ) ) {
-			return new WP_Error( 'rest_invalid_param', __( 'The relationship argument must be a string.', 'mb-relationships' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_invalid_param', __( 'The relationship argument must be a string.', 'mb-relationships' ), [ 'status' => 400 ] );
 		}
 
 		if ( ! in_array( $value, $this->all_relationships(), true ) ) {
 			// Translators: %1$s is the value; %2$s is a list of available relationship IDs.
-			return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s is not one of %2$s', 'mb-relationships' ), $param, implode( ', ', $this->all_relationships() ) ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s is not one of %2$s', 'mb-relationships' ), $param, implode( ', ', $this->all_relationships() ) ), [ 'status' => 400 ] );
 		}
 
 		return true;
@@ -234,7 +211,7 @@ class MB_Relationships_REST_API {
 		}
 
 		if ( 0 === get_current_user_id() ) {
-			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 401 ) );
+			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), [ 'status' => 401 ] );
 		}
 
 		/**
@@ -245,7 +222,7 @@ class MB_Relationships_REST_API {
 		$permission = apply_filters( 'mb_relationships_rest_api_can_read_relationships', 'read' );
 
 		if ( ! current_user_can( $permission ) ) {
-			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 403 ) );
+			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), [ 'status' => 403 ] );
 		}
 
 		return true;
@@ -272,7 +249,7 @@ class MB_Relationships_REST_API {
 		}
 
 		if ( 0 === get_current_user_id() ) {
-			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 401 ) );
+			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), [ 'status' => 401 ] );
 		}
 
 		/**
@@ -286,7 +263,7 @@ class MB_Relationships_REST_API {
 			return true;
 		}
 
-		return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 403 ) );
+		return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), [ 'status' => 403 ] );
 	}
 
 	/**
@@ -310,7 +287,7 @@ class MB_Relationships_REST_API {
 		}
 
 		if ( 0 === get_current_user_id() ) {
-			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 401 ) );
+			return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), [ 'status' => 401 ] );
 		}
 
 		/**
@@ -324,7 +301,7 @@ class MB_Relationships_REST_API {
 			return true;
 		}
 
-		return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), array( 'status' => 403 ) );
+		return new WP_Error( 'rest-forbidden', __( 'You are not allowed to access this API endpoint.', 'mb-relationships' ), [ 'status' => 403 ] );
 	}
 
 	/**
@@ -386,18 +363,18 @@ class MB_Relationships_REST_API {
 		}
 
 		$objects = MB_Relationships_API::get_connected(
-			array(
+			[
 				'id'   => $relationship,
 				'from' => $from,
-			)
+			]
 		);
 
 		return rest_ensure_response(
-			array(
+			[
 				'relationship' => $relationship,
 				'from'         => $from,
 				'to'           => wp_list_pluck( $objects, $field ),
-			),
+			]
 		);
 	}
 
@@ -434,18 +411,18 @@ class MB_Relationships_REST_API {
 		}
 
 		$objects = MB_Relationships_API::get_connected(
-			array(
+			[
 				'id' => $relationship,
 				'to' => $to,
-			)
+			]
 		);
 
 		return rest_ensure_response(
-			array(
+			[
 				'relationship' => $relationship,
 				'from'         => wp_list_pluck( $objects, $field ),
 				'to'           => $to,
-			),
+			]
 		);
 	}
 
@@ -526,12 +503,12 @@ class MB_Relationships_REST_API {
 	 */
 	private function generic_response( $from, $to, $relationship ) {
 		return rest_ensure_response(
-			array(
+			[
 				'has_relationship' => MB_Relationships_API::has( $from, $to, $relationship ),
 				'relationship'     => $relationship,
 				'from'             => $from,
 				'to'               => $to,
-			)
+			]
 		);
 	}
 

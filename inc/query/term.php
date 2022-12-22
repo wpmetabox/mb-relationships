@@ -30,7 +30,7 @@ class MBR_Query_Term {
 	 * Filter the WordPress query to get connected terms.
 	 */
 	public function init() {
-		add_filter( 'terms_clauses', array( $this, 'terms_clauses' ), 20, 3 );
+		add_filter( 'terms_clauses', [ $this, 'terms_clauses' ], 20, 3 );
 	}
 
 	/**
@@ -68,18 +68,18 @@ class MBR_Query_Term {
 	public function query( $args, $query_vars, $relationship ) {
 		$query_vars = wp_parse_args(
 			$query_vars,
-			array(
+			[
 				'relationship' => $args,
-			)
+			]
 		);
 		$connected  = isset( $args['from'] ) ? 'to' : 'from';
 		$settings   = $relationship->$connected;
 		$query_vars = wp_parse_args(
 			$query_vars,
-			array(
+			[
 				'taxonomy'   => $settings['field']['taxonomy'],
 				'hide_empty' => false,
-			)
+			]
 		);
 		return get_terms( $query_vars );
 	}

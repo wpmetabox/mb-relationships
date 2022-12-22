@@ -37,10 +37,10 @@ class MBR_Storage_Handler {
 	 * Class initialize.
 	 */
 	public function init() {
-		add_filter( 'rwmb_get_storage', array( $this, 'filter_storage' ), 10, 3 );
-		add_action( 'deleted_post', array( $this, 'delete_object_data' ) );
-		add_action( 'deleted_user', array( $this, 'delete_object_data' ) );
-		add_action( 'delete_term', array( $this, 'delete_object_data' ) );
+		add_filter( 'rwmb_get_storage', [ $this, 'filter_storage' ], 10, 3 );
+		add_action( 'deleted_post', [ $this, 'delete_object_data' ] );
+		add_action( 'deleted_user', [ $this, 'delete_object_data' ] );
+		add_action( 'delete_term', [ $this, 'delete_object_data' ] );
 	}
 
 	/**
@@ -82,7 +82,7 @@ class MBR_Storage_Handler {
 	 * @param int $object_id Object ID.
 	 */
 	public function delete_object_data( $object_id ) {
-		$object_type   = str_replace( array( 'deleted_', 'delete_' ), '', current_filter() );
+		$object_type   = str_replace( [ 'deleted_', 'delete_' ], '', current_filter() );
 		$relationships = $this->factory->filter_by( $object_type );
 		foreach ( $relationships as $relationship ) {
 			$setting = $this->factory->get_settings( $relationship->id );

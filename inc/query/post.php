@@ -30,8 +30,8 @@ class MBR_Query_Post {
 	 * Filter the WordPress query to get connected posts.
 	 */
 	public function init() {
-		add_action( 'parse_query', array( $this, 'parse_query' ), 20 );
-		add_filter( 'posts_clauses', array( $this, 'posts_clauses' ), 20, 2 );
+		add_action( 'parse_query', [ $this, 'parse_query' ], 20 );
+		add_filter( 'posts_clauses', [ $this, 'posts_clauses' ], 20, 2 );
 	}
 
 	/**

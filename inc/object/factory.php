@@ -15,7 +15,7 @@ class MBR_Object_Factory {
 	 *
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * Get object based on type.

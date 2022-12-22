@@ -11,7 +11,7 @@
  */
 class MBR_Relationship_Factory {
 	private $object_factory;
-	private $relationships = [];
+	private $relationships          = [];
 	private $relationships_settings = [];
 	private $filter_type;
 
@@ -74,7 +74,7 @@ class MBR_Relationship_Factory {
 	 */
 	public function filter_by( $type ) {
 		$this->filter_type = $type;
-		return array_filter( $this->relationships, array( $this, 'is_filtered' ) );
+		return array_filter( $this->relationships, [ $this, 'is_filtered' ] );
 	}
 
 	/**
@@ -120,27 +120,27 @@ class MBR_Relationship_Factory {
 	 * @return array
 	 */
 	protected function normalize_side( $settings, $label ) {
-		$default = array(
+		$default = [
 			'object_type'   => 'post',
 			'empty_message' => __( 'No connections', 'mb-relationships' ),
-			'meta_box'      => array(
+			'meta_box'      => [
 				'title'    => $label,
 				'hidden'   => false,
 				'context'  => 'side',
 				'priority' => 'low',
-			),
-			'field'         => array(
+			],
+			'field'         => [
 				'type'      => 'post',
 				'post_type' => 'post',
-			),
-		);
+			],
+		];
 
 		if ( is_string( $settings ) ) {
-			$settings = array(
-				'field' => array(
+			$settings = [
+				'field' => [
 					'post_type' => $settings,
-				),
-			);
+				],
+			];
 		}
 		$settings             = array_merge( $default, $settings );
 		$settings['meta_box'] = array_merge( $default['meta_box'], $settings['meta_box'] );
@@ -191,7 +191,7 @@ class MBR_Relationship_Factory {
 		}
 		if ( 'post' === $settings['object_type'] ) {
 			$field['type']          = 'post';
-			$meta_box['post_types'] = array( $field['post_type'] );
+			$meta_box['post_types'] = [ $field['post_type'] ];
 		}
 
 		// Term.
@@ -201,7 +201,7 @@ class MBR_Relationship_Factory {
 		}
 		if ( 'term' === $settings['object_type'] ) {
 			$field['type']          = 'taxonomy_advanced';
-			$meta_box['taxonomies'] = array( $field['taxonomy'] );
+			$meta_box['taxonomies'] = [ $field['taxonomy'] ];
 			unset( $field['post_type'] );
 		}
 

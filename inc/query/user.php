@@ -30,7 +30,7 @@ class MBR_Query_User {
 	 * Filter the WordPress query to get connected users.
 	 */
 	public function init() {
-		add_action( 'pre_user_query', array( $this, 'parse_query' ), 20 );
+		add_action( 'pre_user_query', [ $this, 'parse_query' ], 20 );
 	}
 
 	/**
@@ -50,12 +50,12 @@ class MBR_Query_User {
 
 		$relationship_query = new MBR_Query( $args );
 
-		$clauses = array();
-		$map     = array(
+		$clauses = [];
+		$map     = [
 			'fields' => 'query_fields',
 			'join'   => 'query_from',
 			'where'  => 'query_where',
-		);
+		];
 		foreach ( $map as $clause => $key ) {
 			$clauses[ $clause ] = $query->$key;
 		}
@@ -78,9 +78,9 @@ class MBR_Query_User {
 	public function query( $args, $query_vars, $relationship ) {
 		$query_vars = wp_parse_args(
 			$query_vars,
-			array(
+			[
 				'relationship' => $args,
-			)
+			]
 		);
 		return get_users( $query_vars );
 	}

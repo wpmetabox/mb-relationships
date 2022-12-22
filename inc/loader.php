@@ -69,7 +69,7 @@ class MBR_Loader {
 	protected function create_table() {
 		require __DIR__ . '/database/table.php';
 
-		$table = new MBR_Table();
+		$table            = new MBR_Table();
 		$is_table_created = get_option( 'mbr_table_created' );
 		if ( ! $is_table_created ) {
 			$table->create();

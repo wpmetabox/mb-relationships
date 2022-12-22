@@ -93,20 +93,20 @@ class MBR_Relationship {
 
 		$result = $wpdb->insert(
 			$wpdb->mb_relationships,
-			array(
+			[
 				'from'       => $from,
 				'to'         => $to,
 				'type'       => $this->id,
 				'order_from' => $order_from,
 				'order_to'   => $order_to,
-			),
-			array(
+			],
+			[
 				'%d',
 				'%d',
 				'%s',
 				'%d',
 				'%d',
-			)
+			]
 		);
 		do_action( 'mb_relationships_add', $from, $to, $this->id, $order_from, $order_to, $result );
 		return $result;
@@ -125,11 +125,11 @@ class MBR_Relationship {
 
 		$result = $wpdb->delete(
 			$wpdb->mb_relationships,
-			array(
+			[
 				'from' => $from,
 				'to'   => $to,
 				'type' => $this->id,
-			)
+			]
 		);
 		do_action( 'mb_relationships_delete', $from, $to, $this->id, $result );
 		return $result;
