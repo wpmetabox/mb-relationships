@@ -77,8 +77,8 @@ class MBR_Query_Normalizer {
 		$args['direction']  = $direction;
 		$args['items']      = $this->get_ids( $args[ $direction ], $args['id_field'] );
 		$args['reciprocal'] = $relationship->reciprocal;
-		$args['from']       = isset( $args['from'] ) ? $args['from'] : null;
-		$args['to']         = isset( $args['to'] ) ? $args['to'] : null;
+		$args['from']       = array_key_exists( 'from', $args ) && isset( $args['from'] ) ? $args['from'] : null;
+		$args['to']         = array_key_exists( 'to', $args ) && isset( $args['to'] ) ? $args['to'] : null;
 
 		unset( $args[ $direction ] );
 		return $args;

@@ -56,6 +56,9 @@ class MBR_Loader {
 		$shortcodes = new MBR_Shortcodes( $rel_factory, $obj_factory );
 		$shortcodes->init();
 
+		$rest_api = new MB_Relationships_REST_API();
+		$rest_api->init();
+
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
 	}
@@ -99,6 +102,7 @@ class MBR_Loader {
 		require __DIR__ . '/relationship/meta-boxes.php';
 
 		require __DIR__ . '/api.php';
+		require __DIR__ . '/rest-api.php';
 		require __DIR__ . '/shortcodes.php';
 	}
 }
