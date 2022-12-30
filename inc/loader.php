@@ -59,6 +59,16 @@ class MBR_Loader {
 		$rest_api = new MB_Relationships_REST_API();
 		$rest_api->init();
 
+		add_filter(
+			'facetwp_facet_types',
+			function( $types ) {
+				require_once __DIR__ . '/facetwp.php';
+
+				$types[ MB_Relationships_FacetWP::FACET_TYPE ] = new MB_Relationships_FacetWP();
+				return $types;
+			}
+		);
+
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
 	}
