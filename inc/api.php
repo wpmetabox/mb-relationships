@@ -50,18 +50,42 @@ class MB_Relationships_API {
 		return self::$factory->build( $settings );
 	}
 
+	/**
+	 * Get a single registered relationship.
+	 *
+	 * @param string $id Relationship key.
+	 *
+	 * @return MBR_Relationship|null
+	 */
 	public static function get_relationship( $id ) {
 		return self::$factory->get( $id );
 	}
 
+	/**
+	 * Get settings for the specified relationship.
+	 *
+	 * @param string $id Relationship key.
+	 *
+	 * @return array<string, string|bool|array>
+	 */
 	public static function get_relationship_settings( $id ) {
 		return self::$factory->get_settings( $id );
 	}
 
+	/**
+	 * Get all registered relationships.
+	 *
+	 * @return MBR_Relationship[]
+	 */
 	public static function get_all_relationships() {
 		return self::$factory->all();
 	}
 
+	/**
+	 * Get settings for all registered relationships.
+	 *
+	 * @return array<string, array<string|bool|array>>
+	 */
 	public static function get_all_relationships_settings() {
 		return self::$factory->all_settings();
 	}
