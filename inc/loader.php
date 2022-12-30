@@ -61,6 +61,11 @@ class MBR_Loader {
 
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
+
+		if ( is_admin() ) {
+			new MBR_Import;
+			new MBR_Export;
+		}
 	}
 
 	/**
@@ -104,5 +109,7 @@ class MBR_Loader {
 		require __DIR__ . '/api.php';
 		require __DIR__ . '/rest-api.php';
 		require __DIR__ . '/shortcodes.php';
+		require __DIR__ . '/import.php';
+		require __DIR__ . '/export.php';
 	}
 }
