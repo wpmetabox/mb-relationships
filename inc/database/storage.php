@@ -2,6 +2,8 @@
 class MBR_Storage {
 	/**
 	 * Relationship factory.
+	 *
+	 * @var MBR_Relationship_Factory
 	 */
 	private $factory;
 

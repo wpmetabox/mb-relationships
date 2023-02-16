@@ -10,9 +10,33 @@
  * Relationship factory class.
  */
 class MBR_Relationship_Factory {
+
+	/**
+	 * The object factory.
+	 *
+	 * @var MBR_Object_Factory
+	 */
 	private $object_factory;
-	private $relationships          = [];
+
+	/**
+	 * The registered relationships.
+	 *
+	 * @var array<string, MBR_Relationship>
+	 */
+	private $relationships = [];
+
+	/**
+	 * Relationships settings.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
 	private $relationships_settings = [];
+
+	/**
+	 * Filter type.
+	 *
+	 * @var string
+	 */
 	private $filter_type;
 
 	/**

@@ -6,21 +6,29 @@
 class MB_Relationships_API {
 	/**
 	 * Reference to relationship factory.
+	 *
+	 * @var MBR_Relationship_Factory
 	 */
 	private static $factory;
 
 	/**
 	 * Reference to post query object.
+	 *
+	 * @var MBR_Query_Post
 	 */
 	private static $post_query;
 
 	/**
 	 * Reference to term query object.
+	 *
+	 * @var MBR_Query_Term
 	 */
 	private static $term_query;
 
 	/**
 	 * Reference to user query object.
+	 *
+	 * @var MBR_Query_User
 	 */
 	private static $user_query;
 
