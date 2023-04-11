@@ -82,8 +82,9 @@ class MBR_Meta_Boxes {
 	private function parse_meta_box( $source ) {
 		$target = 'from' === $source ? 'to' : 'from';
 
-		$field       = $this->{$target}['field'];
-		$field['id'] = "{$this->id}_{$target}";
+		$field                              = $this->{$target}['field'];
+		$field['id']                        = "{$this->id}_{$target}";
+		$field['query_args']['post_status'] = [ 'publish', 'draft', 'private' ];
 
 		$meta_box           = $this->{$source}['meta_box'];
 		$meta_box['id']     = "{$this->id}_relationships_{$target}";
