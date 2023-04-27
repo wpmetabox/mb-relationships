@@ -132,6 +132,8 @@ class MBR_Relationship_Factory {
 		$settings['to']   = $this->normalize_side( $settings['to'], $settings['label_to'] );
 
 		$settings = apply_filters( 'mb_relationships_settings', $settings );
+		$settings = apply_filters( 'rwmb_normalize_meta_box', $settings );
+		$settings = apply_filters( "rwmb_normalize_{$settings['id']}_meta_box", $settings );
 
 		return $settings;
 	}
