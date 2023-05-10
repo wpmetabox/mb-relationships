@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 5.9
-Tested up to: 6.1.1
-Stable tag: 1.11.0
+Tested up to: 6.2
+Stable tag: 1.11.1
 License: GPLv2 or later
 
 A lightweight solution for creating many-to-many posts to posts relationships.
@@ -91,6 +91,9 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.11.1 - 2023-05-10 =
+- Fix draft items not being returned consistently
 
 = 1.11.0 - 2022-12-22 =
 - Add REST API support. See [docs](https://docs.metabox.io/extensions/mb-relationships/#rest-api) for usage. Props @macbookandrew.
