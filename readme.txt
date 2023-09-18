@@ -3,15 +3,16 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 5.9
-Tested up to: 6.2
-Stable tag: 1.11.1
+Tested up to: 6.3.1
+Stable tag: 1.11.2
+Requires PHP: 7.2
 License: GPLv2 or later
 
-A lightweight solution for creating many-to-many posts to posts relationships.
+A lightweight solution for creating relationships between posts, terms and users in WordPress.
 
 == Description ==
 
-**MB Relationships** helps you create many-to-many relationships between posts, pages or any custom post type. The plugin is lightweight and optimized for database and query performance.
+**MB Relationships** helps you create relationships between posts, pages, custom post type, terms and users. The plugin is lightweight and optimized for database and query performance.
 
 The plugin allows you to create connections from posts to posts, posts to pages and so on. Then you can perform corresponding queries to retrieve posts that are connected to or from given posts.
 
@@ -69,6 +70,17 @@ Besides, for each side, there's a meta box that shows what are connected from/to
 
 This plugin is a free extension of [Meta Box](https://metabox.io) plugin, which is a powerful, professional solution to create custom fields and custom meta boxes for WordPress websites. Using **MB Relationships** in combination with [other extensions](https://metabox.io/plugins/) will help you manage any content types in WordPress easily and make your website more professional.
 
+## You might also like
+
+If you like this plugin, you might also like our other WordPress products:
+
+- [Meta Box](https://metabox.io) - The most powerful WordPress plugin for creating custom post types and custom fields.
+- [Slim SEO](https://wpslimseo.com) - A fast, lightweight and full-featured SEO plugin for WordPress with minimal configuration.
+- [Slim SEO Schema](https://wpslimseo.com/products/slim-seo-schema/) - An advanced, powerful and flexible plugin to add schemas to WordPress.
+- [Slim SEO Link Manager](https://wpslimseo.com/products/slim-seo-link-manager/) - Build internal link easier in WordPress with real-time reports.
+- [GretaThemes](https://gretathemes.com) - Free and premium WordPress themes that clean, simple and just work.
+- [Auto Listings](https://wpautolistings.com) - A car sale and dealership plugin for WordPress
+
 == Installation ==
 
 You need to install [Meta Box](https://metabox.io) plugin first
@@ -91,6 +103,9 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.11.2 - 2023-09-18 =
+- Fix error when split query is true, occurs with recent update of Object Cache Pro.
 
 = 1.11.1 - 2023-05-10 =
 - Fix draft items not being returned consistently

@@ -3,7 +3,7 @@
  * Plugin Name: MB Relationships
  * Plugin URI:  https://metabox.io/plugins/mb-relationships/
  * Description: Create many-to-many relationships between posts, users, terms, etc.
- * Version:     1.11.1
+ * Version:     1.11.2
  * Author:      MetaBox.io
  * Author URI:  https://metabox.io
  * License:     GPL2+
