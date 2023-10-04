@@ -55,6 +55,7 @@ class MBR_Query_User {
 			'fields' => 'query_fields',
 			'join'   => 'query_from',
 			'where'  => 'query_where',
+			'orderby' => 'query_orderby',
 		];
 		foreach ( $map as $clause => $key ) {
 			$clauses[ $clause ] = $query->$key;
@@ -63,10 +64,6 @@ class MBR_Query_User {
 
 		foreach ( $map as $clause => $key ) {
 			$query->$key = $clauses[ $clause ];
-		}
-
-		if ( $query->query_orderby === 'ORDER BY user_login ASC' ) {
-			$query->query_orderby = "ORDER BY {$clauses['orderby']} ASC";
 		}
 	}
 

@@ -58,6 +58,8 @@ class MBR_Query {
 	}
 
 	private function build_single_relationship_join( $relationship, &$clauses, $id_column, $pass_thru_order ) {
+		global $wpdb;
+
 		$source = $relationship['direction'];
 		$target = 'from' === $source ? 'to' : 'from';
 		$items  = implode( ',', array_map( 'absint', $relationship['items'] ) );
@@ -67,12 +69,10 @@ class MBR_Query {
 			$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
 
 			if ( ! $pass_thru_order ) {
-
-				if ( 't.term_id' === $id_column ) {
+				$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
+				if ( in_array( $id_column, [ 't.term_id', "{$wpdb->prefix}users.ID" ], true ) ) {
 					$clauses['orderby'] = 'ORDER BY `mbr_order` ASC, mbr_id';
 					$clauses['order']   = 'DESC';
-				} else {
-					$clauses['orderby'] = '`mbr_order` ASC, mbr_id DESC';
 				}
 			}
 
@@ -90,7 +90,10 @@ class MBR_Query {
 
 		if ( ! $pass_thru_order ) {
 			$orderby            = "mbr.order_$source";
-			$clauses['orderby'] = 't.term_id' === $id_column ? "ORDER BY $orderby" : $orderby;
+			$clauses['orderby'] = $orderby;
+			if ( in_array( $id_column, [ 't.term_id', "{$wpdb->prefix}users.ID" ], true ) ) {
+				$clauses['orderby'] = "ORDER BY $orderby";
+			}
 		}
 
 		$fields             = "mbr.$source";
