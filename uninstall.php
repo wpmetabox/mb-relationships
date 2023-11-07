@@ -1,9 +1,7 @@
 <?php
 defined( 'WP_UNINSTALL_PLUGIN' ) || die;
 
-// Allow developers to opt-out to delete custom table.
-$delete_table = apply_filters( 'mb_relationships_delete_table', true );
-
+$delete_table = defined( 'MB_RELATIONSHIPS_DELETE_TABLE' ) ? MB_RELATIONSHIPS_DELETE_TABLE : false;
 if ( ! $delete_table ) {
 	return;
 }
