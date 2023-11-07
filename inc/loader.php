@@ -26,6 +26,11 @@ class MBR_Loader {
 			return;
 		}
 
+		define( 'MBR_DIR', trailingslashit( dirname( __DIR__ ) ) );
+
+		list( , $url ) = \RWMB_Loader::get_path( MBR_DIR );
+		define( 'MBR_URL', $url );
+
 		$this->load_files();
 
 		/**
@@ -58,6 +63,10 @@ class MBR_Loader {
 
 		$rest_api = new MB_Relationships_REST_API();
 		$rest_api->init();
+
+		if ( is_admin() ) {
+			new MBR_Uninstaller();
+		}
 
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
@@ -104,5 +113,6 @@ class MBR_Loader {
 		require __DIR__ . '/api.php';
 		require __DIR__ . '/rest-api.php';
 		require __DIR__ . '/shortcodes.php';
+		require __DIR__ . '/uninstaller.php';
 	}
 }
