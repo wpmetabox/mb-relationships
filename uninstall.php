@@ -1,8 +1,8 @@
 <?php
 defined( 'WP_UNINSTALL_PLUGIN' ) || die;
 
-$delete_table = defined( 'MB_RELATIONSHIPS_DELETE_TABLE' ) ? MB_RELATIONSHIPS_DELETE_TABLE : false;
-if ( ! $delete_table ) {
+$delete_data = defined( 'MB_RELATIONSHIPS_DELETE_DATA' ) ? MB_RELATIONSHIPS_DELETE_DATA : false;
+if ( ! $delete_data ) {
 	return;
 }
 
