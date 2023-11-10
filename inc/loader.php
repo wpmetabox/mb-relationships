@@ -64,10 +64,6 @@ class MBR_Loader {
 		$rest_api = new MB_Relationships_REST_API();
 		$rest_api->init();
 
-		if ( is_admin() ) {
-			new MBR_Uninstaller();
-		}
-
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
 	}
