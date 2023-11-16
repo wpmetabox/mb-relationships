@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
 Requires at least: 5.9
-Tested up to: 6.3.1
-Stable tag: 1.11.2
+Tested up to: 6.4.1
+Stable tag: 1.11.3
 Requires PHP: 7.2
 License: GPLv2 or later
 
@@ -103,6 +103,10 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.11.3 - 2023-11-16 =
+- Add a config constant `MB_RELATIONSHIPS_DELETE_DATA` to delete plugin data when uninstalling (#74)
+- Fix getting users not following the order in the admin (#73)
 
 = 1.11.2 - 2023-09-18 =
 - Fix error when split query is true, occurs with recent update of Object Cache Pro.
