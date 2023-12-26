@@ -139,7 +139,7 @@ class MB_Relationships_API {
 		$query_object = $object_type . '_query';
 
 		// if this is not reciprocal we need to derive the relationship key
-		$relationship_key = 'mbr_' . $args['id'] . '_' . $direction;
+		$relationship_key = $direction;
 		$items            = self::$$query_object->query( $args, $query_vars, $relationship );
 		self::distribute( $args[ $direction ], $items, $args['property'], $id_key, $relationship_key );
 	}
