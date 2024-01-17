@@ -38,6 +38,7 @@ class MBR_Storage_Handler {
 	 */
 	public function init() {
 		add_filter( 'rwmb_get_storage', [ $this, 'filter_storage' ], 10, 3 );
+		add_filter( 'post_row_actions', [ $this, 'add_link_delete_row_actions' ], 10, 2 );
 		add_action( 'deleted_post', [ $this, 'delete_object_data' ] );
 		add_action( 'deleted_user', [ $this, 'delete_object_data' ] );
 		add_action( 'delete_term', [ $this, 'delete_object_data' ] );
@@ -82,15 +83,21 @@ class MBR_Storage_Handler {
 	 * @param int $object_id Object ID.
 	 */
 	public function delete_object_data( $object_id ) {
-		$object_type   = str_replace( [ 'deleted_', 'delete_' ], '', current_filter() );
-		$relationships = $this->factory->filter_by( $object_type );
-		foreach ( $relationships as $relationship ) {
-			$setting = $this->factory->get_settings( $relationship->id );
-			$target  = null;
-			if ( $setting['from']['object_type'] !== $setting['to']['object_type'] ) {
-				$target = $setting['from']['object_type'] === $object_type ? 'from' : 'to';
+		if ( $_GET['relationship-type'] && strlen( $_GET['relationship-type'] ) > 0 ) {
+			global $wpdb;
+			$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s";
+			$wpdb->query( $wpdb->prepare( $sql, $_GET['relationship-type'] ) );
+		} else {
+			$object_type   = str_replace( [ 'deleted_', 'delete_' ], '', current_filter() );
+			$relationships = $this->factory->filter_by( $object_type );
+			foreach ( $relationships as $relationship ) {
+				$setting = $this->factory->get_settings( $relationship->id );
+				$target  = null;
+				if ( $setting['from']['object_type'] !== $setting['to']['object_type'] ) {
+					$target = $setting['from']['object_type'] === $object_type ? 'from' : 'to';
+				}
+				$this->delete_object_relationships( $object_id, $relationship->id, $target );
 			}
-			$this->delete_object_relationships( $object_id, $relationship->id, $target );
 		}
 	}
 
@@ -111,5 +118,13 @@ class MBR_Storage_Handler {
 			$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)";
 			$wpdb->query( $wpdb->prepare( $sql, $type, $object_id, $object_id ) );
 		}
+	}
+
+	public function add_link_delete_row_actions( $actions, $post ) {
+		if ( 'mb-relationship' === $post->post_type && $actions['delete'] ){
+			$nonce_url                       = wp_nonce_url( admin_url( 'post.php?post=' . $post->ID . '&action=delete&id_relationship=' . $post->post_title ), 'delete-post_' . $post->ID );
+			$actions['delete custom_action'] = '<a href="' . esc_url( $nonce_url ) . '" class="submitdelete" data-delete-with-data="true">Delete Data In Database</a>';
+		}
+		return $actions;
 	}
 }
