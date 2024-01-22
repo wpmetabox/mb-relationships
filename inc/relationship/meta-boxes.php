@@ -90,6 +90,37 @@ class MBR_Meta_Boxes {
 		$meta_box['id']     = "{$this->id}_relationships_{$target}";
 		$meta_box['fields'] = [ $field ];
 
+		if ( ( isset( $_REQUEST['post'] ) && $_REQUEST['action'] === 'edit' ) || ( isset( $_REQUEST['tag_ID'] ) && isset( $_REQUEST['taxonomy'] ) ) ) {
+			$object_type = $this->$target['object_type'];
+			$source_id   = isset( $_REQUEST['post'] ) ? $_REQUEST['post'] : $_REQUEST['tag_ID'];
+			$data        = [];
+
+			if ( $object_type === 'term' ) {
+				$data = get_terms( [
+					'taxonomy'     => $this->$target['field']['taxonomy'],
+					'hide_empty'   => false,
+					'relationship' => [
+						'id'    => $this->id,
+						$source => $source_id,
+					],
+				] );
+			}
+
+			if ( $object_type === 'user' ) {
+				$data = get_users( [
+					'relationship' => [
+						'id'    => $this->id,
+						$source => $source_id,
+					],
+				] );
+			}
+
+			if ( count( $data ) > 0 ) {
+				if ( ! isset( $this->$target['field']['query_args'] ) || ! isset( $this->$target['field']['query_args']['number'] ) ) {
+					$meta_box['fields'][0]['query_args']['number'] = count( $data );
+				}
+			}
+		}
 		return $meta_box;
 	}
 }
