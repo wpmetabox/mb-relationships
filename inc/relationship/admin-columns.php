@@ -224,6 +224,7 @@ class MBR_Admin_Columns {
 			return '';
 		}
 
+		$items  = array_reverse( $items );
 		$object = $this->object_factory->build( $object_type );
 		$items  = array_map(
 			function( $item ) use ( $object, $config ) {
