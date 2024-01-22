@@ -38,6 +38,8 @@ class MBR_Storage_Handler {
 	 */
 	public function init() {
 		add_filter( 'rwmb_get_storage', [ $this, 'filter_storage' ], 10, 3 );
+		add_filter( 'bulk_actions-edit-mb-relationship', [ $this, 'add_bulk_actions_delete_data' ] );
+		add_filter( 'handle_bulk_actions-edit-mb-relationship', [ $this, 'delete_data_in_db' ], 10, 3 );
 		add_action( 'deleted_post', [ $this, 'delete_object_data' ] );
 		add_action( 'deleted_user', [ $this, 'delete_object_data' ] );
 		add_action( 'delete_term', [ $this, 'delete_object_data' ] );
@@ -111,5 +113,26 @@ class MBR_Storage_Handler {
 			$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)";
 			$wpdb->query( $wpdb->prepare( $sql, $type, $object_id, $object_id ) );
 		}
+	}
+
+	public function add_bulk_actions_delete_data( $bulk_actions ) {
+		$bulk_actions['delete_relationship'] = __( 'Delete data in DB', 'mbr' );
+		return $bulk_actions;
+	}
+
+	public function delete_data_in_db( $redirect_to, $doaction, $post_ids ) {
+		if ( $doaction !== 'delete_relationship' || empty( $post_ids )) {
+			return $redirect_to;
+		}
+
+		global $wpdb;
+		foreach ( $post_ids as $post_id ) {
+			// Perform action for each post.
+			$relationship_id = get_the_title( $post_id );
+			$sql             = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s";
+			$wpdb->query( $wpdb->prepare( $sql, $relationship_id ) );
+		}
+		$redirect_to = add_query_arg( 'bulk_delete_relationship', count( $post_ids ), $redirect_to );
+		return $redirect_to;
 	}
 }
