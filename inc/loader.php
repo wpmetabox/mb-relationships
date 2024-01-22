@@ -26,6 +26,11 @@ class MBR_Loader {
 			return;
 		}
 
+		define( 'MBR_DIR', trailingslashit(dirname( __DIR__ ) ));
+
+		list( , $url ) = \RWMB_Loader::get_path( MBR_DIR );
+		define( 'MBR_URL', $url );
+
 		$this->load_files();
 
 		/**
@@ -53,6 +58,7 @@ class MBR_Loader {
 		MB_Relationships_API::set_term_query( $term_query );
 		MB_Relationships_API::set_user_query( $user_query );
 
+		new MBR_Admin_Filter();
 		$shortcodes = new MBR_Shortcodes( $rel_factory, $obj_factory );
 		$shortcodes->init();
 
@@ -100,6 +106,7 @@ class MBR_Loader {
 		require __DIR__ . '/relationship/relationship.php';
 		require __DIR__ . '/relationship/admin-columns.php';
 		require __DIR__ . '/relationship/meta-boxes.php';
+		require __DIR__ . '/relationship/admin-filter.php';
 
 		require __DIR__ . '/api.php';
 		require __DIR__ . '/rest-api.php';
