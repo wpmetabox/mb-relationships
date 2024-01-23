@@ -96,13 +96,14 @@ class MBR_Storage {
 		$type       = $this->get_type( $meta_key );
 		$orders     = $this->get_target_orders( $object_id, $type, $source, $target );
 
+		$orders 	= apply_filters( 'mbr-update-orders', $this, $orders );
+
 		$this->delete( $object_id, $meta_key );
 
 		$x = 0;
 		foreach ( $meta_value as $id ) {
 			$x++;
-			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
-			$order = apply_filters( 'mbr-query-order', $this, $order );
+			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;		
 			$wpdb->insert( $wpdb->mb_relationships, [
 				$source         => $object_id,
 				$target         => $id,
