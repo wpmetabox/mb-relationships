@@ -102,6 +102,7 @@ class MBR_Storage {
 		foreach ( $meta_value as $id ) {
 			$x++;
 			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
+			$order = apply_filters( 'mbr-query-order', $this, $order );
 			$wpdb->insert( $wpdb->mb_relationships, [
 				$source         => $object_id,
 				$target         => $id,
