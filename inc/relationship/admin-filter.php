@@ -9,8 +9,8 @@ class MBR_Admin_Filter {
 	 */
 	public function __construct() {
 		add_action( 'restrict_manage_posts', [ $this, 'add_admin_filter' ] );
-		add_action( 'pre_get_posts', [ $this, 'filter' ] );
-		add_action( 'wp_ajax_mb_relationships_admin_filter', [ $this, 'ajax_callback' ] );
+		add_action( 'pre_get_posts', [ $this, 'admin_filter' ] );
+		add_action( 'wp_ajax_mbr_admin_filter', [ $this, 'get_data_options' ] );
 
 		/** Admin hooks */
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_script' ] );
@@ -22,74 +22,39 @@ class MBR_Admin_Filter {
 	 */
 	public function add_admin_filter() {
 		global $post_type;
-		$relationships = MB_Relationships_API::get_all_relationships();		
+		$relationships = MB_Relationships_API::get_all_relationships();
 
-		foreach ( $relationships as $rel ) {
+		foreach ( $relationships as $relationship ) {
 
-			if ( isset( $rel->from['admin_column'] ) || isset( $rel->to['admin_column'] ) ) {
-				$related_type = '';
-				$related      = [];
-				$label        = '';
-				if ( isset( $rel->from['field']['post_type'] ) && $post_type === $rel->from['field']['post_type'] && $rel->from['admin_column'] ) {
-					$this->related_type( $rel->to['field'], $related_type, $related, $label );
-					$rel_type = 'to';
-				}
-				if ( isset( $rel->to['field']['post_type'] ) && $post_type === $rel->to['field']['post_type'] && $rel->to['admin_column'] ) {
-					$this->related_type( $rel->from['field'], $related_type, $related, $label );
-					$rel_type = 'from';
-				}
+            if( ( ! isset( $relationship->from['admin_column'] ) && ! isset( $relationship->to['admin_column'] ) ) ||
+                ! isset( $relationship->from['object_type'] ) ||
+                ( isset( $relationship->to['field']['post_type'] ) && isset( $relationship->from['field']['post_type'] ) && $post_type !== $relationship->to['field']['post_type'] && $post_type !== $relationship->from['field']['post_type'] ) ) {
+                continue;
+            }
 
-				if ( count( $related ) > 1 ) {
-						$display_html = '<input type="hidden" name="relationships['.$rel->id.'][from_to]" value="'.$rel_type.'" />';
-						$display_html .= '<select class="mb_related_filter" name="relationships['.$rel->id.'][post_id]" data-post-type="'.$related_type.'">';
-						
-						foreach ( $related as $relate ){
-							$display_html .= '<option value="'.$relate->ID.'" '.selected( $relate->post_title, $relate->ID ).'>'.$relate->post_title.'</option>';	
-						}						
-
-						$display_html .= '</select>';				
-				}
+            if ( ( isset( $relationship->to['field']['post_type'] ) && $post_type !== $relationship->to['field']['post_type'] ) || ( isset( $relationship->from['field']['post_type'] ) && $post_type !== $relationship->from['field']['post_type'] ) ) {
+				continue;
 			}
-		}
-	}
 
-	public function related_type( $field, &$related_type, &$related, &$label ) {
-		switch ( $field['type'] ) {
-			case 'taxonomy_advanced':
-				$related_type = $field['taxonomy'];
-				$related      = get_terms( [
-					'taxonomy'   => $related_type,
-					'hide_empty' => false,
-				] );
-				$related      = array_map( function( $relate ) {
-					$relate->post_title = $relate->name;
-					$relate->ID         = $relate->term_id;
-					unset( $relate->name );
-					unset( $relate->term_id );
-					return $relate;
-				}, $related );
-				$label        = $field['taxonomy'];
-				break;
-			case 'user':
-				$related_type = $field['type'];
-				$related      = get_users( [
-					'fields' => [ 'id', 'user_nicename' ],
-				] );
-				$related      = array_map( function( $relate ) {
-					$relate->post_title = $relate->user_nicename;
-					unset( $relate->user_nicename );
-					return $relate;
-				}, $related );
-				$label        = 'users';
-				break;
-			default:
-				$related_type = $field['post_type'];
-				$related      = get_posts( [
-					'post_type'   => $related_type,
-					'numberposts' => -1,
-				] );
-				$label        = get_post_type_object( $related_type )->label;
-				break;
+            if ( in_array( $post_type, [ 'mb-relationship', 'meta-box', 'mb-settings-page', 'mb-post-type', 'mb-taxonomy' ] ) ) {
+				continue;
+			}
+            
+            $data_relation = $relationship->from['object_type'] === 'post' && $relationship->from['field']['post_type'] === $post_type ? 
+                [ 'data' => $relationship->to, 'relation' => 'to' ] : 
+                [ 'data' => $relationship->from, 'relation' => 'from' ];
+                
+            $placeholder = $data_relation['data']['object_type'] === 'term' ? 
+                $data_relation['data']['field']['taxonomy'] : 
+                ( $data_relation['data']['object_type'] === 'user' ? 'Users' : get_post_type_object( $data_relation['data']['field']['type'] )->label );
+
+
+            $display_html  = '<input type="hidden" name="relationships[' . $relationship->id . '][from_to]" value="' . $data_relation['relation'] . '" />';
+            $display_html .= '<select class="mb_related_filter" name="relationships[' . $relationship->id . '][ID]" data-mbr-filter=\'' . json_encode( $data_relation ) . '\'>';
+            $display_html .= '<option value="">All ' . $placeholder . '</option>';
+            $display_html .= '</select>';
+
+            echo $display_html;
 		}
 	}
 
@@ -99,7 +64,7 @@ class MBR_Admin_Filter {
 	 *
 	 * @param $query WP_Query
 	 */
-	public function filter( $query ) {
+	public function admin_filter( $query ) {
 		// Don't run this unless it's necessary
 		if ( ! is_admin() ) {
 			return;
@@ -111,38 +76,44 @@ class MBR_Admin_Filter {
 		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
 			return;
 		}
+
+
 		global $post_type;
+
+        $ids = [];
 
 		// We cannot access MB Relationship classes at this stage so we need to
 		// rely 100% on data passed through the form
 		foreach ( $_GET['relationships'] as $relationship => $data ) {
 
-			$filtered_ids  = [];
-			$should_filter = false;
-			// print_r($query->query);
-			if ( isset( $query->query['post_type'] ) && $post_type === $query->query['post_type'] && ! empty( $data['post_id'] ) && (int) $data['post_id'] !== 0 ) {
-				$args    = array(
-					'relationship' => array(
-						'id'             => $relationship,
-						$data['from_to'] => $data['post_id'], // You can pass object ID or full object
-					),
-					'nopaging'     => true,
-					'fields'       => 'ids',
-				);
-				$results = new WP_Query( $args );
-				// Support for multiple filters to be enabled and set
-				$filtered_ids  = array_unique( array_merge( $results->posts, $filtered_ids ) );
-				$should_filter = true;
-			}
-			if ( $should_filter ) {
-				// If an empty array is passed, all posts are returned. Instead
-				// we want to show no posts if no objects are related to the selected post
-				if ( count( $filtered_ids ) === 0 ) {
-					$filtered_ids = [ 'invalid_id' ];
-				}
-				$query->set( 'post__in', $filtered_ids );
-			}
+			// $filtered_ids  = [];
+			// $should_filter = false;
+			// // print_r($query->query);
+			// if ( isset( $query->query['post_type'] ) && $post_type === $query->query['post_type'] && ! empty( $data['post_id'] ) && (int) $data['post_id'] !== 0 ) {
+			// 	$args    = array(
+			// 		'relationship' => array(
+			// 			'id'             => $relationship,
+			// 			$data['from_to'] => $data['post_id'], // You can pass object ID or full object
+			// 		),
+			// 		'nopaging'     => true,
+			// 		'fields'       => 'ids',
+			// 	);
+			// 	$results = new WP_Query( $args );
+			// 	// Support for multiple filters to be enabled and set
+			// 	$filtered_ids  = array_unique( array_merge( $results->posts, $filtered_ids ) );
+			// 	$should_filter = true;
+			// }
+			// if ( $should_filter ) {
+			// 	// If an empty array is passed, all posts are returned. Instead
+			// 	// we want to show no posts if no objects are related to the selected post
+			// 	if ( count( $filtered_ids ) === 0 ) {
+			// 		$filtered_ids = [ 'invalid_id' ];
+			// 	}
+			// 	$query->set( 'post__in', $filtered_ids );
+			// }
 		}
+
+        $query->set( 'post__in', $ids );
 	}
 
 	/**
@@ -153,38 +124,114 @@ class MBR_Admin_Filter {
 		if ( 'edit.php' !== $hook ) {
 			return;
 		}
-		
-		// RWMB_Select_Advanced_Field::admin_enqueue_scripts();
-		wp_enqueue_script( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', [ 'jquery' ], '4.1.0' );
-		wp_enqueue_style( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '4.1.0' );
-		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . '/js/admin-filter.js', [ 'select2' ], RWMB_VER, true );
+
+		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
+		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
+		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], RWMB_VER, true );
 	}
 
 	/**
 	 * The ajax callback to search for related posts in the select2 fields
 	 */
-	public function ajax_callback() {
-		// we will pass post IDs and titles to this array
-		$return = array();
+	public function get_data_options() {
 
-		// you can use WP_Query, query_posts() or get_posts() here - it doesn't matter
-		$search_results = new WP_Query( [
-			's'              => $_GET['q'], // the search query
-			// 'post_status' => 'publish', // uncomment this if you don't want drafts to be returned
-			// 'ignore_sticky_posts' => 1,
-			'posts_per_page' => 50, // how much to show at once
-			'post_type'      => $_GET['post_type'],
+        if( ! $_GET['q'] || !$_GET['filter'] ) {
+            echo json_encode([]);
+            die();
+        }        
 
-		] );
-		if ( $search_results->have_posts() ) :
-			while ( $search_results->have_posts() ) :
-				$search_results->the_post();
-				// shorten the title a little
-				$title    = ( mb_strlen( $search_results->post->post_title ) > 50 ) ? mb_substr( $search_results->post->post_title, 0, 49 ) . '...' : $search_results->post->post_title;
-				$return[] = array( $search_results->post->ID, $title ); // array( Post ID, Post Title )
-			endwhile;
-		endif;
-		echo json_encode( $return );
-		die;
+        // Get Data Ajax
+        $filter = $_GET['filter'];
+        $options = [];
+
+        // Data Term
+        if( $filter['object_type'] === 'term' ) {
+            echo json_encode( $this->get_term_options( $_GET['q'], $filter['field'] ) );
+		    die;
+        }        
+
+        // Data Term
+        if( $filter['object_type'] === 'user' ) {
+            echo json_encode( $this->get_user_options( $_GET['q'], $filter['field'] ) );
+		    die;
+        }  
+        
+        // Data Post
+        echo json_encode( $this->get_post_options( $_GET['q'], $filter['field'] ) );
+        die;        
 	}
+
+    private function get_term_options( $q = '', $field = [] ) {
+        $options = [];
+
+        $terms      = get_terms( [
+            'taxonomy'   => $field['taxonomy'],
+            'hide_empty' => false,
+            'name__like' => $q
+        ] );
+
+        if( count( $terms ) > 0 ) {
+            foreach( $terms as $term ){
+                $options[] = [
+                    'value' => $term->term_id,
+                    'label' => ( mb_strlen( $term->name ) > 50 ) ? mb_substr( $term->name, 0, 49 ) . '...' : $term->name
+                ];
+            }
+        }
+
+        return $options;
+    }
+
+    private function get_user_options( $q = '', $field = [] ) {
+        $options = [];
+
+        $users      = get_users( [ 
+            'fields' => [ 'id', 'user_nicename', 'first_name', 'last_name' ],
+            'meta_query' => [
+                    'relation' => 'OR',
+                    [
+                        'key'     => 'first_name',
+                        'value'   => $q,
+                        'compare' => 'LIKE',
+                    ],
+                    [
+                        'key'     => 'last_name',
+                        'value'   => $q,
+                        'compare' => 'LIKE',
+                    ],
+                ],           
+            ] );
+        
+        if( count( $users ) > 0 ) {
+            foreach( $users as $user ) {
+                $options[] = [
+                    'value' => $user->ID,
+                    'label' => $user->user_nicename
+                ];
+            }
+        }   
+
+        return $options;
+    }    
+
+    private function get_post_options( $q = '', $field = [] ) {
+        $options = [];
+
+        $posts      = get_posts( [
+            'post_type'   => $field['post_type'],
+            'numberposts' => 50,
+            's' => $q
+        ] );
+
+        if( count( $posts ) > 0 ) {
+            foreach( $posts as $post ) {
+                $options[] = [
+                    'value' => $post->ID,
+                    'label' => ( mb_strlen( $post->post_title ) > 50 ) ? mb_substr( $post->post_title, 0, 49 ) . '...' : $post->post_title
+                ];
+            }
+        }
+
+        return $options;
+    }      
 }
