@@ -35,7 +35,7 @@ class MBR_Storage {
 			$results = $wpdb->get_results( $wpdb->prepare(
 				"SELECT `to`, `ID`, `order_from` AS `order`
 				FROM {$wpdb->mb_relationships}
-				WHERE `from`=%d AND `type`=%s 
+				WHERE `from`=%d AND `type`=%s
 				UNION
 				SELECT `from`, `ID`, `order_to` AS `order`
 				FROM {$wpdb->mb_relationships}
@@ -90,7 +90,7 @@ class MBR_Storage {
 	public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
 		global $wpdb;
 
-		$meta_value = array_unique( array_filter( (array) $meta_value ) );
+		$meta_value = array_unique( array_filter( array_map( 'intval', (array) $meta_value ) ) );
 		$target     = $this->get_target( $meta_key );
 		$source     = $this->get_source( $meta_key );
 		$type       = $this->get_type( $meta_key );
@@ -101,7 +101,7 @@ class MBR_Storage {
 		$x = 0;
 		foreach ( $meta_value as $id ) {
 			$x++;
-			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
+			$order = $orders[ $id ] ?? ( $this->get_max_order( $id, $type, $target ) + 1 );
 			$wpdb->insert( $wpdb->mb_relationships, [
 				$source         => $object_id,
 				$target         => $id,
@@ -199,5 +199,25 @@ class MBR_Storage {
 			$type
 		), ARRAY_A );
 		return wp_list_pluck( $items, 'order', 'id' );
+	}
+
+	private function get_max_order( int $object_id, string $type, string $direction ): int {
+		global $wpdb;
+
+		$relationship = $this->factory->get( $type );
+
+		if ( $relationship->reciprocal ) {
+			return (int) $wpdb->get_var( $wpdb->prepare(
+				"SELECT MAX(GREATEST(`order_from`, `order_to`)) FROM {$wpdb->mb_relationships} WHERE `type` = %s AND (`from` = %d OR `to` = %d)",
+				$type,
+				$object_id
+			) );
+		}
+
+		return (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT MAX(`order_$direction`) FROM {$wpdb->mb_relationships} WHERE `$direction` = %d AND `type` = %s",
+			$object_id,
+			$type
+		) );
 	}
 }
