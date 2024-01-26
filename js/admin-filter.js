@@ -30,9 +30,9 @@
         options.ajax.processResults = function ( data ) {
             var options = [];
 
-            if ( data ) {
+            if ( data.success === true ) {
                 // data is the array of arrays, and each of them contains ID and the Label of the option
-                $.each( data, function ( index, option ) {
+                $.each( data.data, function ( index, option ) {
                     options.push( { id: option.value, text: option.label } );
                 } );
             }

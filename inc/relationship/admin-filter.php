@@ -143,8 +143,9 @@ class MBR_Admin_Filter {
 	 * The ajax callback to search for related posts in the select2 fields
 	 */
 	public function ajax_get_options() {
+
 		// Return ajax if keyword or data filter empty
-		if ( empty( $_GET['q'] ) || ! empty( $_GET['filter'] ) ) {
+		if ( empty( $_GET['q'] ) || empty( $_GET['filter'] ) ) {
 			wp_send_json_success( [] );
 		}
 
