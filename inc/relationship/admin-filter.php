@@ -1,31 +1,25 @@
 <?php
-/**
- * MBR_Admin_Filter
- */
 class MBR_Admin_Filter {
 
-	/**
-	 * MB_Relationships_Admin_Filter constructor
-	 */
+	const LIMIT = 20;
+
 	public function __construct() {
 		if ( ! is_admin() ) {
 			return;
 		}
 
-		add_filter( 'user_search_columns', [ $this, 'add_support_search_display_name' ], 10, 3 );
-		add_action( 'restrict_manage_posts', [ $this, 'add_admin_filter' ] );
-		add_action( 'pre_get_posts', [ $this, 'admin_filter' ] );
+		// Add filter for posts. Works only for posts. Terms & users don't have a similar filter.
+		add_action( 'restrict_manage_posts', [ $this, 'add_filter_for_posts' ] );
+
+		// Get options for autocomplete for select2 filter.
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_script' ] );
 		add_action( 'wp_ajax_mbr_admin_filter', [ $this, 'ajax_get_options' ] );
 
-		/** Admin hooks */
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_script' ] );
+		// Process the filter: filter posts by relationships.
+		add_action( 'pre_get_posts', [ $this, 'filter_posts_by_relationships' ] );
 	}
 
-	/**
-	 * Add a menu to the admin panel to filter by related items
-	 * if the field is set to have an admin column
-	 */
-	public function add_admin_filter() {
+	public function add_filter_for_posts() {
 		global $post_type;
 
 		$relationships = MB_Relationships_API::get_all_relationships();
@@ -75,13 +69,7 @@ class MBR_Admin_Filter {
 		}
 	}
 
-	/**
-	 * Add a filter in the rooms query on the admin panel to
-	 * filter by related posts
-	 *
-	 * @param $query WP_Query
-	 */
-	public function admin_filter( $query ) {
+	public function filter_posts_by_relationships( $query ) {
 		if ( ! is_admin() ) {
 			return;
 		}
@@ -125,10 +113,6 @@ class MBR_Admin_Filter {
 		}
 	}
 
-	/**
-	 * Enqueue a script in the WordPress admin on edit.php.
-	 * @param int $hook Hook suffix for the current admin page.
-	 */
 	public function enqueue_admin_script( $hook ) {
 		if ( 'edit.php' !== $hook ) {
 			return;
@@ -153,7 +137,7 @@ class MBR_Admin_Filter {
 		wp_send_json_success( $options );
 	}
 
-	public function get_data_options( $q, $data, $id = null ) {
+	private function get_data_options( $q, $data, $id = null ) {
 		// Data Term
 		if ( $data['object_type'] === 'term' ) {
 			return $this->get_term_options( $q, $data, $id );
@@ -211,11 +195,16 @@ class MBR_Admin_Filter {
 
 		// Get multiple options
 		$options = [];
+
+		add_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10, 3 );
+
 		$users   = get_users( [
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
 		] );
+
+		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
 
 		if ( count( $users ) > 0 ) {
 			foreach ( $users as $user ) {
@@ -260,7 +249,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	public function add_support_search_display_name( $search_columns, $search, $query ) {
+	public function search_users_by_display_name( $search_columns, $search, $query ) {
 		$search_columns[] = 'display_name';
 		return $search_columns;
 	}
