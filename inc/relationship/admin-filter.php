@@ -20,50 +20,52 @@ class MBR_Admin_Filter {
 	}
 
 	public function add_filter_for_posts() {
-		global $post_type;
-
 		$relationships = MB_Relationships_API::get_all_relationships();
+		array_walk( $relationships, [ $this, 'add_filter_select' ] );
+	}
 
-		foreach ( $relationships as $relationship ) {
+	private function add_filter_select( $relationship ) {
 
-			// Check object_type not post
-			if ( ( ! $relationship->from['object_type'] || $relationship->from['object_type'] !== 'post' ) && ( ! $relationship->to['object_type'] || $relationship->to['object_type'] !== 'post' ) ) {
-				continue;
-			}
-
-			// Only show filter on with curren post type
-			if ( ( ! isset( $relationship->from['field']['post_type'] ) || $post_type !== $relationship->from['field']['post_type'] ) && ( ! isset( $relationship->to['field']['post_type'] ) || $post_type !== $relationship->to['field']['post_type'] ) ) {
-				continue;
-			}
-			// print_r( $relationship );
-			// Get data from or to relationship with current post type
-			$data_relation = isset( $relationship->from['field']['post_type'] ) && $relationship->from['field']['post_type'] === $post_type ?
-			[
-				'data'     => $relationship->to,
-				'relation' => 'to',
-				'label'    => $relationship->to['meta_box']['title'] === $relationship->label_to ? $relationship->label_from : $relationship->to['meta_box']['title'],
-			] :
-			[
-				'data'     => $relationship->from,
-				'relation' => 'from',
-				'label'    => $relationship->from['meta_box']['title'] === $relationship->label_from ? $relationship->label_to : $relationship->from['meta_box']['title'],
-			];
-
-			$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data_relation['data'], $_GET['relationships'][ $relationship->id ]['ID'] ) : '';
-
-			// Render html filter
-			$display_html  = '<input type="hidden" name="relationships[' . $relationship->id . '][from_to]" value="' . $data_relation['relation'] . '" />';
-			$display_html .= '<select class="mb_related_filter" name="relationships[' . $relationship->id . '][ID]" data-mbr-filter=\'' . json_encode( $data_relation ) . '\'>';
-			$display_html .= '<option value="">' . $data_relation['label'] . '</option>';
-
-			if ( $selected ) {
-				$display_html .= '<option value="' . $selected['value'] . '" selected>' . $selected['label'] . '</option>';
-			}
-
-			$display_html .= '</select>';
-
-			echo $display_html;
+		// Check object_type not post
+		if ( ( ! $relationship->from['object_type'] || $relationship->from['object_type'] !== 'post' ) && ( ! $relationship->to['object_type'] || $relationship->to['object_type'] !== 'post' ) ) {
+			return;
 		}
+
+		global $post_type;
+		// Only show filter on with curren post type
+		if ( ( ! isset( $relationship->from['field']['post_type'] ) || $post_type !== $relationship->from['field']['post_type'] ) && ( ! isset( $relationship->to['field']['post_type'] ) || $post_type !== $relationship->to['field']['post_type'] ) ) {
+			return;
+		}
+
+		// Get data from or to relationship with current post type
+		$data_relation = isset( $relationship->from['field']['post_type'] ) && $relationship->from['field']['post_type'] === $post_type ?
+		[
+			'data'     => $relationship->to,
+			'relation' => 'to',
+			'label'    => $relationship->to['meta_box']['title'] === $relationship->label_to ? $relationship->label_from : $relationship->to['meta_box']['title'],
+		] :
+		[
+			'data'     => $relationship->from,
+			'relation' => 'from',
+			'label'    => $relationship->from['meta_box']['title'] === $relationship->label_from ? $relationship->label_to : $relationship->from['meta_box']['title'],
+		];
+
+		$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data_relation['data'], $_GET['relationships'][ $relationship->id ]['ID'] ) : '';
+		echo $this->get_html_select_filter( $relationship, $data_relation, $data_relation['label'], $selected );
+	}
+
+	private function get_html_select_filter( $relationship, $data, $placeholder, $selected ) {
+		$html_select  = '<input type="hidden" name="relationships[' . $relationship->id . '][from_to]" value="' . $data['relation'] . '" />';
+		$html_select .= '<select class="mb_related_filter" name="relationships[' . $relationship->id . '][ID]" data-mbr-filter=\'' . json_encode( $data ) . '\'>';
+		$html_select .= '<option value="">' . $placeholder . '</option>';
+
+		if ( $selected ) {
+			$html_select .= '<option value="' . $selected['value'] . '" selected>' . $selected['label'] . '</option>';
+		}
+
+		$html_select .= '</select>';
+
+		return $html_select;
 	}
 
 	public function filter_posts_by_relationships( $query ) {
