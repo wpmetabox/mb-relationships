@@ -1,7 +1,8 @@
 <?php
 class MBR_Admin_Filter {
 
-	const LIMIT = 20;
+	const LIMIT              = 20;
+	const LIMIT_LABEL_OPTION = 50;
 
 	public function __construct() {
 		if ( ! is_admin() ) {
@@ -157,7 +158,7 @@ class MBR_Admin_Filter {
 			$term = get_term( $id );
 			return [
 				'value' => $term->term_id,
-				'label' => ( mb_strlen( $term->name ) > 50 ) ? mb_substr( $term->name, 0, 49 ) . '...' : $term->name,
+				'label' => $this->truncate_label_option( $term->name ),
 			];
 		}
 
@@ -168,14 +169,14 @@ class MBR_Admin_Filter {
 			'taxonomy'   => $field['taxonomy'],
 			'hide_empty' => false,
 			'name__like' => $q,
-            'number'  => self::LIMIT
+			'number'     => self::LIMIT,
 		] );
 
 		if ( count( $terms->terms ) > 0 ) {
 			foreach ( $terms->terms as $term ) {
 				$options[] = [
 					'value' => $term->term_id,
-					'label' => ( mb_strlen( $term->name ) > 50 ) ? mb_substr( $term->name, 0, 49 ) . '...' : $term->name,
+					'label' => $this->truncate_label_option( $term->name ),
 				];
 			}
 		}
@@ -189,7 +190,7 @@ class MBR_Admin_Filter {
 			$user = get_user_by( 'id', $id );
 			return [
 				'value' => $user->ID,
-				'label' => $user->display_name,
+				'label' => $this->truncate_label_option( $user->display_name ),
 			];
 		}
 
@@ -202,7 +203,7 @@ class MBR_Admin_Filter {
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
-            'number'  => self::LIMIT
+			'number'         => self::LIMIT,
 		] );
 
 		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
@@ -211,7 +212,7 @@ class MBR_Admin_Filter {
 			foreach ( $users->results as $user ) {
 				$options[] = [
 					'value' => $user->ID,
-					'label' => $user->display_name,
+					'label' => $this->truncate_label_option( $user->display_name ),
 				];
 			}
 		}
@@ -225,7 +226,7 @@ class MBR_Admin_Filter {
 			$post = get_post( $id );
 			return [
 				'value' => $post->ID,
-				'label' => ( mb_strlen( $post->post_title ) > 50 ) ? mb_substr( $post->post_title, 0, 49 ) . '...' : $post->post_title,
+				'label' => $this->truncate_label_option( $post->post_title ),
 			];
 		}
 
@@ -242,12 +243,16 @@ class MBR_Admin_Filter {
 			foreach ( $posts->posts as $post ) {
 				$options[] = [
 					'value' => $post->ID,
-					'label' => ( mb_strlen( $post->post_title ) > 50 ) ? mb_substr( $post->post_title, 0, 49 ) . '...' : $post->post_title,
+					'label' => $this->truncate_label_option( $post->post_title ),
 				];
 			}
 		}
 
 		return $options;
+	}
+
+	private function truncate_label_option( $label = '' ) {
+		return ( mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ) ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
 	}
 
 	public function search_users_by_display_name( $search_columns, $search, $query ) {
