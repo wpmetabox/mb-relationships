@@ -164,14 +164,15 @@ class MBR_Admin_Filter {
 		// Get multiple options
 		$options = [];
 
-		$terms = get_terms( [
+		$terms = new WP_Term_Query( [
 			'taxonomy'   => $field['taxonomy'],
 			'hide_empty' => false,
 			'name__like' => $q,
+            'number'  => self::LIMIT
 		] );
 
-		if ( count( $terms ) > 0 ) {
-			foreach ( $terms as $term ) {
+		if ( count( $terms->terms ) > 0 ) {
+			foreach ( $terms->terms as $term ) {
 				$options[] = [
 					'value' => $term->term_id,
 					'label' => ( mb_strlen( $term->name ) > 50 ) ? mb_substr( $term->name, 0, 49 ) . '...' : $term->name,
@@ -197,16 +198,17 @@ class MBR_Admin_Filter {
 
 		add_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10, 3 );
 
-		$users = get_users( [
+		$users = new WP_User_Query( [
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
+            'number'  => self::LIMIT
 		] );
 
 		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
 
-		if ( count( $users ) > 0 ) {
-			foreach ( $users as $user ) {
+		if ( $users->total_users > 0 ) {
+			foreach ( $users->results as $user ) {
 				$options[] = [
 					'value' => $user->ID,
 					'label' => $user->display_name,
@@ -232,7 +234,7 @@ class MBR_Admin_Filter {
 
 		$posts = new WP_Query( [
 			'post_type'   => $field['post_type'],
-			'numberposts' => 50,
+			'numberposts' => self::LIMIT,
 			's'           => $q,
 		] );
 
