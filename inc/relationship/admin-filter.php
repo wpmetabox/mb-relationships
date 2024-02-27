@@ -230,14 +230,14 @@ class MBR_Admin_Filter {
 		// Get multiple options
 		$options = [];
 
-		$posts = get_posts( [
+		$posts = new WP_Query( [
 			'post_type'   => $field['post_type'],
 			'numberposts' => 50,
 			's'           => $q,
 		] );
 
-		if ( count( $posts ) > 0 ) {
-			foreach ( $posts as $post ) {
+		if ( $posts->post_count > 0 ) {
+			foreach ( $posts->posts as $post ) {
 				$options[] = [
 					'value' => $post->ID,
 					'label' => ( mb_strlen( $post->post_title ) > 50 ) ? mb_substr( $post->post_title, 0, 49 ) . '...' : $post->post_title,
