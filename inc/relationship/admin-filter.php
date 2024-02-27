@@ -35,29 +35,26 @@ class MBR_Admin_Filter {
 			if ( ( ! isset( $relationship->from['field']['post_type'] ) || $post_type !== $relationship->from['field']['post_type'] ) && ( ! isset( $relationship->to['field']['post_type'] ) || $post_type !== $relationship->to['field']['post_type'] ) ) {
 				continue;
 			}
-
+			// print_r( $relationship );
 			// Get data from or to relationship with current post type
 			$data_relation = isset( $relationship->from['field']['post_type'] ) && $relationship->from['field']['post_type'] === $post_type ?
 			[
 				'data'     => $relationship->to,
 				'relation' => 'to',
+				'label'    => $relationship->to['meta_box']['title'] === $relationship->label_to ? $relationship->label_from : $relationship->to['meta_box']['title'],
 			] :
 			[
 				'data'     => $relationship->from,
 				'relation' => 'from',
+				'label'    => $relationship->from['meta_box']['title'] === $relationship->label_from ? $relationship->label_to : $relationship->from['meta_box']['title'],
 			];
-
-			// Placeholder for select 2
-			$placeholder = $data_relation['data']['object_type'] === 'term' ?
-			$data_relation['data']['field']['taxonomy'] :
-			( $data_relation['data']['object_type'] === 'user' ? 'Users' : get_post_type_object( $data_relation['data']['field']['post_type'] )->label );
 
 			$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data_relation['data'], $_GET['relationships'][ $relationship->id ]['ID'] ) : '';
 
 			// Render html filter
 			$display_html  = '<input type="hidden" name="relationships[' . $relationship->id . '][from_to]" value="' . $data_relation['relation'] . '" />';
 			$display_html .= '<select class="mb_related_filter" name="relationships[' . $relationship->id . '][ID]" data-mbr-filter=\'' . json_encode( $data_relation ) . '\'>';
-			$display_html .= '<option value="">All ' . $placeholder . '</option>';
+			$display_html .= '<option value="">' . $data_relation['label'] . '</option>';
 
 			if ( $selected ) {
 				$display_html .= '<option value="' . $selected['value'] . '" selected>' . $selected['label'] . '</option>';
@@ -198,7 +195,7 @@ class MBR_Admin_Filter {
 
 		add_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10, 3 );
 
-		$users   = get_users( [
+		$users = get_users( [
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
