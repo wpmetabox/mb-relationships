@@ -145,19 +145,19 @@ class MBR_Admin_Filter {
 		wp_send_json_success( $options );
 	}
 
-	private function get_data_options( $q, $data, $id = null ) {
+	private function get_data_options( $q, $field, $id = null ) {
 		// Data Term
-		if ( $data['object_type'] === 'term' ) {
-			return $this->get_term_options( $q, $data, $id );
+		if ( $field['object_type'] === 'term' ) {
+			return $this->get_term_options( $q, $field, $id );
 		}
 
 		// Data Term
-		if ( $data['object_type'] === 'user' ) {
-			return $this->get_user_options( $q, $data, $id );
+		if ( $field['object_type'] === 'user' ) {
+			return $this->get_user_options( $q, $field, $id );
 		}
 
 		// Data Post
-		return $this->get_post_options( $q, $data, $id );
+		return $this->get_post_options( $q, $field, $id );
 	}
 
 	private function get_term_options( $q, $field, $id ) {
@@ -180,15 +180,16 @@ class MBR_Admin_Filter {
 			'number'     => self::LIMIT,
 		] );
 
-		if ( count( $terms->terms ) > 0 ) {
-			foreach ( $terms->terms as $term ) {
-				$options[] = [
-					'value' => $term->term_id,
-					'label' => $this->truncate_label_option( $term->name ),
-				];
-			}
+		if ( count( $terms->terms ) === 0 ) {
+			return $options;
 		}
 
+		foreach ( $terms->terms as $term ) {
+			$options[] = [
+				'value' => $term->term_id,
+				'label' => $this->truncate_label_option( $term->name ),
+			];
+		}
 		return $options;
 	}
 
@@ -216,13 +217,15 @@ class MBR_Admin_Filter {
 
 		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
 
-		if ( $users->total_users > 0 ) {
-			foreach ( $users->results as $user ) {
-				$options[] = [
-					'value' => $user->ID,
-					'label' => $this->truncate_label_option( $user->display_name ),
-				];
-			}
+		if ( $users->total_users === 0 ) {
+			return $options;
+		}
+
+		foreach ( $users->results as $user ) {
+			$options[] = [
+				'value' => $user->ID,
+				'label' => $this->truncate_label_option( $user->display_name ),
+			];
 		}
 
 		return $options;
@@ -247,13 +250,15 @@ class MBR_Admin_Filter {
 			's'           => $q,
 		] );
 
-		if ( $posts->post_count > 0 ) {
-			foreach ( $posts->posts as $post ) {
-				$options[] = [
-					'value' => $post->ID,
-					'label' => $this->truncate_label_option( $post->post_title ),
-				];
-			}
+		if ( $posts->post_count === 0 ) {
+			return $options;
+		}
+
+		foreach ( $posts->posts as $post ) {
+			$options[] = [
+				'value' => $post->ID,
+				'label' => $this->truncate_label_option( $post->post_title ),
+			];
 		}
 
 		return $options;
