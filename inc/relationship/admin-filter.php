@@ -1,4 +1,8 @@
 <?php
+defined( 'ABSPATH' ) || die;
+
+use MetaBox\Support\Arr;
+
 class MBR_Admin_Filter {
 
 	const LIMIT              = 20;
@@ -26,33 +30,35 @@ class MBR_Admin_Filter {
 	}
 
 	private function add_filter_select( $relationship ) {
+		$from = $relationship->from;
+		$to   = $relationship->to;
 
-		// Check object_type not post
-		if ( ( ! $relationship->from['object_type'] || $relationship->from['object_type'] !== 'post' ) && ( ! $relationship->to['object_type'] || $relationship->to['object_type'] !== 'post' ) ) {
+		// Add filters for posts only.
+		if ( Arr::get( $from, 'object_type' ) !== 'post' && Arr::get( $to, 'object_type' ) !== 'post' ) {
 			return;
 		}
 
+		// Only show filters for current post type.
 		global $post_type;
-		// Only show filter on with curren post type
-		if ( ( ! isset( $relationship->from['field']['post_type'] ) || $post_type !== $relationship->from['field']['post_type'] ) && ( ! isset( $relationship->to['field']['post_type'] ) || $post_type !== $relationship->to['field']['post_type'] ) ) {
+		if ( Arr::get( $from, 'field.post_type' ) !== $post_type && Arr::get( $to, 'field.post_type' ) !== $post_type ) {
 			return;
 		}
 
 		// Get data from or to relationship with current post type
-		$data_relation = isset( $relationship->from['field']['post_type'] ) && $relationship->from['field']['post_type'] === $post_type ?
-		[
-			'data'     => $relationship->to,
-			'relation' => 'to',
-			'label'    => $relationship->to['meta_box']['title'] === $relationship->label_to ? $relationship->label_from : $relationship->to['meta_box']['title'],
-		] :
-		[
-			'data'     => $relationship->from,
-			'relation' => 'from',
-			'label'    => $relationship->from['meta_box']['title'] === $relationship->label_from ? $relationship->label_to : $relationship->from['meta_box']['title'],
-		];
+		$data = Arr::get( $from, 'field.post_type' ) === $post_type
+			? [
+				'data'     => $from,
+				'relation' => 'to',
+				'label'    => $from['meta_box']['title'],
+			]
+			: [
+				'data'     => $to,
+				'relation' => 'from',
+				'label'    => $to['meta_box']['title'],
+			];
 
-		$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data_relation['data'], $_GET['relationships'][ $relationship->id ]['ID'] ) : '';
-		echo $this->get_html_select_filter( $relationship, $data_relation, $data_relation['label'], $selected );
+		$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data['data'], Arr::get( $_GET, "relationships.{$relationship->id}.ID" ) ) : [];
+		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected );
 	}
 
 	private function get_html_select_filter( $relationship, $data, $placeholder, $selected ) {
@@ -152,7 +158,7 @@ class MBR_Admin_Filter {
 		return $this->get_post_options( $q, $data, $id );
 	}
 
-	private function get_term_options( $q = '', $field = [], $id ) {
+	private function get_term_options( $q, $field, $id ) {
 		// If ID not empty, get one option
 		if ( ! empty( $id ) ) {
 			$term = get_term( $id );
@@ -184,7 +190,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_user_options( $q = '', $field = [], $id ) {
+	private function get_user_options( $q, $field, $id ) {
 		// If ID not empty, get one option
 		if ( ! empty( $id ) ) {
 			$user = get_user_by( 'id', $id );
@@ -220,7 +226,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_post_options( $q = '', $field = [], $id ) {
+	private function get_post_options( $q, $field, $id ) {
 		// If ID not empty, get one option
 		if ( ! empty( $id ) ) {
 			$post = get_post( $id );
@@ -252,7 +258,7 @@ class MBR_Admin_Filter {
 	}
 
 	private function truncate_label_option( $label = '' ) {
-		return ( mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ) ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
+		return mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
 	}
 
 	public function search_users_by_display_name( $search_columns, $search, $query ) {
