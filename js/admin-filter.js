@@ -1,16 +1,16 @@
-( function ( $, document ) {
+(function ($, document) {
     'use strict';
 
     /**
      * Transform select fields into beautiful dropdown with select2 library.
      */
     function transform() {
-        var $this = $( this ),
-            $mbr_data_filter = $this.data( 'mbr-filter' );
+        const $this = $(this),
+            $mbr_data_filter = $this.data('mbr-filter');
 
-        var options = {};
+        let options = {};
         // the minimum of symbols to input before perform a search
-        options.minimumInputLength = 3;
+        options.minimumInputLength = 1;
 
         options.ajax = {
             url: ajaxurl,
@@ -19,7 +19,7 @@
             cache: true
         };
 
-        options.ajax.data = function ( params ) {
+        options.ajax.data = function (params) {
             return {
                 q: params.term,
                 action: 'mbr_admin_filter',
@@ -27,25 +27,25 @@
             };
         };
 
-        options.ajax.processResults = function ( data ) {
-            var options = [];
+        options.ajax.processResults = function (data) {
+            let results = [];
 
-            if ( data.success === true ) {
+            if (data.success === true) {
                 // data is the array of arrays, and each of them contains ID and the Label of the option
-                $.each( data.data, function ( index, option ) {
-                    options.push( { id: option.value, text: option.label } );
-                } );
+                $.each(data.data, function (index, option) {
+                    results.push({ id: option.value, text: option.label });
+                });
             }
 
-            return { results: options };
+            return { results: results };
         };
 
-        $this.select2( options );
+        $this.select2(options);
     }
 
     function init() {
-        $( '.mb_related_filter' ).each( transform );
+        $('.mb_related_filter').each(transform);
     }
 
-    $( document ).ready( init );
-} )( jQuery );
+    $(document).ready(init);
+})(jQuery);
