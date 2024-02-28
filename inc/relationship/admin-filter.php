@@ -62,17 +62,19 @@ class MBR_Admin_Filter {
 	}
 
 	private function get_html_select_filter( $relationship, $data, $placeholder, $selected ) {
-		$html_select  = '<input type="hidden" name="relationships[' . $relationship->id . '][from_to]" value="' . $data['relation'] . '" />';
-		$html_select .= '<select class="mb_related_filter" name="relationships[' . $relationship->id . '][ID]" data-mbr-filter=\'' . json_encode( $data ) . '\'>';
-		$html_select .= '<option value="">' . $placeholder . '</option>';
-
-		if ( $selected ) {
-			$html_select .= '<option value="' . $selected['value'] . '" selected>' . $selected['label'] . '</option>';
-		}
-
-		$html_select .= '</select>';
-
-		return $html_select;
+		return sprintf(
+			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
+            <select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-filter=\'%s\'>
+                <option value="">%s</option>
+                %s
+            </select>',
+			$relationship->id,
+			esc_attr( $data['relation'] ),
+			$relationship->id,
+			esc_attr( wp_json_encode( $data ) ),
+			esc_html( $placeholder ),
+			$selected ? '<option value="' . esc_attr( $selected['value'] ) . '" selected>' . esc_html( $selected['label'] ) . '</option>' : ''
+		);
 	}
 
 	public function filter_posts_by_relationships( $query ) {
