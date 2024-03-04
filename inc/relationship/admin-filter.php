@@ -49,12 +49,12 @@ class MBR_Admin_Filter {
 			? [
 				'data'     => $to,
 				'relation' => 'to',
-				'label'    => $to['meta_box']['title'],
+				'label'    => $from['meta_box']['title'],
 			]
 			: [
 				'data'     => $from,
 				'relation' => 'from',
-				'label'    => $from['meta_box']['title'],
+				'label'    => $to['meta_box']['title'],
 			];
 
 		$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data['data'], Arr::get( $_GET, "relationships.{$relationship->id}.ID" ) ) : [];
@@ -145,19 +145,19 @@ class MBR_Admin_Filter {
 		wp_send_json_success( $options );
 	}
 
-	private function get_data_options( $q, $field, $id = null ) {
+	private function get_data_options( $q, $data, $id = null ) {
 		// Data Term
-		if ( $field['object_type'] === 'term' ) {
-			return $this->get_term_options( $q, $field, $id );
+		if ( $data['object_type'] === 'term' ) {
+			return $this->get_term_options( $q, $data['field'], $id );
 		}
 
 		// Data Term
-		if ( $field['object_type'] === 'user' ) {
-			return $this->get_user_options( $q, $field, $id );
+		if ( $data['object_type'] === 'user' ) {
+			return $this->get_user_options( $q, $data['field'], $id );
 		}
 
 		// Data Post
-		return $this->get_post_options( $q, $field, $id );
+		return $this->get_post_options( $q, $data['field'], $id );
 	}
 
 	private function get_term_options( $q, $field, $id ) {
