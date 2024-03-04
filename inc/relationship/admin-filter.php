@@ -47,14 +47,14 @@ class MBR_Admin_Filter {
 		// Get data from or to relationship with current post type
 		$data = Arr::get( $from, 'field.post_type' ) === $post_type
 			? [
-				'data'     => $from,
+				'data'     => $to,
 				'relation' => 'to',
-				'label'    => $from['meta_box']['title'],
+				'label'    => $to['meta_box']['title'],
 			]
 			: [
-				'data'     => $to,
+				'data'     => $from,
 				'relation' => 'from',
-				'label'    => $to['meta_box']['title'],
+				'label'    => $from['meta_box']['title'],
 			];
 
 		$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data['data'], Arr::get( $_GET, "relationships.{$relationship->id}.ID" ) ) : [];
