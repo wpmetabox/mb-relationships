@@ -57,7 +57,7 @@ class MBR_Admin_Filter {
 				'label'    => $to['meta_box']['title'],
 			];
 
-		$selected = isset( $_GET['relationships'] ) ? $this->get_data_options( '', $data['data'], Arr::get( $_GET, "relationships.{$relationship->id}.ID" ) ) : [];
+		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['data']['object_type'] ) : [];
 		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected );
 	}
 
@@ -73,7 +73,7 @@ class MBR_Admin_Filter {
 			$relationship->id,
 			esc_attr( wp_json_encode( $data ) ),
 			esc_html( $placeholder ),
-			$selected ? '<option value="' . esc_attr( $selected['value'] ) . '" selected>' . esc_html( $selected['label'] ) . '</option>' : ''
+			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
 	}
 
@@ -141,35 +141,52 @@ class MBR_Admin_Filter {
 			wp_send_json_success( [] );
 		}
 
-		$options = $this->get_data_options( $_GET['q'], $_GET['filter'] );
+		$options = $this->get_data_options( $_GET['q'], $_GET['filter']['data'] );
 		wp_send_json_success( $options );
 	}
 
-	private function get_data_options( $q, $data, $id = null ) {
+	private function get_selected_item( $id, $object_type ) {
+		if ( $object_type === 'term' ) {
+			$term = get_term( $id );
+			return [
+				'id'   => $term->term_id,
+				'text' => $this->truncate_label_option( $term->name ),
+			];
+		}
+
+		if ( $object_type === 'user' ) {
+			$user = get_user_by( 'id', $id );
+			return [
+				'id'   => $user->ID,
+				'text' => $this->truncate_label_option( $user->display_name ),
+			];
+		}
+
+		if ( $object_type === 'post' ) {
+			$post = get_post( $id );
+			return [
+				'id'   => $post->ID,
+				'text' => $this->truncate_label_option( $post->post_title ),
+			];
+		}
+	}
+
+	private function get_data_options( $q, $data ) {
 		// Data Term
 		if ( $data['object_type'] === 'term' ) {
-			return $this->get_term_options( $q, $data['field'], $id );
+			return $this->get_term_options( $q, $data['field'] );
 		}
 
 		// Data Term
 		if ( $data['object_type'] === 'user' ) {
-			return $this->get_user_options( $q, $data['field'], $id );
+			return $this->get_user_options( $q, $data['field'] );
 		}
 
 		// Data Post
-		return $this->get_post_options( $q, $data['field'], $id );
+		return $this->get_post_options( $q, $data['field'] );
 	}
 
-	private function get_term_options( $q, $field, $id ) {
-		// If ID not empty, get one option
-		if ( ! empty( $id ) ) {
-			$term = get_term( $id );
-			return [
-				'value' => $term->term_id,
-				'label' => $this->truncate_label_option( $term->name ),
-			];
-		}
-
+	private function get_term_options( $q, $field ) {
 		// Get multiple options
 		$options = [];
 
@@ -186,23 +203,14 @@ class MBR_Admin_Filter {
 
 		foreach ( $terms->terms as $term ) {
 			$options[] = [
-				'value' => $term->term_id,
-				'label' => $this->truncate_label_option( $term->name ),
+				'id'   => $term->term_id,
+				'text' => $this->truncate_label_option( $term->name ),
 			];
 		}
 		return $options;
 	}
 
-	private function get_user_options( $q, $field, $id ) {
-		// If ID not empty, get one option
-		if ( ! empty( $id ) ) {
-			$user = get_user_by( 'id', $id );
-			return [
-				'value' => $user->ID,
-				'label' => $this->truncate_label_option( $user->display_name ),
-			];
-		}
-
+	private function get_user_options( $q, $field ) {
 		// Get multiple options
 		$options = [];
 
@@ -223,24 +231,15 @@ class MBR_Admin_Filter {
 
 		foreach ( $users->results as $user ) {
 			$options[] = [
-				'value' => $user->ID,
-				'label' => $this->truncate_label_option( $user->display_name ),
+				'id'   => $user->ID,
+				'text' => $this->truncate_label_option( $user->display_name ),
 			];
 		}
 
 		return $options;
 	}
 
-	private function get_post_options( $q, $field, $id ) {
-		// If ID not empty, get one option
-		if ( ! empty( $id ) ) {
-			$post = get_post( $id );
-			return [
-				'value' => $post->ID,
-				'label' => $this->truncate_label_option( $post->post_title ),
-			];
-		}
-
+	private function get_post_options( $q, $field ) {
 		// Get multiple options
 		$options = [];
 
@@ -256,8 +255,8 @@ class MBR_Admin_Filter {
 
 		foreach ( $posts->posts as $post ) {
 			$options[] = [
-				'value' => $post->ID,
-				'label' => $this->truncate_label_option( $post->post_title ),
+				'id'   => $post->ID,
+				'text' => $this->truncate_label_option( $post->post_title ),
 			];
 		}
 
