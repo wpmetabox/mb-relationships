@@ -71,7 +71,7 @@ class MBR_Admin_Filter {
 			$relationship->id,
 			esc_attr( $data['relation'] ),
 			$relationship->id,
-			esc_attr( wp_json_encode( $data ) ),
+			esc_attr( wp_json_encode( $data['data'] ) ),
 			esc_html( $placeholder ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
@@ -141,7 +141,7 @@ class MBR_Admin_Filter {
 			wp_send_json_success( [] );
 		}
 
-		$options = $this->get_data_options( $_GET['q'], $_GET['filter']['data'] );
+		$options = $this->get_data_options( $_GET['q'], $_GET['filter'] );
 		wp_send_json_success( $options );
 	}
 
@@ -171,7 +171,7 @@ class MBR_Admin_Filter {
 		}
 	}
 
-	private function get_data_options( $q, $data ) {
+	private function get_data_options( $q, $data ) : array {
 		// Data Term
 		if ( $data['object_type'] === 'term' ) {
 			return $this->get_term_options( $q, $data['field'] );
@@ -186,7 +186,7 @@ class MBR_Admin_Filter {
 		return $this->get_post_options( $q, $data['field'] );
 	}
 
-	private function get_term_options( $q, $field ) {
+	private function get_term_options( $q, $field ) : array {
 		// Get multiple options
 		$options = [];
 
@@ -210,7 +210,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_user_options( $q, $field ) {
+	private function get_user_options( $q, $field ) : array {
 		// Get multiple options
 		$options = [];
 
@@ -239,7 +239,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_post_options( $q, $field ) {
+	private function get_post_options( $q, $field ) : array {
 		// Get multiple options
 		$options = [];
 
@@ -263,11 +263,11 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function truncate_label_option( $label = '' ) {
+	private function truncate_label_option( $label = '' ) : string {
 		return mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
 	}
 
-	public function search_users_by_display_name( $search_columns, $search, $query ) {
+	public function search_users_by_display_name( $search_columns, $search, $query ) : array {
 		$search_columns[] = 'display_name';
 		return $search_columns;
 	}

@@ -27,9 +27,7 @@
             };
         };
 
-        options.ajax.processResults = response => {
-            return { results: response.data };
-        };
+        options.ajax.processResults = response => { results: response.data; };
 
         $this.select2( options );
     }
