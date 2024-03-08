@@ -129,6 +129,7 @@ class MBR_Admin_Filter {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
 		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], RWMB_VER, true );
+		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], RWMB_VER );
 	}
 
 	/**
