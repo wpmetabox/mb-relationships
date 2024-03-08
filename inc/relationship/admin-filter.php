@@ -57,6 +57,10 @@ class MBR_Admin_Filter {
 				'label'    => $to['meta_box']['title'],
 			];
 
+		if ( Arr::get( $data, 'data.admin_filter', false ) ) {
+			return;
+		}
+
 		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['data']['object_type'] ) : [];
 		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected );
 	}
