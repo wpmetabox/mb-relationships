@@ -47,17 +47,19 @@ class MBR_Admin_Filter {
 		// Get data from or to relationship with current post type
 		$data = Arr::get( $from, 'field.post_type' ) === $post_type
 			? [
-				'data'     => $to,
-				'relation' => 'to',
-				'label'    => $from['meta_box']['title'],
+				'data'         => $to,
+				'relation'     => 'to',
+				'label'        => $from['meta_box']['title'],
+				'admin_filter' => Arr::get( $from, 'admin_filter', false ),
 			]
 			: [
-				'data'     => $from,
-				'relation' => 'from',
-				'label'    => $to['meta_box']['title'],
+				'data'         => $from,
+				'relation'     => 'from',
+				'label'        => $to['meta_box']['title'],
+				'admin_filter' => Arr::get( $to, 'admin_filter', false ),
 			];
 
-		if ( Arr::get( $data, 'data.admin_filter', false ) ) {
+		if ( ! $data['admin_filter'] ) {
 			return;
 		}
 
