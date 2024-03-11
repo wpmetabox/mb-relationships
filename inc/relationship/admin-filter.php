@@ -29,7 +29,7 @@ class MBR_Admin_Filter {
 		array_walk( $relationships, [ $this, 'add_filter_select' ] );
 	}
 
-	private function add_filter_select( $relationship ) {
+	private function add_filter_select( object $relationship ) {
 		$from = $relationship->from;
 		$to   = $relationship->to;
 
@@ -65,7 +65,7 @@ class MBR_Admin_Filter {
 		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected );
 	}
 
-	private function get_html_select_filter( $relationship, $data, $placeholder, $selected ) {
+	private function get_html_select_filter( object $relationship, array $data, string $placeholder, array $selected ) {
 		return sprintf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
             <select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-filter=\'%s\'>
@@ -81,7 +81,7 @@ class MBR_Admin_Filter {
 		);
 	}
 
-	public function filter_posts_by_relationships( $query ) {
+	public function filter_posts_by_relationships( WP_Query $query ) {
 		if ( ! is_admin() ) {
 			return;
 		}
@@ -125,7 +125,7 @@ class MBR_Admin_Filter {
 		}
 	}
 
-	public function enqueue_admin_script( $hook ) {
+	public function enqueue_admin_script( string $hook ) {
 		if ( 'edit.php' !== $hook ) {
 			return;
 		}
@@ -150,7 +150,7 @@ class MBR_Admin_Filter {
 		wp_send_json_success( $options );
 	}
 
-	private function get_selected_item( $id, $object_type ) {
+	private function get_selected_item( int $id, string $object_type ) {
 		if ( $object_type === 'term' ) {
 			$term = get_term( $id );
 			return [
@@ -176,7 +176,7 @@ class MBR_Admin_Filter {
 		}
 	}
 
-	private function get_data_options( $q, $data ) : array {
+	private function get_data_options( string $q, array $data ): array {
 		// Data Term
 		if ( $data['object_type'] === 'term' ) {
 			return $this->get_term_options( $q, $data['field'] );
@@ -191,7 +191,7 @@ class MBR_Admin_Filter {
 		return $this->get_post_options( $q, $data['field'] );
 	}
 
-	private function get_term_options( $q, $field ) : array {
+	private function get_term_options( string $q, array $field ): array {
 		// Get multiple options
 		$options = [];
 
@@ -215,7 +215,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_user_options( $q, $field ) : array {
+	private function get_user_options( string $q, array $field ): array {
 		// Get multiple options
 		$options = [];
 
@@ -244,7 +244,7 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_post_options( $q, $field ) : array {
+	private function get_post_options( string $q, array $field ): array {
 		// Get multiple options
 		$options = [];
 
@@ -268,11 +268,11 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function truncate_label_option( $label = '' ) : string {
+	private function truncate_label_option( string $label = '' ): string {
 		return mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
 	}
 
-	public function search_users_by_display_name( $search_columns, $search, $query ) : array {
+	public function search_users_by_display_name( array $search_columns, string $search, $query ): array {
 		$search_columns[] = 'display_name';
 		return $search_columns;
 	}
