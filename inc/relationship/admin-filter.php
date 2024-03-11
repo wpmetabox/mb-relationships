@@ -24,12 +24,12 @@ class MBR_Admin_Filter {
 		add_action( 'pre_get_posts', [ $this, 'filter_posts_by_relationships' ] );
 	}
 
-	public function add_filter_for_posts() {
+	public function add_filter_for_posts(): void {
 		$relationships = MB_Relationships_API::get_all_relationships();
 		array_walk( $relationships, [ $this, 'add_filter_select' ] );
 	}
 
-	private function add_filter_select( object $relationship ) {
+	private function add_filter_select( MBR_Relationship $relationship ): void {
 		$from = $relationship->from;
 		$to   = $relationship->to;
 
@@ -67,7 +67,7 @@ class MBR_Admin_Filter {
 		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected );
 	}
 
-	private function get_html_select_filter( object $relationship, array $data, string $placeholder, array $selected ) {
+	private function get_html_select_filter( MBR_Relationship $relationship, array $data, string $placeholder, array $selected ): string {
 		return sprintf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
             <select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-filter=\'%s\'>
@@ -83,7 +83,7 @@ class MBR_Admin_Filter {
 		);
 	}
 
-	public function filter_posts_by_relationships( WP_Query $query ) {
+	public function filter_posts_by_relationships( WP_Query $query ): void {
 		if ( ! is_admin() ) {
 			return;
 		}
@@ -104,30 +104,37 @@ class MBR_Admin_Filter {
 				continue;
 			}
 
-			if ( isset( $query->query['post_type'] ) && $post_type === $query->query['post_type'] ) {
-				$results = new WP_Query( [
-					'relationship' => [
-						'id'             => $relationship,
-						$data['from_to'] => $data['ID'],
-					],
-					'nopaging'     => true,
-					'fields'       => 'ids',
-				] );
-
-				$ids           = empty( $ids ) ? array_unique( array_merge( $results->posts, $ids ) ) : array_intersect( $ids, $results->posts );
-				$should_filter = true;
+			if ( ! isset( $query->query['post_type'] ) || $post_type !== $query->query['post_type'] ) {
+				continue;
 			}
+
+			$results = new WP_Query( [
+				'relationship' => [
+					'id'             => $relationship,
+					$data['from_to'] => $data['ID'],
+				],
+				'nopaging'     => true,
+				'fields'       => 'ids',
+			] );
+
+			$should_filter = true;
+
+			if ( empty( $ids ) ) {
+				$ids = array_unique( $results->posts );
+				continue;
+			}
+
+			$ids = array_intersect( $ids, $results->posts );
 		}
 
-		if ( $should_filter ) {
-			if ( count( $ids ) === 0 ) {
-				$ids = [ 'invalid_id' ];
-			}
-			$query->set( 'post__in', $ids );
+		if ( ! $should_filter ) {
+			return;
 		}
+
+		$query->set( 'post__in', count( $ids ) === 0 ? [ 'invalid_id' ] : $ids );
 	}
 
-	public function enqueue_admin_script( string $hook ) {
+	public function enqueue_admin_script( string $hook ): void {
 		if ( 'edit.php' !== $hook ) {
 			return;
 		}
@@ -141,7 +148,7 @@ class MBR_Admin_Filter {
 	/**
 	 * The ajax callback to search for related posts in the select2 fields
 	 */
-	public function ajax_get_options() {
+	public function ajax_get_options(): void {
 
 		// Return ajax if keyword or data filter empty
 		if ( empty( $_GET['q'] ) || empty( $_GET['filter'] ) ) {
@@ -152,7 +159,7 @@ class MBR_Admin_Filter {
 		wp_send_json_success( $options );
 	}
 
-	private function get_selected_item( int $id, string $object_type ) {
+	private function get_selected_item( int $id, string $object_type ): array {
 		if ( $object_type === 'term' ) {
 			$term = get_term( $id );
 			return [
