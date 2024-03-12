@@ -1,7 +1,6 @@
 #posts-filter .select2-container--default {
-    width: 100% !important;
+    width: 146px !important;
     margin-right: 4px;
-    max-width: 146px;
     margin-bottom: 6px;
 }
 
