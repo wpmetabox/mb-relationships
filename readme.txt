@@ -1,10 +1,10 @@
 === MB Relationships ===
 Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
-Tags: relationship, relationships, connection, connections, posts to posts, post relationship, post relationships
+Tags: relationships, connections, posts to posts
 Requires at least: 5.9
-Tested up to: 6.4.1
-Stable tag: 1.11.3
+Tested up to: 6.4.3
+Stable tag: 1.12.0
 Requires PHP: 7.2
 License: GPLv2 or later
 
@@ -74,12 +74,12 @@ This plugin is a free extension of [Meta Box](https://metabox.io) plugin, which 
 
 If you like this plugin, you might also like our other WordPress products:
 
-- [Meta Box](https://metabox.io) - The most powerful WordPress plugin for creating custom post types and custom fields.
+- [Meta Box](https://metabox.io) - A powerful WordPress plugin for creating custom post types and custom fields.
 - [Slim SEO](https://wpslimseo.com) - A fast, lightweight and full-featured SEO plugin for WordPress with minimal configuration.
 - [Slim SEO Schema](https://wpslimseo.com/products/slim-seo-schema/) - An advanced, powerful and flexible plugin to add schemas to WordPress.
 - [Slim SEO Link Manager](https://wpslimseo.com/products/slim-seo-link-manager/) - Build internal link easier in WordPress with real-time reports.
 - [GretaThemes](https://gretathemes.com) - Free and premium WordPress themes that clean, simple and just work.
-- [Auto Listings](https://wpautolistings.com) - A car sale and dealership plugin for WordPress
+- [Auto Listings](https://wpautolistings.com) - A car sale and dealership plugin for WordPress.
 
 == Installation ==
 
@@ -103,6 +103,10 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.0 - 2024-03-25 =
+- Add admin filter in the "edit" posts screen to filter posts by relationships. To enable this feature, please add `'admin_filter' => true` to a side of the relationship settings. Works only for posts.
+- Fix `API::each_connected()` not working
 
 = 1.11.3 - 2023-11-16 =
 - Add a config constant `MB_RELATIONSHIPS_DELETE_DATA` to delete plugin data when uninstalling (#74)
