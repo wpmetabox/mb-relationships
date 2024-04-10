@@ -7,21 +7,36 @@ class MBR_Admin_Filter {
 
 	const LIMIT              = 20;
 	const LIMIT_LABEL_OPTION = 50;
+	private $post_type       = '';
 
 	public function __construct() {
 		if ( ! is_admin() ) {
 			return;
 		}
 
-		// Add filter for posts. Works only for posts. Terms & users don't have a similar filter.
-		add_action( 'restrict_manage_posts', [ $this, 'add_filter_for_posts' ] );
+		add_action( 'load-edit.php', [ $this, 'execute' ] );
 
 		// Get options for autocomplete for select2 filter.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_script' ] );
 		add_action( 'wp_ajax_mbr_admin_filter', [ $this, 'ajax_get_options' ] );
+	}
+
+	public function execute(): void {
+		$this->post_type = $this->get_post_type();
+		if ( empty( $this->post_type ) ) {
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 
 		// Process the filter: filter posts by relationships.
 		add_action( 'pre_get_posts', [ $this, 'filter_posts_by_relationships' ] );
+
+		// Add filter for posts. Works only for posts. Terms & users don't have a similar filter.
+		add_action( 'restrict_manage_posts', [ $this, 'add_filter_for_posts' ] );
+	}
+
+	private function get_post_type(): string {
+		return get_current_screen()->post_type;
 	}
 
 	public function add_filter_for_posts(): void {
@@ -39,13 +54,12 @@ class MBR_Admin_Filter {
 		}
 
 		// Only show filters for current post type.
-		global $post_type;
-		if ( Arr::get( $from, 'field.post_type' ) !== $post_type && Arr::get( $to, 'field.post_type' ) !== $post_type ) {
+		if ( Arr::get( $from, 'field.post_type' ) !== $this->post_type && Arr::get( $to, 'field.post_type' ) !== $this->post_type ) {
 			return;
 		}
 
 		// Get data from or to relationship with current post type
-		$data = Arr::get( $from, 'field.post_type' ) === $post_type
+		$data = Arr::get( $from, 'field.post_type' ) === $this->post_type
 			? [
 				'data'         => $to,
 				'relation'     => 'to',
@@ -84,12 +98,8 @@ class MBR_Admin_Filter {
 	}
 
 	public function filter_posts_by_relationships( WP_Query $query ): void {
-		if ( ! is_admin() ) {
-			return;
-		}
-		global $pagenow, $post_type;
 
-		if ( 'edit.php' !== $pagenow || ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
+		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
 			return;
 		}
 
@@ -104,7 +114,7 @@ class MBR_Admin_Filter {
 				continue;
 			}
 
-			if ( ! isset( $query->query['post_type'] ) || $post_type !== $query->query['post_type'] ) {
+			if ( ! isset( $query->query['post_type'] ) || $this->post_type !== $query->query['post_type'] ) {
 				continue;
 			}
 
@@ -134,11 +144,7 @@ class MBR_Admin_Filter {
 		$query->set( 'post__in', count( $ids ) === 0 ? [ 'invalid_id' ] : $ids );
 	}
 
-	public function enqueue_admin_script( string $hook ): void {
-		if ( 'edit.php' !== $hook ) {
-			return;
-		}
-
+	public function enqueue_assets(): void {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
 		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], RWMB_VER, true );
