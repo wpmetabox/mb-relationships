@@ -15,6 +15,9 @@ class MBR_Admin_Filter {
 		}
 
 		add_action( 'load-edit.php', [ $this, 'execute' ] );
+
+		// Get options for autocomplete for select2 filter.
+		add_action( 'wp_ajax_mbr_admin_filter', [ $this, 'ajax_get_options' ] );
 	}
 
 	public function execute(): void {
@@ -23,9 +26,7 @@ class MBR_Admin_Filter {
 			return;
 		}
 
-		// Get options for autocomplete for select2 filter.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_script' ] );
-		add_action( 'wp_ajax_mbr_admin_filter', [ $this, 'ajax_get_options' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 
 		// Process the filter: filter posts by relationships.
 		add_action( 'pre_get_posts', [ $this, 'filter_posts_by_relationships' ] );
@@ -143,7 +144,7 @@ class MBR_Admin_Filter {
 		$query->set( 'post__in', count( $ids ) === 0 ? [ 'invalid_id' ] : $ids );
 	}
 
-	public function enqueue_admin_script(): void {
+	public function enqueue_assets(): void {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
 		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], RWMB_VER, true );
