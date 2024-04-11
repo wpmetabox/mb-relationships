@@ -1,17 +1,15 @@
 <?php
 /**
- * Plugin Name: MB Relationships
- * Plugin URI:  https://metabox.io/plugins/mb-relationships/
- * Description: Create many-to-many relationships between posts, users, terms, etc.
- * Version:     1.12.0
- * Author:      MetaBox.io
- * Author URI:  https://metabox.io
- * License:     GPL2+
- * Text Domain: mb-relationships
- * Domain Path: /languages/
- *
- * @package    Meta Box
- * @subpackage MB Relationships
+ * Plugin Name:      MB Relationships
+ * Plugin URI:       https://metabox.io/plugins/mb-relationships/
+ * Description:      Create many-to-many relationships between posts, users, terms, etc.
+ * Version:          1.12.1
+ * Author:           MetaBox.io
+ * Author URI:       https://metabox.io
+ * License:          GPL2+
+ * Text Domain:      mb-relationships
+ * Domain Path:      /languages/
+ * Requires Plugins: meta-box
  */
 
 // Prevent loading this file directly.

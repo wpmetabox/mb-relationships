@@ -3,9 +3,10 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 5.9
-Tested up to: 6.4.3
-Stable tag: 1.12.0
+Tested up to: 6.5.2
+Stable tag: 1.12.1
 Requires PHP: 7.2
+Requires Plugins: meta-box
 License: GPLv2 or later
 
 A lightweight solution for creating relationships between posts, terms and users in WordPress.
@@ -103,6 +104,9 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.1 - 2024-04-11 =
+- Fix admin filter compatibility with Visual Composer
 
 = 1.12.0 - 2024-03-25 =
 - Add admin filter in the "edit" posts screen to filter posts by relationships. To enable this feature, please add `'admin_filter' => true` to a side of the relationship settings. Works only for posts.
