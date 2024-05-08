@@ -140,10 +140,8 @@ class MBR_Relationship_Factory {
 	 * Normalize settings for a "from" or "to" side.
 	 *
 	 * @param array|string $settings  Array of settings or post type (string) for short.
-	 *
-	 * @return array
 	 */
-	protected function normalize_side( $settings, $label ) {
+	protected function normalize_side( $settings, $label ): array {
 		$default = [
 			'object_type'   => 'post',
 			'empty_message' => __( 'No connections', 'mb-relationships' ),
@@ -179,6 +177,8 @@ class MBR_Relationship_Factory {
 
 		$settings['meta_box']['storage_type'] = 'relationships_table';
 
+		$this->set_default_field_label( $settings[ 'field' ] );
+
 		return $settings;
 	}
 
@@ -186,9 +186,8 @@ class MBR_Relationship_Factory {
 	 * Migrate from old/simple syntax to the formal one.
 	 *
 	 * @param  array $settings Relationship settings for a side.
-	 * @return array
 	 */
-	private function migrate_syntax( &$settings ) {
+	private function migrate_syntax( &$settings ): void {
 		$meta_box = &$settings['meta_box'];
 		$field    = &$settings['field'];
 
@@ -198,7 +197,7 @@ class MBR_Relationship_Factory {
 			unset( $meta_box['empty_message'] );
 		}
 
-		// Field genral settings.
+		// Field general settings.
 		if ( ! empty( $meta_box['field_title'] ) ) {
 			$field['name'] = $meta_box['field_title'];
 			unset( $meta_box['field_title'] );
@@ -234,6 +233,35 @@ class MBR_Relationship_Factory {
 			$field['type']    = 'user';
 			$meta_box['type'] = 'user';
 			unset( $field['post_type'] );
+		}
+	}
+
+	private function set_default_field_label( array &$field ): void {
+		if ( isset( $field['name'] ) ) {
+			return;
+		}
+
+		if ( $field['type'] === 'user' ) {
+			$field['name'] = __( 'Users', 'mb-relationships' );
+			return;
+		}
+
+		if ( $field['type'] === 'post' ) {
+			$post_type_object = get_post_type_object( $field['post_type'] );
+			if ( ! $post_type_object ) {
+				return;
+			}
+			$field['name'] = $post_type_object->labels->name;
+			return;
+		}
+
+		if ( $field['type'] === 'taxonomy_advanced' ) {
+			$taxonomy_object = get_taxonomy( $field['taxonomy'] );
+			if ( ! $taxonomy_object ) {
+				return;
+			}
+			$field['name'] = $taxonomy_object->labels->name;
+			return;
 		}
 	}
 }
