@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 5.9
-Tested up to: 6.5.2
-Stable tag: 1.12.1
+Tested up to: 6.5.3
+Stable tag: 1.12.2
 Requires PHP: 7.2
 Requires Plugins: meta-box
 License: GPLv2 or later
@@ -104,6 +104,9 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.2 - 2024-05-16 =
+- Set default field label for clarity and to work with Oxygen builder.
 
 = 1.12.1 - 2024-04-11 =
 - Fix admin filter compatibility with Visual Composer
