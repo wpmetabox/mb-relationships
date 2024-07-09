@@ -38,6 +38,7 @@ class MBR_Storage_Handler {
 	 */
 	public function init() {
 		add_filter( 'rwmb_get_storage', [ $this, 'filter_storage' ], 10, 3 );
+		add_action( 'before_delete_post', [ $this, 'delete_data_in_db' ], 10, 3 );
 		add_action( 'deleted_post', [ $this, 'delete_object_data' ] );
 		add_action( 'deleted_user', [ $this, 'delete_object_data' ] );
 		add_action( 'delete_term', [ $this, 'delete_object_data' ] );
@@ -92,6 +93,18 @@ class MBR_Storage_Handler {
 			}
 			$this->delete_object_relationships( $object_id, $relationship->id, $target );
 		}
+	}
+
+	public function delete_data_in_db( $post_id, $post ) {
+		if ( ( ! rwmb_meta( 'delete_data', [ 'object_type' => 'setting' ], 'settings-relationships' ) ) || $post->post_type != 'mb-relationship' ) {
+			return;
+		}
+
+		$relationship = get_post_meta( $post_id, 'settings', true );
+
+		global $wpdb;
+		$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s";
+		$wpdb->query( $wpdb->prepare( $sql, $relationship['id'] ) );
 	}
 
 	/**

@@ -26,7 +26,7 @@ class MBR_Loader {
 			return;
 		}
 
-		define( 'MBR_DIR', trailingslashit(dirname( __DIR__ ) ));
+		define( 'MBR_DIR', trailingslashit( dirname( __DIR__ ) ) );
 
 		list( , $url ) = \RWMB_Loader::get_path( MBR_DIR );
 		define( 'MBR_URL', $url );
@@ -64,6 +64,8 @@ class MBR_Loader {
 
 		$rest_api = new MB_Relationships_REST_API();
 		$rest_api->init();
+
+		new MBR_Settings();
 
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
@@ -111,5 +113,6 @@ class MBR_Loader {
 		require __DIR__ . '/api.php';
 		require __DIR__ . '/rest-api.php';
 		require __DIR__ . '/shortcodes.php';
+		require __DIR__ . '/settings.php';
 	}
 }
