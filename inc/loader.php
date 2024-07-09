@@ -65,8 +65,6 @@ class MBR_Loader {
 		$rest_api = new MB_Relationships_REST_API();
 		$rest_api->init();
 
-		new MBR_Settings();
-
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
 	}
@@ -113,6 +111,5 @@ class MBR_Loader {
 		require __DIR__ . '/api.php';
 		require __DIR__ . '/rest-api.php';
 		require __DIR__ . '/shortcodes.php';
-		require __DIR__ . '/settings.php';
 	}
 }

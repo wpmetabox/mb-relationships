@@ -96,12 +96,14 @@ class MBR_Storage_Handler {
 	}
 
 	public function delete_data_in_db( $post_id, $post ) {
-		if ( ( ! rwmb_meta( 'delete_data', [ 'object_type' => 'setting' ], 'settings-relationships' ) ) || $post->post_type != 'mb-relationship' ) {
+		if ( $post->post_type != 'mb-relationship' ) {
 			return;
 		}
 
 		$relationship = get_post_meta( $post_id, 'settings', true );
-
+		if ( empty( $relationship['delete_data'] ) ) {
+			return;
+		}
 		global $wpdb;
 		$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s";
 		$wpdb->query( $wpdb->prepare( $sql, $relationship['id'] ) );
