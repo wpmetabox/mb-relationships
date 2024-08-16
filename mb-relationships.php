@@ -13,7 +13,9 @@
  */
 
 // Prevent loading this file directly.
-defined( 'ABSPATH' ) || die;
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 if ( ! class_exists( 'MBR_Loader' ) ) {
 	require __DIR__ . '/inc/loader.php';
