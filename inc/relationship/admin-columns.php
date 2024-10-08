@@ -105,7 +105,7 @@ class MBR_Admin_Columns {
 			return;
 		}
 
-		echo $this->get_column_data( $object_id, $this->to['object_type'], 'from' );
+		echo $this->get_column_data( $object_id, $this->to['object_type'], 'from' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -133,7 +133,7 @@ class MBR_Admin_Columns {
 			return;
 		}
 
-		echo $this->get_column_data( $object_id, $this->from['object_type'], 'to' );
+		echo $this->get_column_data( $object_id, $this->from['object_type'], 'to' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
