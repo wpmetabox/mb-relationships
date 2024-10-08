@@ -77,8 +77,8 @@ class MBR_Admin_Filter {
 			return;
 		}
 
-		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['data']['object_type'] ) : [];
-		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected );
+		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['data']['object_type'] ) : []; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	private function get_html_select_filter( MBR_Relationship $relationship, array $data, string $placeholder, array $selected ): string {
@@ -98,17 +98,18 @@ class MBR_Admin_Filter {
 	}
 
 	public function filter_posts_by_relationships( WP_Query $query ): void {
-
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
 			return;
 		}
 
 		$ids           = [];
 		$should_filter = false;
+		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 
 		// We cannot access MB Relationship classes at this stage so we need to
 		// rely 100% on data passed through the form
-		foreach ( $_GET['relationships'] as $relationship => $data ) {
+		foreach ( $relationships as $relationship => $data ) {
 
 			if ( empty( $data['ID'] ) ) {
 				continue;
@@ -157,11 +158,12 @@ class MBR_Admin_Filter {
 	public function ajax_get_options(): void {
 
 		// Return ajax if keyword or data filter empty
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( empty( $_GET['q'] ) || empty( $_GET['filter'] ) ) {
 			wp_send_json_success( [] );
 		}
 
-		$options = $this->get_data_options( $_GET['q'], $_GET['filter'] );
+		$options = $this->get_data_options( wp_unslash( $_GET['q'] ), wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		wp_send_json_success( $options );
 	}
 

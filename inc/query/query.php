@@ -162,10 +162,12 @@ class MBR_Query {
 			$source        = $relationship['direction'];
 			$items         = implode( ',', $relationship['items'] );
 			$items         = empty( $relationship['reciprocal'] ) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Error.
 			$query_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT `from`,`to` FROM $wpdb->mb_relationships
-					WHERE `type`=%s AND $items",
+					WHERE `type`=%s AND $items", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$type
 				)
 			);

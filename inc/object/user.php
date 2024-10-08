@@ -21,7 +21,7 @@ class MBR_User implements MBR_Object_Interface {
 		if ( 'profile' === $screen->id ) {
 			$user_id = get_current_user_id();
 		} elseif ( 'user-edit' === $screen->id ) {
-			$user_id = isset( $_REQUEST['user_id'] ) ? absint( $_REQUEST['user_id'] ) : false;
+			$user_id = isset( $_REQUEST['user_id'] ) ? absint( $_REQUEST['user_id'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
 		return $user_id;
