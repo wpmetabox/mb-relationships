@@ -105,11 +105,9 @@ class MBR_Storage_Handler {
 		global $wpdb;
 
 		if ( $target ) {
-			$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND `$target`=%d";
-			$wpdb->query( $wpdb->prepare( $sql, $type, $object_id ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND `$target`=%d", $type, $object_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		} else {
-			$sql = "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)";
-			$wpdb->query( $wpdb->prepare( $sql, $type, $object_id, $object_id ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->mb_relationships WHERE `type`=%s AND (`from`=%d OR `to`=%d)", $type, $object_id, $object_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		}
 	}
 }

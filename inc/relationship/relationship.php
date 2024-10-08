@@ -62,6 +62,7 @@ class MBR_Relationship {
 	public function has( $from, $to ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Error.
 		$rel_id = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT `ID` FROM {$wpdb->mb_relationships} WHERE `from`=%d AND `to`=%d AND `type`=%s",
@@ -91,6 +92,7 @@ class MBR_Relationship {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Error.
 		$result = $wpdb->insert(
 			$wpdb->mb_relationships,
 			[
@@ -123,6 +125,7 @@ class MBR_Relationship {
 	public function delete( $from, $to ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Error.
 		$result = $wpdb->delete(
 			$wpdb->mb_relationships,
 			[
