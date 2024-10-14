@@ -8,7 +8,6 @@
  * Author URI:       https://metabox.io
  * License:          GPL2+
  * Text Domain:      mb-relationships
- * Domain Path:      /languages/
  * Requires Plugins: meta-box
  */
 

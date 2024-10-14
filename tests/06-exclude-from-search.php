@@ -3,18 +3,18 @@ add_action(
 	'init',
 	function() {
 		$labels = array(
-			'name'               => __( 'Plural Name', 'text-domain' ),
-			'singular_name'      => __( 'Singular Name', 'text-domain' ),
-			'add_new'            => _x( 'Add New Singular Name', 'text-domain', 'text-domain' ),
-			'add_new_item'       => __( 'Add New Singular Name', 'text-domain' ),
-			'edit_item'          => __( 'Edit Singular Name', 'text-domain' ),
-			'new_item'           => __( 'New Singular Name', 'text-domain' ),
-			'view_item'          => __( 'View Singular Name', 'text-domain' ),
-			'search_items'       => __( 'Search Plural Name', 'text-domain' ),
-			'not_found'          => __( 'No Plural Name found', 'text-domain' ),
-			'not_found_in_trash' => __( 'No Plural Name found in Trash', 'text-domain' ),
-			'parent_item_colon'  => __( 'Parent Singular Name:', 'text-domain' ),
-			'menu_name'          => __( 'Plural Name', 'text-domain' ),
+			'name'               => __( 'Plural Name', 'mb-relationships' ),
+			'singular_name'      => __( 'Singular Name', 'mb-relationships' ),
+			'add_new'            => _x( 'Add New Singular Name', 'mb-relationships', 'mb-relationships' ),
+			'add_new_item'       => __( 'Add New Singular Name', 'mb-relationships' ),
+			'edit_item'          => __( 'Edit Singular Name', 'mb-relationships' ),
+			'new_item'           => __( 'New Singular Name', 'mb-relationships' ),
+			'view_item'          => __( 'View Singular Name', 'mb-relationships' ),
+			'search_items'       => __( 'Search Plural Name', 'mb-relationships' ),
+			'not_found'          => __( 'No Plural Name found', 'mb-relationships' ),
+			'not_found_in_trash' => __( 'No Plural Name found in Trash', 'mb-relationships' ),
+			'parent_item_colon'  => __( 'Parent Singular Name:', 'mb-relationships' ),
+			'menu_name'          => __( 'Plural Name', 'mb-relationships' ),
 		);
 
 		$args = array(
