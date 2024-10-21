@@ -107,4 +107,3 @@ class MBR_Query_Post {
 		return $query->posts;
 	}
 }
-

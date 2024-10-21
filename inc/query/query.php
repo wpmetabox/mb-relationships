@@ -2,7 +2,6 @@
 /**
  * The relationship query class that alters the WordPress query to get the connected items.
  */
-
 class MBR_Query {
 	/**
 	 * The relationship query variables.
@@ -25,16 +24,15 @@ class MBR_Query {
 	 * @return mixed
 	 */
 	public function alter_clauses( &$clauses, $id_column, $pass_thru_order = false ) {
-		// Single relationship.
 		if ( empty( $this->args['relation'] ) ) {
+			// Single relationship.
 			if ( empty( $this->args['sibling'] ) ) {
 				$this->handle_single_relationship_join( $clauses, $id_column, $pass_thru_order );
 			} else {
 				$this->handle_single_relationship_sibling( $clauses, $id_column );
 			}
-		}
-		// Multiple relationships.
-		else {
+		} else {
+			// Multiple relationships.
 			$this->handle_multiple_relationships( $clauses, $id_column );
 		}
 
@@ -147,8 +145,8 @@ class MBR_Query {
 	/**
 	 * Modify query join & where statement for multi-relationship.
 	 *
-	 * @param string $clauses   Query clauses.
-	 * @param array  $args   $WP_query args object.
+	 * @param string $clauses    Query clauses.
+	 * @param string $id_column  ID column name.
 	 */
 	public function handle_multiple_relationships( &$clauses, $id_column ) {
 		global $wpdb;
@@ -158,10 +156,10 @@ class MBR_Query {
 		$objects       = [];
 
 		foreach ( $relationships as $relationship ) {
-			$type          = $relationship['id'];
-			$source        = $relationship['direction'];
-			$items         = implode( ',', $relationship['items'] );
-			$items         = empty( $relationship['reciprocal'] ) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
+			$type   = $relationship['id'];
+			$source = $relationship['direction'];
+			$items  = implode( ',', $relationship['items'] );
+			$items  = empty( $relationship['reciprocal'] ) ? "`$source` IN ($items)" : "(`from` IN ($items) OR `to` IN ($items))";
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Error.
 			$query_results = $wpdb->get_results(

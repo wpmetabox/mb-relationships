@@ -80,7 +80,7 @@ class MBR_Shortcodes {
 			return '';
 		}
 		$items = array_map(
-			function( $item ) use ( $object, $atts ) {
+			function ( $item ) use ( $object, $atts ) {
 				return $object->render( $item, $atts );
 			},
 			$items

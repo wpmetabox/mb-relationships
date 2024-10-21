@@ -82,7 +82,7 @@ class MB_Relationships_REST_API {
 	/**
 	 * API arguments.
 	 */
-	public function relationship_args() : array {
+	public function relationship_args(): array {
 		return [
 			'relationship' => [
 				'description'       => esc_html__( 'The ID of the relationship', 'mb-relationships' ),
@@ -112,7 +112,7 @@ class MB_Relationships_REST_API {
 	/**
 	 * Arguments for the connected from API endpoint.
 	 */
-	public function connected_from_relationship_args() : array {
+	public function connected_from_relationship_args(): array {
 		$arguments = $this->relationship_args();
 
 		unset( $arguments['to'] );
@@ -123,7 +123,7 @@ class MB_Relationships_REST_API {
 	/**
 	 * Arguments for the connected to API endpoint.
 	 */
-	public function connected_to_relationship_args() : array {
+	public function connected_to_relationship_args(): array {
 		$arguments = $this->relationship_args();
 
 		unset( $arguments['from'] );
@@ -134,7 +134,7 @@ class MB_Relationships_REST_API {
 	/**
 	 * Additional arguments for the create API endpoint.
 	 */
-	public function create_relationship_args() : array {
+	public function create_relationship_args(): array {
 		return array_merge(
 			$this->relationship_args(),
 			[

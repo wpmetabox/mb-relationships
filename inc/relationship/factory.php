@@ -177,7 +177,7 @@ class MBR_Relationship_Factory {
 
 		$settings['meta_box']['storage_type'] = 'relationships_table';
 
-		$this->set_default_field_label( $settings[ 'field' ] );
+		$this->set_default_field_label( $settings['field'] );
 
 		return $settings;
 	}

@@ -48,7 +48,7 @@ class MBR_Storage {
 				$type
 			), ARRAY_N );
 
-			return array_map( function( $pair ) {
+			return array_map( function ( $pair ) {
 				return reset( $pair );
 			}, $results );
 		}
@@ -102,7 +102,7 @@ class MBR_Storage {
 
 		$x = 0;
 		foreach ( $meta_value as $id ) {
-			$x++;
+			++$x;
 			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

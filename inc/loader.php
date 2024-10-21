@@ -26,7 +26,7 @@ class MBR_Loader {
 			return;
 		}
 
-		define( 'MBR_DIR', trailingslashit(dirname( __DIR__ ) ));
+		define( 'MBR_DIR', trailingslashit( dirname( __DIR__ ) ) );
 
 		list( , $url ) = \RWMB_Loader::get_path( MBR_DIR );
 		define( 'MBR_URL', $url );

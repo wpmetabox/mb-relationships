@@ -52,9 +52,9 @@ class MBR_Query_User {
 
 		$clauses = [];
 		$map     = [
-			'fields' => 'query_fields',
-			'join'   => 'query_from',
-			'where'  => 'query_where',
+			'fields'  => 'query_fields',
+			'join'    => 'query_from',
+			'where'   => 'query_where',
 			'orderby' => 'query_orderby',
 		];
 		foreach ( $map as $clause => $key ) {
