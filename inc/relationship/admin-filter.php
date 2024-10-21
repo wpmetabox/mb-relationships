@@ -204,6 +204,8 @@ class MBR_Admin_Filter {
 				'text' => $this->truncate_label_option( $post->post_title ),
 			];
 		}
+
+		return [];
 	}
 
 	private function get_data_options( string $q, array $data ): array {
@@ -251,7 +253,7 @@ class MBR_Admin_Filter {
 
 		add_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10, 3 );
 
-		$users = new WP_User_Query( [
+		$query = new WP_User_Query( [
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
@@ -260,11 +262,11 @@ class MBR_Admin_Filter {
 
 		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
 
-		if ( $users->total_users === 0 ) {
+		if ( $query->get_total() === 0 ) {
 			return $options;
 		}
 
-		foreach ( $users->results as $user ) {
+		foreach ( $query->get_results() as $user ) {
 			$options[] = [
 				'id'   => $user->ID,
 				'text' => $this->truncate_label_option( $user->display_name ),
