@@ -105,11 +105,14 @@ class MBR_Admin_Filter {
 
 		$ids           = [];
 		$should_filter = false;
-		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 
-		// We cannot access MB Relationship classes at this stage so we need to
-		// rely 100% on data passed through the form
+		// We cannot access MB Relationship classes at this stage so we need to rely 100% on data passed through the form
+		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		foreach ( $relationships as $relationship => $data ) {
+			// Sanitize inputs.
+			$relationship    = sanitize_text_field( $relationship );
+			$data['from_to'] = isset( $data['from_to'] ) && in_array( $data['from_to'], [ 'from', 'to' ], true ) ? $data['from_to'] : 'from';
+			$data['ID']      = (int) ( $data['ID'] ?? 0 );
 
 			if ( empty( $data['ID'] ) ) {
 				continue;
