@@ -23,6 +23,7 @@
             return {
                 q: params.term,
                 action: 'mbr_admin_filter',
+                _ajax_nonce: MBR.nonce,
                 filter: data
             };
         };

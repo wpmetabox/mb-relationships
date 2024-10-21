@@ -41,6 +41,9 @@ class MBR_Admin_Filter {
 
 	public function add_filter_for_posts(): void {
 		$relationships = MB_Relationships_API::get_all_relationships();
+		if ( ! empty( $relationships ) ) {
+			wp_nonce_field( 'filter_by_relationships', 'mbr_filter_nonce' );
+		}
 		array_walk( $relationships, [ $this, 'add_filter_select' ] );
 	}
 
@@ -98,7 +101,11 @@ class MBR_Admin_Filter {
 	}
 
 	public function filter_posts_by_relationships( WP_Query $query ): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$nonce = sanitize_text_field( wp_unslash( $_GET['mbr_filter_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'filter_by_relationships' ) ) {
+			return;
+		}
+
 		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
 			return;
 		}
@@ -107,7 +114,7 @@ class MBR_Admin_Filter {
 		$should_filter = false;
 
 		// We cannot access MB Relationship classes at this stage so we need to rely 100% on data passed through the form
-		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		foreach ( $relationships as $relationship => $data ) {
 			// Sanitize inputs.
 			$relationship    = sanitize_text_field( $relationship );
@@ -151,22 +158,25 @@ class MBR_Admin_Filter {
 	public function enqueue_assets(): void {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
-		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], RWMB_VER, true );
-		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], RWMB_VER );
+		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], filemtime( MBR_DIR . 'css/admin-filter.css' ) );
+		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
+		wp_localize_script( 'mbr-admin-filter', 'MBR', [
+			'nonce' => wp_create_nonce( 'load-options' ),
+		] );
 	}
 
 	/**
 	 * The ajax callback to search for related posts in the select2 fields
 	 */
 	public function ajax_get_options(): void {
+		check_ajax_referer( 'load-options' );
 
 		// Return ajax if keyword or data filter empty
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( empty( $_GET['q'] ) || empty( $_GET['filter'] ) ) {
 			wp_send_json_success( [] );
 		}
 
-		$options = $this->get_data_options( wp_unslash( $_GET['q'] ), wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+		$options = $this->get_data_options( wp_unslash( $_GET['q'] ), wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		wp_send_json_success( $options );
 	}
 
