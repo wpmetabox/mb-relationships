@@ -64,13 +64,15 @@ class MBR_Admin_Filter {
 		// Get data from or to relationship with current post type
 		$data = Arr::get( $from, 'field.post_type' ) === $this->post_type
 			? [
-				'data'         => $to,
+				'object_type'  => $to['object_type'],
+				'type'         => $this->get_type( $to ),
 				'relation'     => 'to',
 				'label'        => $from['meta_box']['title'],
 				'admin_filter' => Arr::get( $from, 'admin_filter', false ),
 			]
 			: [
-				'data'         => $from,
+				'object_type'  => $from['object_type'],
+				'type'         => $this->get_type( $from ),
 				'relation'     => 'from',
 				'label'        => $to['meta_box']['title'],
 				'admin_filter' => Arr::get( $to, 'admin_filter', false ),
@@ -80,24 +82,32 @@ class MBR_Admin_Filter {
 			return;
 		}
 
-		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['data']['object_type'] ) : []; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	private function get_html_select_filter( MBR_Relationship $relationship, array $data, string $placeholder, array $selected ): string {
-		return sprintf(
+		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['object_type'] ) : []; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-            <select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-filter=\'%s\'>
-                <option value="">%s</option>
-                %s
-            </select>',
+			<select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-type="%s">
+				<option value="">%s</option>
+				%s
+			</select>',
 			$relationship->id,
 			esc_attr( $data['relation'] ),
 			$relationship->id,
-			esc_attr( wp_json_encode( $data['data'] ) ),
-			esc_html( $placeholder ),
+			esc_attr( $data['type'] ),
+			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
+	}
+
+	private function get_type( array $side ): string {
+		if ( $side['object_type'] === 'post' ) {
+			return $side['field']['post_type'];
+		}
+
+		if ( $side['object_type'] === 'term' ) {
+			return $side['field']['taxonomy'];
+		}
+
+		return '';
 	}
 
 	public function filter_posts_by_relationships( WP_Query $query ): void {
@@ -176,7 +186,8 @@ class MBR_Admin_Filter {
 			wp_send_json_success( [] );
 		}
 
-		$options = $this->get_data_options( wp_unslash( $_GET['q'] ), wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$q = sanitize_text_field( wp_unslash( $_GET['q'] ) );
+		$options = $this->get_data_options( $q, wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		wp_send_json_success( $options );
 	}
 
