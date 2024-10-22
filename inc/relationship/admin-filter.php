@@ -82,7 +82,7 @@ class MBR_Admin_Filter {
 			return;
 		}
 
-		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['object_type'] ) : []; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$selected = $this->get_selected_item( $relationship->id, $data['object_type'] );
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
 			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s">
@@ -128,11 +128,11 @@ class MBR_Admin_Filter {
 		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		foreach ( $relationships as $relationship => $data ) {
 			// Sanitize inputs.
-			$relationship    = sanitize_text_field( $relationship );
-			$data['from_to'] = isset( $data['from_to'] ) && in_array( $data['from_to'], [ 'from', 'to' ], true ) ? $data['from_to'] : 'from';
-			$data['ID']      = (int) ( $data['ID'] ?? 0 );
+			$relationship = sanitize_text_field( $relationship );
+			$direction    = isset( $data['from_to'] ) && in_array( $data['from_to'], [ 'from', 'to' ], true ) ? $data['from_to'] : 'from';
+			$id           = (int) ( $data['ID'] ?? 0 );
 
-			if ( empty( $data['ID'] ) ) {
+			if ( ! $id ) {
 				continue;
 			}
 
@@ -142,8 +142,8 @@ class MBR_Admin_Filter {
 
 			$results = new WP_Query( [
 				'relationship' => [
-					'id'             => $relationship,
-					$data['from_to'] => $data['ID'],
+					'id'       => $relationship,
+					$direction => $id,
 				],
 				'nopaging'     => true,
 				'fields'       => 'ids',
@@ -194,7 +194,18 @@ class MBR_Admin_Filter {
 		wp_send_json_success( $options );
 	}
 
-	private function get_selected_item( int $id, string $object_type ): array {
+	private function get_selected_item( string $relationship_id, string $object_type ): array {
+		$nonce = sanitize_text_field( wp_unslash( $_GET['mbr_filter_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'filter_by_relationships' ) ) {
+			return [];
+		}
+
+		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
+			return [];
+		}
+
+		$id = Arr::get( $_GET, "relationships.{$relationship_id}.ID" );
+
 		if ( $object_type === 'term' ) {
 			$term = get_term( $id );
 			return [
