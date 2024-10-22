@@ -85,13 +85,14 @@ class MBR_Admin_Filter {
 		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['object_type'] ) : []; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-			<select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-type="%s">
+			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s">
 				<option value="">%s</option>
 				%s
 			</select>',
-			$relationship->id,
+			esc_attr( $relationship->id ),
 			esc_attr( $data['relation'] ),
-			$relationship->id,
+			esc_attr( $relationship->id ),
+			esc_attr( $data['object_type'] ),
 			esc_attr( $data['type'] ),
 			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
@@ -182,12 +183,14 @@ class MBR_Admin_Filter {
 		check_ajax_referer( 'load-options' );
 
 		// Return ajax if keyword or data filter empty
-		if ( empty( $_GET['q'] ) || empty( $_GET['filter'] ) ) {
+		if ( empty( $_GET['q'] ) || empty( $_GET['object_type'] ) || empty( $_GET['type'] ) ) {
 			wp_send_json_success( [] );
 		}
 
-		$q = sanitize_text_field( wp_unslash( $_GET['q'] ) );
-		$options = $this->get_data_options( $q, wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$q           = sanitize_text_field( wp_unslash( $_GET['q'] ) );
+		$object_type = sanitize_text_field( wp_unslash( $_GET['object_type'] ) );
+		$type        = sanitize_text_field( wp_unslash( $_GET['type'] ) );
+		$options     = $this->get_data_options( $q, $object_type, $type );
 		wp_send_json_success( $options );
 	}
 
@@ -219,51 +222,39 @@ class MBR_Admin_Filter {
 		return [];
 	}
 
-	private function get_data_options( string $q, array $data ): array {
-		// Data Term
-		if ( $data['object_type'] === 'term' ) {
-			return $this->get_term_options( $q, $data['field'] );
+	private function get_data_options( string $q, string $object_type, string $type ): array {
+		if ( $object_type === 'term' ) {
+			return $this->get_term_options( $q, $type );
 		}
 
-		// Data Term
-		if ( $data['object_type'] === 'user' ) {
-			return $this->get_user_options( $q, $data['field'] );
+		if ( $object_type === 'user' ) {
+			return $this->get_user_options( $q );
 		}
 
 		// Data Post
-		return $this->get_post_options( $q, $data['field'] );
+		return $this->get_post_options( $q, $type );
 	}
 
-	private function get_term_options( string $q, array $field ): array {
-		// Get multiple options
-		$options = [];
-
-		$terms = new WP_Term_Query( [
-			'taxonomy'   => $field['taxonomy'],
+	private function get_term_options( string $q, string $taxonomy ): array {
+		$query = new WP_Term_Query( [
+			'taxonomy'   => $taxonomy,
 			'hide_empty' => false,
 			'name__like' => $q,
 			'number'     => self::LIMIT,
 		] );
 
-		if ( count( $terms->terms ) === 0 ) {
-			return $options;
-		}
-
-		foreach ( $terms->terms as $term ) {
+		$options = [];
+		foreach ( $query->terms as $term ) {
 			$options[] = [
 				'id'   => $term->term_id,
 				'text' => $this->truncate_label_option( $term->name ),
 			];
 		}
+
 		return $options;
 	}
 
-	private function get_user_options( string $q, array $field ): array {
-		// Get multiple options
-		$options = [];
-
-		add_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10, 3 );
-
+	private function get_user_options( string $q ): array {
 		$query = new WP_User_Query( [
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
@@ -271,12 +262,7 @@ class MBR_Admin_Filter {
 			'number'         => self::LIMIT,
 		] );
 
-		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
-
-		if ( $query->get_total() === 0 ) {
-			return $options;
-		}
-
+		$options = [];
 		foreach ( $query->get_results() as $user ) {
 			$options[] = [
 				'id'   => $user->ID,
@@ -287,20 +273,14 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_post_options( string $q, array $field ): array {
-		// Get multiple options
-		$options = [];
-
+	private function get_post_options( string $q, string $post_type ): array {
 		$posts = new WP_Query( [
-			'post_type'   => $field['post_type'],
+			'post_type'   => $post_type,
 			'numberposts' => self::LIMIT,
 			's'           => $q,
 		] );
 
-		if ( $posts->post_count === 0 ) {
-			return $options;
-		}
-
+		$options = [];
 		foreach ( $posts->posts as $post ) {
 			$options[] = [
 				'id'   => $post->ID,
@@ -313,10 +293,5 @@ class MBR_Admin_Filter {
 
 	private function truncate_label_option( string $label = '' ): string {
 		return mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
-	}
-
-	public function search_users_by_display_name( array $search_columns, string $search, $query ): array {
-		$search_columns[] = 'display_name';
-		return $search_columns;
 	}
 }
