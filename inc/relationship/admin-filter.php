@@ -41,6 +41,9 @@ class MBR_Admin_Filter {
 
 	public function add_filter_for_posts(): void {
 		$relationships = MB_Relationships_API::get_all_relationships();
+		if ( ! empty( $relationships ) ) {
+			wp_nonce_field( 'filter_by_relationships', 'mbr_filter_nonce' );
+		}
 		array_walk( $relationships, [ $this, 'add_filter_select' ] );
 	}
 
@@ -61,13 +64,15 @@ class MBR_Admin_Filter {
 		// Get data from or to relationship with current post type
 		$data = Arr::get( $from, 'field.post_type' ) === $this->post_type
 			? [
-				'data'         => $to,
+				'object_type'  => $to['object_type'],
+				'type'         => $this->get_type( $to ),
 				'relation'     => 'to',
 				'label'        => $from['meta_box']['title'],
 				'admin_filter' => Arr::get( $from, 'admin_filter', false ),
 			]
 			: [
-				'data'         => $from,
+				'object_type'  => $from['object_type'],
+				'type'         => $this->get_type( $from ),
 				'relation'     => 'from',
 				'label'        => $to['meta_box']['title'],
 				'admin_filter' => Arr::get( $to, 'admin_filter', false ),
@@ -77,41 +82,57 @@ class MBR_Admin_Filter {
 			return;
 		}
 
-		$selected = isset( $_GET['relationships'] ) ? $this->get_selected_item( Arr::get( $_GET, "relationships.{$relationship->id}.ID" ), $data['data']['object_type'] ) : []; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		echo $this->get_html_select_filter( $relationship, $data, $data['label'], $selected ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	private function get_html_select_filter( MBR_Relationship $relationship, array $data, string $placeholder, array $selected ): string {
-		return sprintf(
+		$selected = $this->get_selected_item( $relationship->id, $data['object_type'] );
+		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-            <select class="mb_related_filter" name="relationships[%s][ID]" data-mbr-filter=\'%s\'>
-                <option value="">%s</option>
-                %s
-            </select>',
-			$relationship->id,
+			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s">
+				<option value="">%s</option>
+				%s
+			</select>',
+			esc_attr( $relationship->id ),
 			esc_attr( $data['relation'] ),
-			$relationship->id,
-			esc_attr( wp_json_encode( $data['data'] ) ),
-			esc_html( $placeholder ),
+			esc_attr( $relationship->id ),
+			esc_attr( $data['object_type'] ),
+			esc_attr( $data['type'] ),
+			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
 	}
 
+	private function get_type( array $side ): string {
+		if ( $side['object_type'] === 'post' ) {
+			return $side['field']['post_type'];
+		}
+
+		if ( $side['object_type'] === 'term' ) {
+			return $side['field']['taxonomy'];
+		}
+
+		return '';
+	}
+
 	public function filter_posts_by_relationships( WP_Query $query ): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$nonce = sanitize_text_field( wp_unslash( $_GET['mbr_filter_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'filter_by_relationships' ) ) {
+			return;
+		}
+
 		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
 			return;
 		}
 
 		$ids           = [];
 		$should_filter = false;
-		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 
-		// We cannot access MB Relationship classes at this stage so we need to
-		// rely 100% on data passed through the form
+		// We cannot access MB Relationship classes at this stage so we need to rely 100% on data passed through the form
+		$relationships = wp_unslash( $_GET['relationships'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		foreach ( $relationships as $relationship => $data ) {
+			// Sanitize inputs.
+			$relationship = sanitize_text_field( $relationship );
+			$direction    = isset( $data['from_to'] ) && in_array( $data['from_to'], [ 'from', 'to' ], true ) ? $data['from_to'] : 'from';
+			$id           = (int) ( $data['ID'] ?? 0 );
 
-			if ( empty( $data['ID'] ) ) {
+			if ( ! $id ) {
 				continue;
 			}
 
@@ -121,8 +142,8 @@ class MBR_Admin_Filter {
 
 			$results = new WP_Query( [
 				'relationship' => [
-					'id'             => $relationship,
-					$data['from_to'] => $data['ID'],
+					'id'       => $relationship,
+					$direction => $id,
 				],
 				'nopaging'     => true,
 				'fields'       => 'ids',
@@ -148,26 +169,43 @@ class MBR_Admin_Filter {
 	public function enqueue_assets(): void {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
-		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], RWMB_VER, true );
-		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], RWMB_VER );
+		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], filemtime( MBR_DIR . 'css/admin-filter.css' ) );
+		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
+		wp_localize_script( 'mbr-admin-filter', 'MBR', [
+			'nonce' => wp_create_nonce( 'load-options' ),
+		] );
 	}
 
 	/**
 	 * The ajax callback to search for related posts in the select2 fields
 	 */
 	public function ajax_get_options(): void {
+		check_ajax_referer( 'load-options' );
 
 		// Return ajax if keyword or data filter empty
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( empty( $_GET['q'] ) || empty( $_GET['filter'] ) ) {
-			wp_send_json_success( [] );
+		if ( empty( $_GET['q'] ) || empty( $_GET['object_type'] ) ) {
+			wp_send_json_error( [] );
 		}
 
-		$options = $this->get_data_options( wp_unslash( $_GET['q'] ), wp_unslash( $_GET['filter'] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+		$q           = sanitize_text_field( wp_unslash( $_GET['q'] ) );
+		$object_type = sanitize_text_field( wp_unslash( $_GET['object_type'] ) );
+		$type        = sanitize_text_field( wp_unslash( $_GET['type'] ?? '' ) );
+		$options     = $this->get_data_options( $q, $object_type, $type );
 		wp_send_json_success( $options );
 	}
 
-	private function get_selected_item( int $id, string $object_type ): array {
+	private function get_selected_item( string $relationship_id, string $object_type ): array {
+		$nonce = sanitize_text_field( wp_unslash( $_GET['mbr_filter_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'filter_by_relationships' ) ) {
+			return [];
+		}
+
+		if ( ! isset( $_GET['relationships'] ) || ! is_array( $_GET['relationships'] ) ) {
+			return [];
+		}
+
+		$id = Arr::get( $_GET, "relationships.{$relationship_id}.ID" );
+
 		if ( $object_type === 'term' ) {
 			$term = get_term( $id );
 			return [
@@ -191,67 +229,52 @@ class MBR_Admin_Filter {
 				'text' => $this->truncate_label_option( $post->post_title ),
 			];
 		}
+
+		return [];
 	}
 
-	private function get_data_options( string $q, array $data ): array {
-		// Data Term
-		if ( $data['object_type'] === 'term' ) {
-			return $this->get_term_options( $q, $data['field'] );
+	private function get_data_options( string $q, string $object_type, string $type ): array {
+		if ( $object_type === 'term' ) {
+			return $this->get_term_options( $q, $type );
 		}
 
-		// Data Term
-		if ( $data['object_type'] === 'user' ) {
-			return $this->get_user_options( $q, $data['field'] );
+		if ( $object_type === 'user' ) {
+			return $this->get_user_options( $q );
 		}
 
 		// Data Post
-		return $this->get_post_options( $q, $data['field'] );
+		return $this->get_post_options( $q, $type );
 	}
 
-	private function get_term_options( string $q, array $field ): array {
-		// Get multiple options
-		$options = [];
-
-		$terms = new WP_Term_Query( [
-			'taxonomy'   => $field['taxonomy'],
+	private function get_term_options( string $q, string $taxonomy ): array {
+		$query = new WP_Term_Query( [
+			'taxonomy'   => $taxonomy,
 			'hide_empty' => false,
 			'name__like' => $q,
 			'number'     => self::LIMIT,
 		] );
 
-		if ( count( $terms->terms ) === 0 ) {
-			return $options;
-		}
-
-		foreach ( $terms->terms as $term ) {
+		$options = [];
+		foreach ( $query->terms as $term ) {
 			$options[] = [
 				'id'   => $term->term_id,
 				'text' => $this->truncate_label_option( $term->name ),
 			];
 		}
+
 		return $options;
 	}
 
-	private function get_user_options( string $q, array $field ): array {
-		// Get multiple options
-		$options = [];
-
-		add_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10, 3 );
-
-		$users = new WP_User_Query( [
+	private function get_user_options( string $q ): array {
+		$query = new WP_User_Query( [
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
 			'number'         => self::LIMIT,
 		] );
 
-		remove_filter( 'user_search_columns', [ $this, 'search_users_by_display_name' ], 10 );
-
-		if ( $users->total_users === 0 ) {
-			return $options;
-		}
-
-		foreach ( $users->results as $user ) {
+		$options = [];
+		foreach ( $query->get_results() as $user ) {
 			$options[] = [
 				'id'   => $user->ID,
 				'text' => $this->truncate_label_option( $user->display_name ),
@@ -261,20 +284,14 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_post_options( string $q, array $field ): array {
-		// Get multiple options
-		$options = [];
-
+	private function get_post_options( string $q, string $post_type ): array {
 		$posts = new WP_Query( [
-			'post_type'   => $field['post_type'],
+			'post_type'   => $post_type,
 			'numberposts' => self::LIMIT,
 			's'           => $q,
 		] );
 
-		if ( $posts->post_count === 0 ) {
-			return $options;
-		}
-
+		$options = [];
 		foreach ( $posts->posts as $post ) {
 			$options[] = [
 				'id'   => $post->ID,
@@ -287,10 +304,5 @@ class MBR_Admin_Filter {
 
 	private function truncate_label_option( string $label = '' ): string {
 		return mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
-	}
-
-	public function search_users_by_display_name( array $search_columns, string $search, $query ): array {
-		$search_columns[] = 'display_name';
-		return $search_columns;
 	}
 }
