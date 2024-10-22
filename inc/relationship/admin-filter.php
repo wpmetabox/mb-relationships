@@ -183,13 +183,13 @@ class MBR_Admin_Filter {
 		check_ajax_referer( 'load-options' );
 
 		// Return ajax if keyword or data filter empty
-		if ( empty( $_GET['q'] ) || empty( $_GET['object_type'] ) || empty( $_GET['type'] ) ) {
-			wp_send_json_success( [] );
+		if ( empty( $_GET['q'] ) || empty( $_GET['object_type'] ) ) {
+			wp_send_json_error( [] );
 		}
 
 		$q           = sanitize_text_field( wp_unslash( $_GET['q'] ) );
 		$object_type = sanitize_text_field( wp_unslash( $_GET['object_type'] ) );
-		$type        = sanitize_text_field( wp_unslash( $_GET['type'] ) );
+		$type        = sanitize_text_field( wp_unslash( $_GET['type'] ?? '' ) );
 		$options     = $this->get_data_options( $q, $object_type, $type );
 		wp_send_json_success( $options );
 	}
