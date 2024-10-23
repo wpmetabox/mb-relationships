@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
+
 /**
  * This test creates 2 relationships: from posts to pages and from posts to posts.
  * Then it queries for connected items from the current post and belong to either the relationship.

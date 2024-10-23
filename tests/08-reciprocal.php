@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
+
 add_action( 'mb_relationships_init', function () {
 	MB_Relationships_API::register( [
 		'id'         => 'posts_to_posts',
