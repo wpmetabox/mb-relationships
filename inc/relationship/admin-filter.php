@@ -204,7 +204,10 @@ class MBR_Admin_Filter {
 			return [];
 		}
 
-		$id = Arr::get( $_GET, "relationships.{$relationship_id}.ID" );
+		$id = (int) Arr::get( $_GET, "relationships.{$relationship_id}.ID" );
+		if ( empty( $id ) ) {
+			return [];
+		}
 
 		if ( $object_type === 'term' ) {
 			$term = get_term( $id );
