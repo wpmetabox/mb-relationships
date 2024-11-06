@@ -1,0 +1,15 @@
+name: Release
+on:
+  workflow_dispatch:
+    branch:
+      - master
+  push:
+    tags:
+      - "*"
+jobs:
+  call-workflow:
+    uses: wpmetabox/meta-box/.github/workflows/wordpressorg.yml@master
+    secrets:
+      SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+      SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
