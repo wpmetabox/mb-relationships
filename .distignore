@@ -1,11 +1,15 @@
-
 .DS_Store
 Thumbs.db
 
 /.git
 /.github
+
 tests
 vendor
+
 .distignore
+
 composer.json
+composer.lock
+
 README.md
