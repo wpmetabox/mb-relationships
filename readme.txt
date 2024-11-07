@@ -4,7 +4,7 @@ Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 5.9
 Tested up to: 6.6.2
-Stable tag: 1.12.5
+Stable tag: 1.12.6
 Requires PHP: 7.2
 Requires Plugins: meta-box
 License: GPLv2 or later
@@ -104,6 +104,9 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.6 - 2024-11-07 =
+Fix error when searching posts in the admin when set a relationship as a filter
 
 = 1.12.5 - 2024-11-01 =
 - Fix direct file access
