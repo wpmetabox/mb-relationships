@@ -2,6 +2,9 @@
 
 The plugin allows you to create connections from posts to posts, posts to pages and so on. Then you can perform corresponding queries to retrieve posts that are connected to or from given posts.
 
+> **Meta Box Lite**<br>
+> We recommend using [Meta Box Lite](https://metabox.io/lite/), a feature-rich free UI version of Meta Box that provides UI and all free features for managing custom fields and dynamic content on WordPress, including post types, taxonomies, custom fields, and relationships.
+
 It supports reciprocal and bi-directional relationships.
 
 ### Why Do You Need Posts To Posts Relationships In WordPress?
