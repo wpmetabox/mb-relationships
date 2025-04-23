@@ -7,7 +7,7 @@ class MBR_Admin_Filter {
 
 	const LIMIT              = 20;
 	const LIMIT_LABEL_OPTION = 50;
-	private $post_type       = '';
+	private $post_type = '';
 
 	public function __construct() {
 		if ( ! is_admin() ) {
@@ -168,9 +168,21 @@ class MBR_Admin_Filter {
 
 	public function enqueue_assets(): void {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
+		wp_style_add_data( 'rwmb-select2', 'path', RWMB_CSS_DIR . 'select2/select2.css' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
+
+		// Localize
+		$locale       = str_replace( '_', '-', get_user_locale() );
+		$locale_short = substr( $locale, 0, 2 );
+		$locale       = file_exists( RWMB_DIR . "js/select2/i18n/$locale.js" ) ? $locale : $locale_short;
+
+		if ( file_exists( RWMB_DIR . "js/select2/i18n/$locale.js" ) ) {
+			wp_enqueue_script( 'rwmb-select2-i18n', RWMB_JS_URL . "select2/i18n/$locale.js", [ 'rwmb-select2' ], '4.0.10', true );
+		}
+
 		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], filemtime( MBR_DIR . 'css/admin-filter.css' ) );
-		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
+		wp_style_add_data( 'mbr-admin-filter', 'path', MBR_DIR . 'css/admin-filter.css' );
+		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2', 'rwmb-select2-i18n' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
 		wp_localize_script( 'mbr-admin-filter', 'MBR', [
 			'nonce' => wp_create_nonce( 'load-options' ),
 		] );
