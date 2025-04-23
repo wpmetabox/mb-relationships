@@ -7,7 +7,7 @@ class MBR_Admin_Filter {
 
 	const LIMIT              = 20;
 	const LIMIT_LABEL_OPTION = 50;
-	private $post_type       = '';
+	private $post_type = '';
 
 	public function __construct() {
 		if ( ! is_admin() ) {
@@ -63,14 +63,14 @@ class MBR_Admin_Filter {
 
 		// Get data from or to relationship with current post type
 		$data = Arr::get( $from, 'field.post_type' ) === $this->post_type
-			? [
+			? [ 
 				'object_type'  => $to['object_type'],
 				'type'         => $this->get_type( $to ),
 				'relation'     => 'to',
 				'label'        => $from['meta_box']['title'],
 				'admin_filter' => Arr::get( $from, 'admin_filter', false ),
 			]
-			: [
+			: [ 
 				'object_type'  => $from['object_type'],
 				'type'         => $this->get_type( $from ),
 				'relation'     => 'from',
@@ -140,8 +140,8 @@ class MBR_Admin_Filter {
 				continue;
 			}
 
-			$results = new WP_Query( [
-				'relationship' => [
+			$results = new WP_Query( [ 
+				'relationship' => [ 
 					'id'       => $relationship,
 					$direction => $id,
 				],
@@ -168,10 +168,23 @@ class MBR_Admin_Filter {
 
 	public function enqueue_assets(): void {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
+		wp_style_add_data( 'rwmb-select2', 'path', RWMB_CSS_URL . 'select2/select2.css' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
+		wp_enqueue_script( 'rwmb-select2' );  // Make sure to enqueue select2 first
+
+		// Localize
+		$locale       = str_replace( '_', '-', get_locale() );
+		$locale_short = substr( $locale, 0, 2 );
+		$locale       = file_exists( RWMB_DIR . "js/select2/i18n/$locale.js" ) ? $locale : $locale_short;
+
+		if ( file_exists( RWMB_DIR . "js/select2/i18n/$locale.js" ) ) {
+			wp_enqueue_script( 'rwmb-select2-i18n', RWMB_JS_URL . "select2/i18n/$locale.js", [ 'rwmb-select2' ], '4.0.10', true );
+		}
+
 		wp_enqueue_style( 'mbr-admin-filter', MBR_URL . 'css/admin-filter.css', [], filemtime( MBR_DIR . 'css/admin-filter.css' ) );
-		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
-		wp_localize_script( 'mbr-admin-filter', 'MBR', [
+		wp_style_add_data( 'mbr-admin-filter', 'path', MBR_URL . 'css/admin-filter.css' );
+		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2', 'rwmb-select2-i18n' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
+		wp_localize_script( 'mbr-admin-filter', 'MBR', [ 
 			'nonce' => wp_create_nonce( 'load-options' ),
 		] );
 	}
@@ -211,7 +224,7 @@ class MBR_Admin_Filter {
 
 		if ( $object_type === 'term' ) {
 			$term = get_term( $id );
-			return [
+			return [ 
 				'id'   => $term->term_id,
 				'text' => $this->truncate_label_option( $term->name ),
 			];
@@ -219,7 +232,7 @@ class MBR_Admin_Filter {
 
 		if ( $object_type === 'user' ) {
 			$user = get_user_by( 'id', $id );
-			return [
+			return [ 
 				'id'   => $user->ID,
 				'text' => $this->truncate_label_option( $user->display_name ),
 			];
@@ -227,7 +240,7 @@ class MBR_Admin_Filter {
 
 		if ( $object_type === 'post' ) {
 			$post = get_post( $id );
-			return [
+			return [ 
 				'id'   => $post->ID,
 				'text' => $this->truncate_label_option( $post->post_title ),
 			];
@@ -250,7 +263,7 @@ class MBR_Admin_Filter {
 	}
 
 	private function get_term_options( string $q, string $taxonomy ): array {
-		$query = new WP_Term_Query( [
+		$query = new WP_Term_Query( [ 
 			'taxonomy'   => $taxonomy,
 			'hide_empty' => false,
 			'name__like' => $q,
@@ -259,7 +272,7 @@ class MBR_Admin_Filter {
 
 		$options = [];
 		foreach ( $query->terms as $term ) {
-			$options[] = [
+			$options[] = [ 
 				'id'   => $term->term_id,
 				'text' => $this->truncate_label_option( $term->name ),
 			];
@@ -269,7 +282,7 @@ class MBR_Admin_Filter {
 	}
 
 	private function get_user_options( string $q ): array {
-		$query = new WP_User_Query( [
+		$query = new WP_User_Query( [ 
 			'fields'         => [ 'id', 'display_name' ],
 			'search'         => '*' . esc_attr( $q ) . '*',
 			'search_columns' => [ 'display_name' ],
@@ -278,7 +291,7 @@ class MBR_Admin_Filter {
 
 		$options = [];
 		foreach ( $query->get_results() as $user ) {
-			$options[] = [
+			$options[] = [ 
 				'id'   => $user->ID,
 				'text' => $this->truncate_label_option( $user->display_name ),
 			];
@@ -288,7 +301,7 @@ class MBR_Admin_Filter {
 	}
 
 	private function get_post_options( string $q, string $post_type ): array {
-		$posts = new WP_Query( [
+		$posts = new WP_Query( [ 
 			'post_type'   => $post_type,
 			'numberposts' => self::LIMIT,
 			's'           => $q,
@@ -296,7 +309,7 @@ class MBR_Admin_Filter {
 
 		$options = [];
 		foreach ( $posts->posts as $post ) {
-			$options[] = [
+			$options[] = [ 
 				'id'   => $post->ID,
 				'text' => $this->truncate_label_option( $post->post_title ),
 			];
