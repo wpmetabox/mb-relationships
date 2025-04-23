@@ -170,7 +170,6 @@ class MBR_Admin_Filter {
 		wp_enqueue_style( 'rwmb-select2', RWMB_CSS_URL . 'select2/select2.css', [], '4.0.10' );
 		wp_style_add_data( 'rwmb-select2', 'path', RWMB_CSS_URL . 'select2/select2.css' );
 		wp_register_script( 'rwmb-select2', RWMB_JS_URL . 'select2/select2.min.js', [ 'jquery' ], '4.0.10', true );
-		wp_enqueue_script( 'rwmb-select2' );  // Make sure to enqueue select2 first
 
 		// Localize
 		$locale       = str_replace( '_', '-', get_locale() );
