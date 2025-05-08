@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 5.9
-Tested up to: 6.6.2
-Stable tag: 1.12.6
+Tested up to: 6.8.1
+Stable tag: 1.12.7
 Requires PHP: 7.2
 Requires Plugins: meta-box
 License: GPLv2 or later
@@ -107,6 +107,9 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.7 - 2025-01-15 =
+- Admin filter: add localization for select2 and fix select2 width (#91)
 
 = 1.12.6 - 2024-11-07 =
 Fix error when searching posts in the admin when set a relationship as a filter
