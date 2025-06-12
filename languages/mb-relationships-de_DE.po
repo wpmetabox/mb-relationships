@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: MB Relationships\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-04-07 19:23+0000\n"
+"PO-Revision-Date: 2025-04-07 19:29+0000\n"
+"Last-Translator: \n"
+"Language-Team: Deutsch\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.7.2; wp-6.7.2\n"
+"X-Domain: mb-relationships"
+
+#. %1$s is the value; %2$s is a list of available relationship IDs.
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:187
+#, php-format
+msgid "%1$s is not one of %2$s"
+msgstr "%1$s ist nicht einer von %2$s"
+
+#: vendor/meta-box/mb-relationships/inc/relationship/factory.php:128
+msgid "Connected From"
+msgstr "Verbunden von"
+
+#: vendor/meta-box/mb-relationships/inc/relationship/factory.php:127
+msgid "Connects To"
+msgstr "Verbindet mit"
+
+#. %s is the key to retrieve.
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:526
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:543
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:560
+#, php-format
+msgid "Missing %s ID."
+msgstr "Fehlende %s ID."
+
+#: vendor/meta-box/mb-relationships/inc/relationship/factory.php:147
+msgid "No connections"
+msgstr "Keine Verbindungen"
+
+#. % is the key.
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:166
+msgid "The % argument must be a positive integer."
+msgstr "Das Argument % muss eine positive ganze Zahl sein."
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:88
+msgid "The ID of the relationship"
+msgstr "Die ID der Beziehung"
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:96
+msgid "The ID of “from” resource"
+msgstr "Die ID der \"von\" Ressource"
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:103
+msgid "The ID of “to” resource"
+msgstr "Die ID der \"zu\" Ressource"
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:142
+msgid "The order of the “from” resource; defaults to “1”"
+msgstr "Die Reihenfolge der \"von\" Ressource; Standardwert ist \"1\""
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:147
+msgid "The order of the “to” resource; defaults to “1”"
+msgstr "Die Reihenfolge der \"zu\" Ressource; Standardwert ist \"1\""
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:182
+msgid "The relationship argument must be a string."
+msgstr "Das Beziehungsargument muss eine Zeichenfolge sein."
+
+#: vendor/meta-box/mb-relationships/inc/relationship/factory.php:245
+msgid "Users"
+msgstr "Benutzer"
+
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:214
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:225
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:252
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:266
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:290
+#: vendor/meta-box/mb-relationships/inc/rest-api.php:304
+msgid "You are not allowed to access this API endpoint."
+msgstr "Du bist nicht berechtigt, auf diesen API-Endpunkt zuzugreifen."

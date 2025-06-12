@@ -67,6 +67,8 @@ class MBR_Loader {
 
 		// All registration code goes here.
 		do_action( 'mb_relationships_init' );
+
+		load_plugin_textdomain( 'mb-relationships', false, plugin_basename( __DIR__ ) . '/languages/' );
 	}
 
 	/**

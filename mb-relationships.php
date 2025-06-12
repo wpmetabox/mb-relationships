@@ -8,6 +8,7 @@
  * Author URI:  https://metabox.io
  * License:     GPL2+
  * Text Domain: mb-relationships
+ * Domain Path: /languages/
  */
 
 // Prevent loading this file directly.
