@@ -7,7 +7,10 @@
 	function transform() {
 		const $this = $( this );
 
-		let options = {};
+		let options = {
+			placeholder: MBR.placeholder,
+			allowClear: true,
+		};
 		// the minimum of symbols to input before perform a search
 		options.minimumInputLength = 1;
 

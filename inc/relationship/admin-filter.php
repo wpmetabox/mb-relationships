@@ -184,7 +184,8 @@ class MBR_Admin_Filter {
 		wp_style_add_data( 'mbr-admin-filter', 'path', MBR_DIR . 'css/admin-filter.css' );
 		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2', 'rwmb-select2-i18n' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
 		wp_localize_script( 'mbr-admin-filter', 'MBR', [
-			'nonce' => wp_create_nonce( 'load-options' ),
+			'nonce'       => wp_create_nonce( 'load-options' ),
+			'placeholder' => __('Connects to', 'mb-relationships')
 		] );
 	}
 
