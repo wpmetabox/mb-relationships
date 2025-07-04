@@ -85,7 +85,7 @@ class MBR_Admin_Filter {
 		$selected = $this->get_selected_item( $relationship->id, $data['object_type'] );
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s">
+			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s" data-placeholder="%s">
 				<option value="">%s</option>
 				%s
 			</select>',
@@ -94,6 +94,7 @@ class MBR_Admin_Filter {
 			esc_attr( $relationship->id ),
 			esc_attr( $data['object_type'] ),
 			esc_attr( $data['type'] ),
+			esc_attr( $data['label'] ),
 			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
@@ -184,8 +185,7 @@ class MBR_Admin_Filter {
 		wp_style_add_data( 'mbr-admin-filter', 'path', MBR_DIR . 'css/admin-filter.css' );
 		wp_enqueue_script( 'mbr-admin-filter', MBR_URL . 'js/admin-filter.js', [ 'rwmb-select2', 'rwmb-select2-i18n' ], filemtime( MBR_DIR . 'js/admin-filter.js' ), true );
 		wp_localize_script( 'mbr-admin-filter', 'MBR', [
-			'nonce'       => wp_create_nonce( 'load-options' ),
-			'placeholder' => __('Connects to', 'mb-relationships')
+			'nonce' => wp_create_nonce( 'load-options' ),
 		] );
 	}
 
