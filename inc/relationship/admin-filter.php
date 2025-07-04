@@ -85,7 +85,7 @@ class MBR_Admin_Filter {
 		$selected = $this->get_selected_item( $relationship->id, $data['object_type'] );
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s">
+			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s" data-placeholder="%s">
 				<option value="">%s</option>
 				%s
 			</select>',
@@ -94,6 +94,7 @@ class MBR_Admin_Filter {
 			esc_attr( $relationship->id ),
 			esc_attr( $data['object_type'] ),
 			esc_attr( $data['type'] ),
+			esc_attr( $data['label'] ),
 			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
