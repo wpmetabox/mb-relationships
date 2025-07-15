@@ -102,7 +102,7 @@ class MB_Relationships_REST_API {
 			'to'           => [
 				'description'       => esc_html__( 'The ID of “to” resource', 'mb-relationships' ),
 				'required'          => true,
-				'type'              => 'integer',g
+				'type'              => 'integer',
 				'validate_callback' => [ $this, 'validate_integer' ],
 				'sanitize_callback' => 'absint',
 			],
