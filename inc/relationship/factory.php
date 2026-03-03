@@ -121,12 +121,13 @@ class MBR_Relationship_Factory {
 	 */
 	protected function normalize( $settings ) {
 		$settings         = wp_parse_args( $settings, [
-			'id'         => '',
-			'from'       => '',
-			'to'         => '',
-			'label_from' => __( 'Connects To', 'mb-relationships' ),
-			'label_to'   => __( 'Connected From', 'mb-relationships' ),
-			'reciprocal' => false,
+			'id'                => '',
+			'from'              => '',
+			'to'                => '',
+			'label_from'        => __( 'Connects To', 'mb-relationships' ),
+			'label_to'          => __( 'Connected From', 'mb-relationships' ),
+			'reciprocal'        => false,
+			'exclude_connected' => false,
 		] );
 		$settings['from'] = $this->normalize_side( $settings['from'], $settings['label_from'] );
 		$settings['to']   = $this->normalize_side( $settings['to'], $settings['label_to'] );
