@@ -1,27 +1,12 @@
 <?php
-/**
- * Plugin loader.
- *
- * @package    Meta Box
- * @subpackage MB Relationships
- */
-
-/**
- * The loader class.
- */
 class MBR_Loader {
+	private const DB_VERSION = 2;
 
-	/**
-	 * Plugin activation.
-	 */
-	public function activate() {
+	public function activate(): void {
 		$this->create_table();
 	}
 
-	/**
-	 * Initialization.
-	 */
-	public function init() {
+	public function init(): void {
 		if ( ! defined( 'RWMB_VER' ) ) {
 			return;
 		}
@@ -69,24 +54,21 @@ class MBR_Loader {
 		do_action( 'mb_relationships_init' );
 	}
 
-	/**
-	 * Create relationships table.
-	 */
-	protected function create_table() {
+	private function create_table(): void {
+		// Must instantiate here to register new table and $wpdb->mb_relationships.
 		require __DIR__ . '/database/table.php';
+		$table = new MBR_Table();
 
-		$table            = new MBR_Table();
-		$is_table_created = get_option( 'mbr_table_created' );
-		if ( ! $is_table_created ) {
-			$table->create();
-			update_option( 'mbr_table_created', 1 );
+		$db_version = (int) get_option( 'mbr_table_created' );
+		if ( $db_version >= self::DB_VERSION ) {
+			return;
 		}
+
+		$table->create();
+		update_option( 'mbr_table_created', self::DB_VERSION );
 	}
 
-	/**
-	 * Load plugin files.
-	 */
-	protected function load_files() {
+	protected function load_files(): void {
 		require __DIR__ . '/database/storage.php';
 		require __DIR__ . '/database/storage-handler.php';
 
