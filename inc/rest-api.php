@@ -18,11 +18,11 @@ class MB_Relationships_REST_API {
 	 */
 	private $relationships = [];
 
-	public function init() {
+	public function init(): void {
 		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
 	}
 
-	public function register_routes() {
+	public function register_routes(): void {
 		register_rest_route(
 			self::NAMESPACE,
 			'/(?P<relationship>[a-zA-Z0-9-_]+)/exists',
@@ -31,6 +31,7 @@ class MB_Relationships_REST_API {
 				'args'                => $this->relationship_args(),
 				'permission_callback' => [ $this, 'read_relationship_permission' ],
 				'callback'            => [ $this, 'has_relationship' ],
+				'show_in_index'       => false,
 			]
 		);
 
@@ -42,6 +43,7 @@ class MB_Relationships_REST_API {
 				'args'                => $this->connected_from_relationship_args(),
 				'permission_callback' => [ $this, 'read_relationship_permission' ],
 				'callback'            => [ $this, 'connected_from_relationship' ],
+				'show_in_index'       => false,
 			]
 		);
 
@@ -53,6 +55,7 @@ class MB_Relationships_REST_API {
 				'args'                => $this->connected_to_relationship_args(),
 				'permission_callback' => [ $this, 'read_relationship_permission' ],
 				'callback'            => [ $this, 'connected_to_relationship' ],
+				'show_in_index'       => false,
 			]
 		);
 
@@ -64,6 +67,7 @@ class MB_Relationships_REST_API {
 				'args'                => $this->create_relationship_args(),
 				'permission_callback' => [ $this, 'create_relationship_permission' ],
 				'callback'            => [ $this, 'create_relationship' ],
+				'show_in_index'       => false,
 			]
 		);
 
@@ -75,6 +79,7 @@ class MB_Relationships_REST_API {
 				'args'                => $this->relationship_args(),
 				'permission_callback' => [ $this, 'delete_relationship_permission' ],
 				'callback'            => [ $this, 'delete_relationship' ],
+				'show_in_index'       => false,
 			]
 		);
 	}
