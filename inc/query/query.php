@@ -74,9 +74,9 @@ class MBR_Query {
 				}
 			}
 
-			if ( empty( $clauses['groupby'] ) ) {
-				$clauses['groupby'] = 'mbr_from, mbr_to';
-			}
+			$clauses['groupby'] = empty( $clauses['groupby'] )
+				? 'mbr_from, mbr_to'
+				: "mbr_from, mbr_to, {$clauses['groupby']}";
 
 			return sprintf(
 				" (mbr.type = '%s' AND ((mbr.from = $id_column AND mbr.to IN (%s)) OR (mbr.to = $id_column AND mbr.from IN (%s)))) ",
@@ -96,9 +96,9 @@ class MBR_Query {
 
 		$fields             = "mbr.$source";
 		$clauses['fields'] .= empty( $clauses['fields'] ) ? $fields : " , $fields";
-		if ( empty( $clauses['groupby'] ) ) {
-			$clauses['groupby'] = "mbr.$source";
-		}
+		$clauses['groupby'] = empty( $clauses['groupby'] )
+			? "mbr.$source"
+			: "mbr.$source, {$clauses['groupby']}";
 
 		return sprintf(
 			" (mbr.$target = $id_column AND mbr.type = '%s' AND mbr.$source IN (%s)) ",
