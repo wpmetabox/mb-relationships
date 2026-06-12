@@ -1,15 +1,15 @@
 .DS_Store
 Thumbs.db
 
-/.git
-/.github
+.git
+.github
+.gitignore
 
 tests
 vendor
 
 .distignore
 
-composer.json
-composer.lock
+composer.*
 
-README.md
+*.md

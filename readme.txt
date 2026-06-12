@@ -2,10 +2,10 @@
 Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
-Requires at least: 5.9
-Tested up to: 6.8.1
-Stable tag: 1.12.8
-Requires PHP: 7.2
+Requires at least: 6.6
+Tested up to: 7.0
+Stable tag: 1.12.9
+Requires PHP: 7.4
 License: GPLv2 or later
 
 A lightweight solution for creating relationships between posts, terms and users in WordPress.
@@ -73,14 +73,12 @@ Besides, for each side, there's a meta box that shows what are connected from/to
 
 This plugin is a free extension of [Meta Box](https://metabox.io) plugin, which is a powerful, professional solution to create custom fields and custom meta boxes for WordPress websites. Using **MB Relationships** in combination with [other extensions](https://metabox.io/plugins/) will help you manage any content types in WordPress easily and make your website more professional.
 
-## You might also like
+### You might also like
 
 If you like this plugin, you might also like our other WordPress products:
 
-- [Meta Box](https://metabox.io) - A powerful WordPress plugin for creating custom post types and custom fields.
 - [Slim SEO](https://wpslimseo.com) - A fast, lightweight and full-featured SEO plugin for WordPress with minimal configuration.
-- [Slim SEO Schema](https://wpslimseo.com/products/slim-seo-schema/) - An advanced, powerful and flexible plugin to add schemas to WordPress.
-- [Slim SEO Link Manager](https://wpslimseo.com/products/slim-seo-link-manager/) - Build internal link easier in WordPress with real-time reports.
+- [Falcon](https://wpfalcon.pro) - A lightweight companion for making WordPress faster, cleaner, and more secure.
 - [GretaThemes](https://gretathemes.com) - Free and premium WordPress themes that clean, simple and just work.
 - [Auto Listings](https://wpautolistings.com) - A car sale and dealership plugin for WordPress.
 
@@ -106,6 +104,11 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.9 - 2026-06-12 =
+
+- Hide rest api endpoint in index
+- Improve check for creating table
 
 = 1.12.8 - 2025-07-15 =
 
