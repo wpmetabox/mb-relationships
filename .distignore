@@ -3,6 +3,7 @@ Thumbs.db
 
 /.git
 /.github
+.gitignore
 
 tests
 vendor
