@@ -4,7 +4,7 @@ Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 6.6
 Tested up to: 7.0
-Stable tag: 1.12.9
+Stable tag: 1.12.10
 Requires PHP: 7.4
 License: GPLv2 or later
 
@@ -104,6 +104,10 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+= 1.12.10 - 2026-07-06 =
+
+- Fix conflict with `tax_query` in `each_connected`
 
 = 1.12.9 - 2026-06-12 =
 
