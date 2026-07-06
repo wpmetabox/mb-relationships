@@ -1,3 +1,7 @@
+### 1.12.10 - 2026-07-06
+
+- Fix conflict with `tax_query` in `each_connected`
+
 ### 1.12.9 - 2026-06-12
 
 - Hide rest api endpoint in index
