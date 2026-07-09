@@ -172,4 +172,31 @@ class MBR_Relationship {
 
 		return $object->get_db_field();
 	}
+
+	/**
+	 * Get all object IDs connected in a relationship (both "from" and "to" sides).
+	 *
+	 * @param string $type The relationship type.
+	 *
+	 * @return array
+	 */
+	public static function get_all_connected( string $type ): array {
+		global $wpdb;
+
+		// phpcs:ignore
+		$results = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT `id` FROM (
+					SELECT `from` AS `id` FROM {$wpdb->mb_relationships} WHERE `type` = %s
+					UNION
+					SELECT `to` AS `id` FROM {$wpdb->mb_relationships} WHERE `type` = %s
+				) AS ids",
+				
+				$type,
+				$type
+			)
+		);
+
+		return array_map( 'absint', $results );
+	}
 }

@@ -86,6 +86,16 @@ class MBR_Meta_Boxes {
 		$field['id']                        = "{$this->id}_{$target}";
 		$field['query_args']['post_status'] = 'any';
 
+		if ( ! empty( $this->settings['single_connection'] ) ) {
+			$connected = MBR_Relationship::get_all_connected( $this->id );
+
+			if ( $connected ) {
+				$key = 'post' === $field['type'] ? 'post__not_in' : 'exclude';
+
+				$field['query_args'][ $key ] = $connected;
+			}
+		}
+
 		$meta_box           = $this->{$source}['meta_box'];
 		$meta_box['id']     = "{$this->id}_relationships_{$target}";
 		$meta_box['fields'] = [ $field ];
