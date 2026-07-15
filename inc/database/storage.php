@@ -92,16 +92,34 @@ class MBR_Storage {
 	public function update( $object_id, $meta_key, $meta_value, $prev_value = '' ) {
 		global $wpdb;
 
-		$meta_value = array_unique( array_filter( (array) $meta_value ) );
-		$target     = $this->get_target( $meta_key );
-		$source     = $this->get_source( $meta_key );
-		$type       = $this->get_type( $meta_key );
-		$orders     = $this->get_target_orders( $object_id, $type, $source, $target );
+		$meta_value   = array_unique( array_filter( (array) $meta_value ) );
+		$target       = $this->get_target( $meta_key );
+		$source       = $this->get_source( $meta_key );
+		$type         = $this->get_type( $meta_key );
+		$orders       = $this->get_target_orders( $object_id, $type, $source, $target );
+		$relationship = $this->factory->get( $type );
 
 		$this->delete( $object_id, $meta_key );
 
 		$x = 0;
+
 		foreach ( $meta_value as $id ) {
+			if ( $relationship && ! empty( $relationship->{$target}['has_one_relationship'] ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$count = (int) $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM {$wpdb->mb_relationships} WHERE `{$target}` = %d AND `type` = %s AND `{$source}` != %d",
+						$id,
+						$type,
+						$object_id
+					)
+				);
+
+				if ( $count > 0 ) {
+					continue;
+				}
+			}
+
 			++$x;
 			$order = isset( $orders[ $id ] ) ? $orders[ $id ] : 0;
 

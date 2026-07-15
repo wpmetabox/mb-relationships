@@ -86,6 +86,21 @@ class MBR_Meta_Boxes {
 		$field['id']                        = "{$this->id}_{$target}";
 		$field['query_args']['post_status'] = 'any';
 
+		if ( ! empty( $this->{$source}['has_one_relationship'] ) ) {
+			$field['clone']      = false;
+			$field['sort_clone'] = false;
+		}
+
+		if ( ! empty( $this->{$target}['has_one_relationship'] ) ) {
+			$excluded_ids = MBR_Relationship::get_excluded_ids( $this->id, $target );
+
+			if ( $excluded_ids ) {
+				$key = 'post' === $field['type'] ? 'post__not_in' : 'exclude';
+
+				$field['query_args'][ $key ] = $excluded_ids;
+			}
+		}
+
 		$meta_box           = $this->{$source}['meta_box'];
 		$meta_box['id']     = "{$this->id}_relationships_{$target}";
 		$meta_box['fields'] = [ $field ];
