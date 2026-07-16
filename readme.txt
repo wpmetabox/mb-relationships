@@ -3,8 +3,8 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 6.6
-Tested up to: 7.0
-Stable tag: 1.12.10
+Tested up to: 7.0.1
+Stable tag: 1.13.0
 Requires PHP: 7.4
 License: GPLv2 or later
 
@@ -104,6 +104,14 @@ Install **MB Relationships** extension
 3. Database structure
 
 == Changelog ==
+
+### 1.13.0 - 2026-07-16
+
+**Highlight:**
+
+Introducing `has_one_relationship` option — configure it per side (`from`/`to`) to limit an item to a connect to only one item on the other side. Combined on both sides it creates a one-to-one relationship; on one side only, it creates one-to-many without duplicates.
+
+Read more on [our blog](https://metabox.io/has-one-relationship) or [documentation](https://docs.metabox.io/extensions/mb-relationships/)
 
 = 1.12.10 - 2026-07-06 =
 
