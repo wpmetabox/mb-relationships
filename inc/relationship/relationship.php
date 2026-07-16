@@ -76,6 +76,29 @@ class MBR_Relationship {
 	}
 
 	/**
+	 * Check if an object already has any connections on a given side.
+	 *
+	 * @param int    $object_id Object ID.
+	 * @param string $side      "from" or "to".
+	 *
+	 * @return bool
+	 */
+	private function has_connections( int $object_id, string $side ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->mb_relationships} WHERE `{$side}` = %d AND `type` = %s",
+				$object_id,
+				$this->id
+			)
+		);
+
+		return (int) $count > 0;
+	}
+
+	/**
 	 * Add a relationship for 2 objects.
 	 *
 	 * @param int $from       From object ID.
@@ -88,7 +111,11 @@ class MBR_Relationship {
 	public function add( $from, $to, $order_from, $order_to ) {
 		global $wpdb;
 
-		if ( $this->has( $from, $to ) ) {
+		if (
+			$this->has( $from, $to )
+			|| ( ! empty( $this->settings['from']['has_one_relationship'] ) && $this->has_connections( $from, 'from' ) )
+			|| ( ! empty( $this->settings['to']['has_one_relationship'] ) && $this->has_connections( $to, 'to' ) )
+		) {
 			return false;
 		}
 
@@ -158,6 +185,27 @@ class MBR_Relationship {
 	 */
 	public function has_object_type( $type ) {
 		return $type === $this->get_object_type( 'from' ) || $type === $this->get_object_type( 'to' );
+	}
+
+	/**
+	 * Get IDs of items on a side that already have a connection.
+	 *
+	 * @param string $side "from" or "to".
+	 *
+	 * @return array
+	 */
+	public function get_excluded_ids( string $side ): array {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT `{$side}` FROM {$wpdb->mb_relationships} WHERE `type` = %s",
+				$this->id
+			)
+		);
+
+		return array_map( 'intval', $ids );
 	}
 
 	/**

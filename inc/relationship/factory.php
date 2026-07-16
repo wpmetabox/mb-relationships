@@ -61,7 +61,7 @@ class MBR_Relationship_Factory {
 		$relationship  = new MBR_Relationship( $settings, $this->object_factory );
 		$admin_columns = new MBR_Admin_Columns( $settings, $this->object_factory );
 		$admin_columns->init();
-		$meta_boxes = new MBR_Meta_Boxes( $settings );
+		$meta_boxes = new MBR_Meta_Boxes( $settings, $relationship );
 		$meta_boxes->init();
 
 		$this->relationships[ $settings['id'] ]          = $relationship;
@@ -143,15 +143,16 @@ class MBR_Relationship_Factory {
 	 */
 	protected function normalize_side( $settings, $label ): array {
 		$default = [
-			'object_type'   => 'post',
-			'empty_message' => __( 'No connections', 'mb-relationships' ),
-			'meta_box'      => [
+			'object_type'          => 'post',
+			'has_one_relationship' => false,
+			'empty_message'        => __( 'No connections', 'mb-relationships' ),
+			'meta_box'             => [
 				'title'    => $label,
 				'hidden'   => false,
 				'context'  => 'side',
 				'priority' => 'low',
 			],
-			'field'         => [
+			'field'                => [
 				'type'      => 'post',
 				'post_type' => 'post',
 			],
@@ -164,6 +165,7 @@ class MBR_Relationship_Factory {
 				],
 			];
 		}
+
 		$settings             = array_merge( $default, $settings );
 		$settings['meta_box'] = array_merge( $default['meta_box'], $settings['meta_box'] );
 		$settings['field']    = array_merge( $default['field'], $settings['field'] );
