@@ -21,14 +21,16 @@ class MBR_Meta_Boxes {
 	 * @var array
 	 */
 	private $settings;
+	private $relationship;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param array $settings Relationship settings.
 	 */
-	public function __construct( $settings ) {
-		$this->settings = $settings;
+	public function __construct( $settings, MBR_Relationship $relationship ) {
+		$this->settings     = $settings;
+		$this->relationship = $relationship;
 	}
 
 	/**
@@ -92,7 +94,7 @@ class MBR_Meta_Boxes {
 		}
 
 		if ( ! empty( $this->{$target}['has_one_relationship'] ) ) {
-			$excluded_ids = MBR_Relationship::get_excluded_ids( $this->id, $target );
+			$excluded_ids = $this->relationship->get_excluded_ids( $target );
 
 			if ( $excluded_ids ) {
 				$key = 'post' === $field['type'] ? 'post__not_in' : 'exclude';

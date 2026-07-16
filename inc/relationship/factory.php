@@ -61,7 +61,7 @@ class MBR_Relationship_Factory {
 		$relationship  = new MBR_Relationship( $settings, $this->object_factory );
 		$admin_columns = new MBR_Admin_Columns( $settings, $this->object_factory );
 		$admin_columns->init();
-		$meta_boxes = new MBR_Meta_Boxes( $settings );
+		$meta_boxes = new MBR_Meta_Boxes( $settings, $relationship );
 		$meta_boxes->init();
 
 		$this->relationships[ $settings['id'] ]          = $relationship;

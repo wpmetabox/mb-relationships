@@ -104,7 +104,11 @@ class MBR_Storage {
 		$x = 0;
 
 		foreach ( $meta_value as $id ) {
-			if ( $relationship && ! empty( $relationship->{$target}['has_one_relationship'] ) ) {
+			if ( empty( $relationship ) ) {
+				continue;
+			}
+
+			if ( ! empty( $relationship->{$target}['has_one_relationship'] ) ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$count = (int) $wpdb->get_var(
 					$wpdb->prepare(
@@ -118,6 +122,10 @@ class MBR_Storage {
 				if ( $count > 0 ) {
 					continue;
 				}
+			}
+
+			if ( ! empty( $relationship->{$source}['has_one_relationship'] ) && $x > 0 ) {
+				continue;
 			}
 
 			++$x;

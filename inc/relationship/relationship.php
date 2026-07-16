@@ -190,19 +190,18 @@ class MBR_Relationship {
 	/**
 	 * Get IDs of items on a side that already have a connection.
 	 *
-	 * @param string $type Relationship type ID.
 	 * @param string $side "from" or "to".
 	 *
 	 * @return array
 	 */
-	public static function get_excluded_ids( string $type, string $side ): array {
+	public function get_excluded_ids( string $side ): array {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT DISTINCT `{$side}` FROM {$wpdb->mb_relationships} WHERE `type` = %s",
-				$type
+				$this->id
 			)
 		);
 
