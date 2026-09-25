@@ -59,7 +59,7 @@ class MBR_Shortcodes {
 		}
 		$connected   = isset( $atts['from'] ) ? 'to' : 'from';
 		$object_type = $relationship->get_object_type( $connected );
-		$object      = $this->obj_factory->build( $object_type );
+		$object      = $this->obj_factory->build( $object_type, $relationship->$connected );
 
 		$atts = shortcode_atts(
 			[

@@ -84,9 +84,12 @@ class MBR_Meta_Boxes {
 	private function parse_meta_box( $source ) {
 		$target = 'from' === $source ? 'to' : 'from';
 
-		$field                              = $this->{$target}['field'];
-		$field['id']                        = "{$this->id}_{$target}";
-		$field['query_args']['post_status'] = 'any';
+		$field       = $this->{$target}['field'];
+		$field['id'] = "{$this->id}_{$target}";
+
+		if ( 'post' === ( $field['type'] ?? '' ) ) {
+			$field['query_args']['post_status'] = 'any';
+		}
 
 		if ( ! empty( $this->{$source}['has_one_relationship'] ) ) {
 			$field['clone']      = false;

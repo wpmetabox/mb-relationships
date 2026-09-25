@@ -21,6 +21,7 @@
 					_ajax_nonce: MBR.nonce,
 					object_type: $this.data( 'object_type' ),
 					type: $this.data( 'type' ),
+					item_title: $this.data( 'item_title' ) || '',
 				} ),
 				processResults: response => ( { results: response.data } ),
 			}
