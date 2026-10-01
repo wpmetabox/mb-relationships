@@ -1,0 +1,11 @@
+# coding-style
+- Prefers terse, concise PHP: use the short ternary `?:` instead of multi-line `if`-return blocks for simple fallbacks (requested repeatedly). Confidence: 0.9
+- Prefers modern PHP functions supported by WordPress, e.g. `str_contains()` instead of `false !== strpos()`, and asks to sweep for similar places to modernize. Confidence: 0.85
+- Prefers arrow functions (`fn`) where they make the code shorter. Confidence: 0.8
+- Prefers `! empty()` over chains of `isset( ... ) && ... !== '' && ... !== null`. Confidence: 0.8
+- Prefers collapsing logic: hoist values out of nested blocks so `if`/`if` becomes `if`/`elseif`, write a condition on one line, and shorten checks (`! $var` instead of `$var !== ''`). Confidence: 0.8
+- Prefers classes autoloaded via Composer/PSR-4 over manual `include`; when a legacy file must hold an old class name, keep the real implementation in a PSR-4 file and let the legacy class extend it. Confidence: 0.8
+- Removes redundant code: no method that the parent class already provides (e.g. `admin_enqueue_scripts` on an object field), and drops unused/unsupported params instead of leaving them in. Confidence: 0.85
+- Prefers naming that is human-readable and consistent with existing conventions in the ecosystem (e.g. `item_title` alongside `group_title`); rejects names that are ambiguous (`title` vs `name`), overly technical (`label_template`), or only natural in one context (`choice_label` when used in config). Confidence: 0.8
+- Favors the design that is easier to maintain and less likely to break, and prefers dependency handling that costs zero to one line over guards sprinkled through every method. Confidence: 0.75
+- Keeps plugin code compatible with PHP 7.4: adds type/return types only where they are 7.4-safe (no union types, no `mixed`). Confidence: 0.7

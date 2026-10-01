@@ -1,0 +1,11 @@
+# workflow
+- Wants a concrete plan written to a `plan.md` file before implementation, and checks that the file was actually created. Confidence: 0.85
+- Prefers implementing in small, verifiable steps (e.g. the first few plan steps) so each step can be reviewed/tested before moving on. Confidence: 0.85
+- Tests changes on a local WordPress site by seeding realistic test data (e.g. ~20 records) and checking the admin UI. Confidence: 0.75
+- Commits per repository after changes are verified, and commits only the code changes that belong to the task (revert commits that swept in unintended changes). Confidence: 0.8
+- Skips changelog entries for internal, non-public changes, and keeps public changelogs to a short one-line description of the feature. Confidence: 0.8
+- Asks for an explicit pros/cons trade-off analysis (maintainability, risk of bugs, migration/release impact) before settling on a design. Confidence: 0.8
+- Runs code review as an iterative loop: review, fix, then (when code changes) asks for a re-review that diffs against the previously reviewed commit and verifies each earlier finding is actually resolved. Confidence: 0.7
+- Has code-review findings written to a `review.md` file in the repo (mirroring the `plan.md` workflow). Confidence: 0.6
+- Deprioritizes minor review nits (performance/N+1 optimization notes, type-hint notes) and tells the reviewer to skip them, expecting findings to focus on real bugs/regressions. Confidence: 0.6
+- Keeps working `.md` notes (plan.md, review.md) out of commits: when committing/pushing, stage only the code files and exclude `.md` files. Confidence: 0.7
