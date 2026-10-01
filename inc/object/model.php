@@ -184,7 +184,12 @@ class MBR_Model implements MBR_Object_Interface {
 		) );
 	}
 
-	private function get_label( int $id ): string {
+	/**
+	 * Get display label for a model row.
+	 *
+	 * @param int $id Object ID.
+	 */
+	public function get_label( int $id ): string {
 		if ( ! $id || ! $this->model_name ) {
 			return '#' . $id;
 		}

@@ -368,9 +368,7 @@ class MBR_Admin_Filter {
 			return $id ? '#' . $id : '';
 		}
 
-		$items = MBR_Model::query_items( $id, $model, $item_title );
-
-		return $items[ $id ]['label'] ?? ( '#' . $id );
+		return ( new MBR_Model( $model, $item_title ) )->get_label( $id );
 	}
 
 	private function truncate_label_option( string $label = '' ): string {
