@@ -83,12 +83,14 @@ class MBR_Model implements MBR_Object_Interface {
 	}
 
 	/**
-	 * Get current object ID.
+	 * Get current object ID on the frontend.
+	 *
+	 * Models have no frontend singular context; do not read model-id from the request.
 	 *
 	 * @return int|false
 	 */
 	public function get_current_id() {
-		return $this->get_current_admin_id();
+		return false;
 	}
 
 	/**
