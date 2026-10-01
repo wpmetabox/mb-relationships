@@ -87,16 +87,17 @@ class MBR_Admin_Filter {
 		$selected = $this->get_selected_item( $relationship->id, $data['object_type'], $data['type'], $data['item_title'] );
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s" data-item_title="%s" data-placeholder="%s">
+			<select class="mb_related_filter" name="relationships[%s][ID]" data-relationship_id="%s" data-from_to="%s" data-object_type="%s" data-type="%s" data-placeholder="%s">
 				<option value="">%s</option>
 				%s
 			</select>',
 			esc_attr( $relationship->id ),
 			esc_attr( $data['relation'] ),
 			esc_attr( $relationship->id ),
+			esc_attr( $relationship->id ),
+			esc_attr( $data['relation'] ),
 			esc_attr( $data['object_type'] ),
 			esc_attr( $data['type'] ),
-			esc_attr( $data['item_title'] ),
 			esc_attr( $data['label'] ),
 			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
@@ -210,9 +211,44 @@ class MBR_Admin_Filter {
 		$q           = sanitize_text_field( wp_unslash( $_GET['q'] ) );
 		$object_type = sanitize_text_field( wp_unslash( $_GET['object_type'] ) );
 		$type        = sanitize_text_field( wp_unslash( $_GET['type'] ?? '' ) );
-		$item_title  = sanitize_text_field( wp_unslash( $_GET['item_title'] ?? '' ) );
-		$options     = $this->get_data_options( $q, $object_type, $type, $item_title );
+		$item_title  = '';
+
+		// Model labels/templates must come from registered settings, not the client.
+		if ( $object_type === 'model' ) {
+			$resolved = $this->resolve_model_filter_args();
+			if ( ! $resolved ) {
+				wp_send_json_error( [] );
+			}
+			[ $type, $item_title ] = $resolved;
+		}
+
+		$options = $this->get_data_options( $q, $object_type, $type, $item_title );
 		wp_send_json_success( $options );
+	}
+
+	/**
+	 * Resolve model name and item_title from relationship settings for admin filter AJAX.
+	 *
+	 * @return array{0: string, 1: string}|null
+	 */
+	private function resolve_model_filter_args(): ?array {
+		$relationship_id = sanitize_text_field( wp_unslash( $_GET['relationship_id'] ?? '' ) );
+		$side            = sanitize_text_field( wp_unslash( $_GET['from_to'] ?? '' ) );
+		if ( ! $relationship_id || ! in_array( $side, [ 'from', 'to' ], true ) ) {
+			return null;
+		}
+
+		$settings = MB_Relationships_API::get_relationship_settings( $relationship_id );
+		if ( ! $settings || ( $settings[ $side ]['object_type'] ?? '' ) !== 'model' ) {
+			return null;
+		}
+
+		$model = $settings[ $side ]['field']['model'] ?? '';
+		if ( ! $model ) {
+			return null;
+		}
+
+		return [ $model, $settings[ $side ]['field']['item_title'] ?? '' ];
 	}
 
 	private function get_selected_item( string $relationship_id, string $object_type, string $type = '', string $item_title = '' ): array {

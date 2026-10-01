@@ -19,9 +19,10 @@
 					q: params.term,
 					action: 'mbr_admin_filter',
 					_ajax_nonce: MBR.nonce,
+					relationship_id: $this.data( 'relationship_id' ),
+					from_to: $this.data( 'from_to' ),
 					object_type: $this.data( 'object_type' ),
 					type: $this.data( 'type' ),
-					item_title: $this.data( 'item_title' ) || '',
 				} ),
 				processResults: response => ( { results: response.data } ),
 			}
