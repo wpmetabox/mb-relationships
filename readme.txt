@@ -3,16 +3,16 @@ Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
 Requires at least: 6.6
-Tested up to: 7.0.1
+Tested up to: 7.1
 Stable tag: 1.14.0
 Requires PHP: 7.4
 License: GPLv2 or later
 
-A lightweight solution for creating relationships between posts, terms and users in WordPress.
+A lightweight solution for creating relationships between posts, terms, users and custom table models in WordPress.
 
 == Description ==
 
-**MB Relationships** helps you create relationships between posts, pages, custom post type, terms and users. The plugin is lightweight and optimized for database and query performance.
+**MB Relationships** helps you create relationships between posts, pages, custom post type, terms, users and custom table models. The plugin is lightweight and optimized for database and query performance.
 
 The plugin allows you to create connections from posts to posts, posts to pages and so on. Then you can perform corresponding queries to retrieve posts that are connected to or from given posts.
 
@@ -60,7 +60,7 @@ Besides, for each side, there's a meta box that shows what are connected from/to
 
 - **Simple APIs**: the plugin provides simple APIs for registering relationships and retrieving connected items. It integrates with existing WordPress APIs such as `WP_Query`,` get_terms` and `get_users`. See [documentation](https://docs.metabox.io/extensions/mb-relationships/) for more information.
 - Uses **custom relationship table** to store relationships. That helps optimize the database storage and query performance.
-- You can **create relationships between any kind of content** in WordPress: posts to posts, posts to users, etc. For posts to terms and posts to users, it's required the [MB Term Meta](https://metabox.io/plugins/mb-term-meta/) and [MB User Meta](https://metabox.io/plugins/mb-user-meta/).
+- You can **create relationships between any kind of content** in WordPress: posts to posts, posts to users, posts to custom table models, etc. For posts to terms and posts to users, it's required the [MB Term Meta](https://metabox.io/plugins/mb-term-meta/) and [MB User Meta](https://metabox.io/plugins/mb-user-meta/). For custom table models (`object_type => model`), it's required [MB Custom Table](https://metabox.io/plugins/mb-custom-table/).
 - Supports creating **reciprocal relationships** (posts-posts, users-users, ...).
 - Supports creating **bi-directional relationships** and easily query them.
 - Display connected items easily with **shortcode**.
