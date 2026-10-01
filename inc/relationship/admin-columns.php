@@ -159,6 +159,9 @@ class MBR_Admin_Columns {
 		}
 
 		$object_id = (int) ( $item['ID'] ?? 0 );
+		if ( ! $object_id ) {
+			return $content;
+		}
 		return $this->get_column_data( $object_id, $this->to['object_type'], 'from' );
 	}
 
@@ -176,6 +179,9 @@ class MBR_Admin_Columns {
 		}
 
 		$object_id = (int) ( $item['ID'] ?? 0 );
+		if ( ! $object_id ) {
+			return $content;
+		}
 		return $this->get_column_data( $object_id, $this->from['object_type'], 'to' );
 	}
 
