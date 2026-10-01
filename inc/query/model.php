@@ -46,7 +46,7 @@ class MBR_Query_Model {
 
 		$this->normalizer->normalize( $args );
 
-		$connected  = 'from' === $args['direction'] ? 'to' : 'from';
+		$connected  = 'from' === ( $args['direction'] ?? '' ) ? 'to' : 'from';
 		$settings   = $relationship->$connected;
 		$model_name = $settings['field']['model'] ?? '';
 
