@@ -59,6 +59,11 @@ class MBR_Meta_Boxes {
 	 * @return array
 	 */
 	public function register_meta_boxes( $meta_boxes ) {
+		// Invalid model config on either side: do not register broken fields.
+		if ( ! empty( $this->from['invalid'] ) || ! empty( $this->to['invalid'] ) ) {
+			return $meta_boxes;
+		}
+
 		// Reciprocal relationships: only one meta box.
 		if ( $this->reciprocal ) {
 			if ( empty( $this->from['meta_box']['hidden'] ) && empty( $this->to['meta_box']['hidden'] ) ) {

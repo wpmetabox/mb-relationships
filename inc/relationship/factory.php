@@ -196,28 +196,19 @@ class MBR_Relationship_Factory {
 		}
 
 		if ( ! class_exists( \MetaBox\CustomTable\ModelField::class ) ) {
-			_doing_it_wrong(
-				__METHOD__,
-				esc_html__( 'Relationship side with object_type "model" requires the MB Custom Table extension.', 'mb-relationships' ),
-				'1.14.0'
+			$this->invalidate_model_side(
+				$settings,
+				__( 'Relationship side with object_type "model" requires the MB Custom Table extension.', 'mb-relationships' )
 			);
-			$settings['field']['type']      = '';
-			$settings['meta_box']['hidden'] = true;
-			unset( $settings['field']['post_type'], $settings['meta_box']['post_types'], $settings['model'] );
 			return;
 		}
 
 		$model = $settings['model'] ?? ( $settings['field']['model'] ?? '' );
 		if ( ! $model ) {
-			_doing_it_wrong(
-				__METHOD__,
-				esc_html__( 'Relationship side with object_type "model" requires a model name.', 'mb-relationships' ),
-				'1.14.0'
+			$this->invalidate_model_side(
+				$settings,
+				__( 'Relationship side with object_type "model" requires a model name.', 'mb-relationships' )
 			);
-			// Avoid rendering a post field while object_type is still "model".
-			$settings['field']['type']      = '';
-			$settings['meta_box']['hidden'] = true;
-			unset( $settings['field']['post_type'], $settings['meta_box']['post_types'], $settings['model'] );
 			return;
 		}
 
@@ -226,6 +217,18 @@ class MBR_Relationship_Factory {
 		$settings['meta_box']['models'] = [ $model ];
 
 		unset( $settings['model'], $settings['field']['post_type'], $settings['meta_box']['post_types'] );
+	}
+
+	/**
+	 * Mark a model side as invalid so meta boxes are not registered.
+	 *
+	 * Uses an internal `invalid` flag instead of overloading public `meta_box.hidden`.
+	 */
+	private function invalidate_model_side( array &$settings, string $message ): void {
+		_doing_it_wrong( __METHOD__, $message, '1.14.0' );
+		$settings['invalid']       = true;
+		$settings['field']['type'] = '';
+		unset( $settings['field']['post_type'], $settings['meta_box']['post_types'], $settings['model'] );
 	}
 
 	/**
