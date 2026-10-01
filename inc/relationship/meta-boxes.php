@@ -59,8 +59,7 @@ class MBR_Meta_Boxes {
 	 * @return array
 	 */
 	public function register_meta_boxes( $meta_boxes ) {
-		// Invalid model config on either side: do not register broken fields.
-		if ( ! empty( $this->from['invalid'] ) || ! empty( $this->to['invalid'] ) ) {
+		if ( $this->has_invalid_model_side() ) {
 			return $meta_boxes;
 		}
 
@@ -80,6 +79,34 @@ class MBR_Meta_Boxes {
 		}
 
 		return $meta_boxes;
+	}
+
+	/**
+	 * Whether either side is an invalid/missing model configuration.
+	 *
+	 * Existence is checked here (not at register time) so models registered
+	 * after mb_relationships_init are still found.
+	 */
+	private function has_invalid_model_side(): bool {
+		if ( ! empty( $this->from['invalid'] ) || ! empty( $this->to['invalid'] ) ) {
+			return true;
+		}
+
+		if ( ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+			return ( $this->from['object_type'] ?? '' ) === 'model' || ( $this->to['object_type'] ?? '' ) === 'model';
+		}
+
+		foreach ( [ 'from', 'to' ] as $side ) {
+			if ( ( $this->{$side}['object_type'] ?? '' ) !== 'model' ) {
+				continue;
+			}
+			$model = $this->{$side}['field']['model'] ?? '';
+			if ( ! $model || ! \MetaBox\CustomTable\Model\Factory::get( $model ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
