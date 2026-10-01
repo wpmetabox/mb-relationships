@@ -61,17 +61,15 @@ class MBR_Query_Model {
 
 		$table              = $model->table;
 		$relationship_query = new MBR_Query( $args );
-		$clauses            = $relationship_query->alter_clauses(
-			[
-				'fields'  => "`$table`.*",
-				'join'    => '',
-				'where'   => '1=1',
-				'orderby' => '',
-				'groupby' => '',
-				'order'   => '',
-			],
-			"`$table`.ID"
-		);
+		$clauses            = [
+			'fields'  => "`$table`.*",
+			'join'    => '',
+			'where'   => '1=1',
+			'orderby' => '',
+			'groupby' => '',
+			'order'   => '',
+		];
+		$clauses            = $relationship_query->alter_clauses( $clauses, "`$table`.ID" );
 
 		$sql = "SELECT {$clauses['fields']} FROM `$table` {$clauses['join']} WHERE {$clauses['where']}";
 		if ( ! empty( $clauses['groupby'] ) ) {
