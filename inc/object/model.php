@@ -119,7 +119,7 @@ class MBR_Model implements MBR_Object_Interface {
 		$text = $this->get_label( $id );
 
 		if ( isset( $atts['link'] ) && 'false' === $atts['link'] ) {
-			return $text;
+			return esc_html( $text );
 		}
 
 		return sprintf(
@@ -142,7 +142,7 @@ class MBR_Model implements MBR_Object_Interface {
 		$text = $this->get_label( $id );
 
 		if ( false === ( $config['link'] ?? 'view' ) ) {
-			return $text;
+			return esc_html( $text );
 		}
 
 		return sprintf(
