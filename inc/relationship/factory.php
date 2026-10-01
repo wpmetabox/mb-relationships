@@ -321,7 +321,7 @@ class MBR_Relationship_Factory {
 			if ( ! $model ) {
 				return;
 			}
-			$field['name'] = $model->labels['name'];
+			$field['name'] = $model->labels['name'] ?? $model->labels['singular_name'] ?? '';
 		}
 	}
 }

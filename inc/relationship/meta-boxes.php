@@ -94,6 +94,14 @@ class MBR_Meta_Boxes {
 		$field       = $this->{$target}['field'];
 		$field['id'] = "{$this->id}_{$target}";
 
+		// Models may register after mb_relationships_init; resolve the label when meta boxes load.
+		if ( ( $field['type'] ?? '' ) === 'model' && empty( $field['name'] ) && class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+			$model = \MetaBox\CustomTable\Model\Factory::get( $field['model'] ?? '' );
+			if ( $model ) {
+				$field['name'] = $model->labels['name'] ?? $model->labels['singular_name'] ?? '';
+			}
+		}
+
 		if ( 'post' === ( $field['type'] ?? '' ) ) {
 			$field['query_args']['post_status'] = 'any';
 		}
