@@ -195,6 +195,17 @@ class MBR_Relationship_Factory {
 			return;
 		}
 
+		if ( ! class_exists( \MetaBox\CustomTable\ModelField::class ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				esc_html__( 'Relationship side with object_type "model" requires the MB Custom Table extension.', 'mb-relationships' ),
+				'1.14.0'
+			);
+			$settings['field']['type'] = '';
+			unset( $settings['field']['post_type'], $settings['meta_box']['post_types'], $settings['model'] );
+			return;
+		}
+
 		$model = $settings['model'] ?? ( $settings['field']['model'] ?? '' );
 		if ( ! $model ) {
 			_doing_it_wrong(
