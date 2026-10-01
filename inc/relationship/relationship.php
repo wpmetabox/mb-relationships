@@ -216,7 +216,7 @@ class MBR_Relationship {
 	 * @return string
 	 */
 	public function get_db_field( $side ) {
-		$object = $this->object_factory->build( $this->get_object_type( $side ) );
+		$object = $this->object_factory->build( $this->get_object_type( $side ), $this->{$side} );
 
 		return $object->get_db_field();
 	}

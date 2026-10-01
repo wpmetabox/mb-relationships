@@ -1,3 +1,7 @@
+### 1.14.0 - 2026-09-25
+
+- Add support for custom table models (`object_type => model`)
+
 ### 1.13.0 - 2026-07-16
 
 **Highlight:**

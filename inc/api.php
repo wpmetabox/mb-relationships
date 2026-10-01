@@ -31,6 +31,13 @@ class MB_Relationships_API {
 	 */
 	private static $user_query;
 
+	/**
+	 * Reference to model query object.
+	 *
+	 * @var MBR_Query_Model
+	 */
+	private static $model_query;
+
 	public static function set_relationship_factory( MBR_Relationship_Factory $factory ) {
 		self::$factory = $factory;
 	}
@@ -45,6 +52,10 @@ class MB_Relationships_API {
 
 	public static function set_user_query( MBR_Query_User $user_query ) {
 		self::$user_query = $user_query;
+	}
+
+	public static function set_model_query( MBR_Query_Model $model_query ) {
+		self::$model_query = $model_query;
 	}
 
 	/**

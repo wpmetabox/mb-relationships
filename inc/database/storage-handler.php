@@ -41,6 +41,7 @@ class MBR_Storage_Handler {
 		add_action( 'deleted_post', [ $this, 'delete_object_data' ] );
 		add_action( 'deleted_user', [ $this, 'delete_object_data' ] );
 		add_action( 'delete_term', [ $this, 'delete_object_data' ] );
+		add_action( 'mbct_after_delete', [ $this, 'delete_model_data' ], 10, 2 );
 	}
 
 	/**
@@ -90,6 +91,42 @@ class MBR_Storage_Handler {
 			if ( $setting['from']['object_type'] !== $setting['to']['object_type'] ) {
 				$target = $setting['from']['object_type'] === $object_type ? 'from' : 'to';
 			}
+			$this->delete_object_relationships( $object_id, $relationship->id, $target );
+		}
+	}
+
+	/**
+	 * Delete relationship rows when a custom table row is deleted.
+	 * Only affects relationships whose model side uses this table.
+	 *
+	 * @param int         $object_id Row ID.
+	 * @param string|null $table     Custom table name.
+	 */
+	public function delete_model_data( int $object_id, $table = '' ): void {
+		if ( ! is_string( $table ) || ! $table || ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+			return;
+		}
+
+		$relationships = $this->factory->filter_by( 'model' );
+		foreach ( $relationships as $relationship ) {
+			$setting = $this->factory->get_settings( $relationship->id );
+			$sides   = [];
+
+			foreach ( [ 'from', 'to' ] as $side ) {
+				if ( ( $setting[ $side ]['object_type'] ?? '' ) !== 'model' ) {
+					continue;
+				}
+				$model = \MetaBox\CustomTable\Model\Factory::get( $setting[ $side ]['field']['model'] ?? '' );
+				if ( $model && $model->table === $table ) {
+					$sides[] = $side;
+				}
+			}
+
+			if ( ! $sides ) {
+				continue;
+			}
+
+			$target = 1 === count( $sides ) ? $sides[0] : null;
 			$this->delete_object_relationships( $object_id, $relationship->id, $target );
 		}
 	}

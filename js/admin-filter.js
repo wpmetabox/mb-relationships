@@ -15,13 +15,20 @@
 				dataType: 'json',
 				delay: 250,
 				cache: true,
-				data: params => ( {
-					q: params.term,
-					action: 'mbr_admin_filter',
-					_ajax_nonce: MBR.nonce,
-					object_type: $this.data( 'object_type' ),
-					type: $this.data( 'type' ),
-				} ),
+				data: params => {
+					const data = {
+						q: params.term,
+						action: 'mbr_admin_filter',
+						_ajax_nonce: MBR.nonce,
+						object_type: $this.data( 'object_type' ),
+						type: $this.data( 'type' ),
+					};
+					if ( $this.data( 'relationship_id' ) ) {
+						data.relationship_id = $this.data( 'relationship_id' );
+						data.from_to = $this.data( 'from_to' );
+					}
+					return data;
+				},
 				processResults: response => ( { results: response.data } ),
 			}
 		};

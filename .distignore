@@ -1,6 +1,8 @@
 .DS_Store
 Thumbs.db
 
+.commandcode
+
 .git
 .github
 .gitignore

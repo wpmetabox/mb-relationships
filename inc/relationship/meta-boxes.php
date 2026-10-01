@@ -59,6 +59,10 @@ class MBR_Meta_Boxes {
 	 * @return array
 	 */
 	public function register_meta_boxes( $meta_boxes ) {
+		if ( $this->has_invalid_model_side() ) {
+			return $meta_boxes;
+		}
+
 		// Reciprocal relationships: only one meta box.
 		if ( $this->reciprocal ) {
 			$meta_boxes[] = $this->parse_meta_box( 'from' );
@@ -76,6 +80,34 @@ class MBR_Meta_Boxes {
 	}
 
 	/**
+	 * Whether either side is an invalid/missing model configuration.
+	 *
+	 * Existence is checked here (not at register time) so models registered
+	 * after mb_relationships_init are still found.
+	 */
+	private function has_invalid_model_side(): bool {
+		if ( ! empty( $this->from['invalid'] ) || ! empty( $this->to['invalid'] ) ) {
+			return true;
+		}
+
+		if ( ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+			return ( $this->from['object_type'] ?? '' ) === 'model' || ( $this->to['object_type'] ?? '' ) === 'model';
+		}
+
+		foreach ( [ 'from', 'to' ] as $side ) {
+			if ( ( $this->{$side}['object_type'] ?? '' ) !== 'model' ) {
+				continue;
+			}
+			$model = $this->{$side}['field']['model'] ?? '';
+			if ( ! $model || ! \MetaBox\CustomTable\Model\Factory::get( $model ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Parse meta box settings.
 	 *
 	 * @param  string $source "from" or "to".
@@ -84,9 +116,20 @@ class MBR_Meta_Boxes {
 	private function parse_meta_box( $source ) {
 		$target = 'from' === $source ? 'to' : 'from';
 
-		$field                              = $this->{$target}['field'];
-		$field['id']                        = "{$this->id}_{$target}";
-		$field['query_args']['post_status'] = 'any';
+		$field       = $this->{$target}['field'];
+		$field['id'] = "{$this->id}_{$target}";
+
+		// Models may register after mb_relationships_init; resolve the label when meta boxes load.
+		if ( ( $field['type'] ?? '' ) === 'model' && empty( $field['name'] ) && class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+			$model = \MetaBox\CustomTable\Model\Factory::get( $field['model'] ?? '' );
+			if ( $model ) {
+				$field['name'] = $model->labels['name'] ?? $model->labels['singular_name'] ?? '';
+			}
+		}
+
+		if ( 'post' === ( $field['type'] ?? '' ) ) {
+			$field['query_args']['post_status'] = 'any';
+		}
 
 		if ( ! empty( $this->{$source}['has_one_relationship'] ) ) {
 			$field['clone']      = false;
