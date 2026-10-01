@@ -201,8 +201,8 @@ class MBR_Relationship_Factory {
 				esc_html__( 'Relationship side with object_type "model" requires the MB Custom Table extension.', 'mb-relationships' ),
 				'1.14.0'
 			);
-			$settings['field']['type']         = '';
-			$settings['meta_box']['hidden']    = true;
+			$settings['field']['type']      = '';
+			$settings['meta_box']['hidden'] = true;
 			unset( $settings['field']['post_type'], $settings['meta_box']['post_types'], $settings['model'] );
 			return;
 		}

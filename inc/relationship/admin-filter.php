@@ -7,7 +7,7 @@ class MBR_Admin_Filter {
 
 	const LIMIT              = 20;
 	const LIMIT_LABEL_OPTION = 50;
-	private $post_type = '';
+	private $post_type       = '';
 
 	public function __construct() {
 		if ( ! is_admin() ) {

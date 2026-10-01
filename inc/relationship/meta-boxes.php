@@ -61,7 +61,9 @@ class MBR_Meta_Boxes {
 	public function register_meta_boxes( $meta_boxes ) {
 		// Reciprocal relationships: only one meta box.
 		if ( $this->reciprocal ) {
-			$meta_boxes[] = $this->parse_meta_box( 'from' );
+			if ( empty( $this->from['meta_box']['hidden'] ) && empty( $this->to['meta_box']['hidden'] ) ) {
+				$meta_boxes[] = $this->parse_meta_box( 'from' );
+			}
 			return $meta_boxes;
 		}
 
