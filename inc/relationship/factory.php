@@ -212,6 +212,11 @@ class MBR_Relationship_Factory {
 			return;
 		}
 
+		if ( isset( $settings['item_title'] ) ) {
+			$settings['field']['item_title'] = $settings['item_title'];
+			unset( $settings['item_title'] );
+		}
+
 		$settings['field']['type']      = 'model';
 		$settings['field']['model']     = $model;
 		$settings['meta_box']['models'] = [ $model ];
