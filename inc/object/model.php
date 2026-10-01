@@ -115,18 +115,8 @@ class MBR_Model implements MBR_Object_Interface {
 	 * @param array $atts Shortcode attributes.
 	 */
 	public function render( $item, $atts ): string {
-		$id   = $this->get_item_id( $item );
-		$text = $this->get_label( $id );
-
-		if ( isset( $atts['link'] ) && 'false' === $atts['link'] ) {
-			return esc_html( $text );
-		}
-
-		return sprintf(
-			'<a href="%s">%s</a>',
-			esc_url( $this->get_edit_url( $id ) ),
-			esc_html( $text )
-		);
+		// Models have no public permalink; never expose admin edit URLs on the frontend.
+		return esc_html( $this->get_label( $this->get_item_id( $item ) ) );
 	}
 
 	/**
