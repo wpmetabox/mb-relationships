@@ -85,20 +85,31 @@ class MBR_Admin_Filter {
 		}
 
 		$selected = $this->get_selected_item( $relationship->id, $data['object_type'], $data['type'], $data['item_title'] );
+
+		$select_attrs = sprintf(
+			'class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s" data-placeholder="%s"',
+			esc_attr( $relationship->id ),
+			esc_attr( $data['object_type'] ),
+			esc_attr( $data['type'] ),
+			esc_attr( $data['label'] )
+		);
+		if ( $data['object_type'] === 'model' ) {
+			$select_attrs .= sprintf(
+				' data-relationship_id="%s" data-from_to="%s"',
+				esc_attr( $relationship->id ),
+				esc_attr( $data['relation'] )
+			);
+		}
+
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-			<select class="mb_related_filter" name="relationships[%s][ID]" data-relationship_id="%s" data-from_to="%s" data-object_type="%s" data-type="%s" data-placeholder="%s">
+			<select %s>
 				<option value="">%s</option>
 				%s
 			</select>',
 			esc_attr( $relationship->id ),
 			esc_attr( $data['relation'] ),
-			esc_attr( $relationship->id ),
-			esc_attr( $relationship->id ),
-			esc_attr( $data['relation'] ),
-			esc_attr( $data['object_type'] ),
-			esc_attr( $data['type'] ),
-			esc_attr( $data['label'] ),
+			$select_attrs,
 			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
