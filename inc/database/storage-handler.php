@@ -99,11 +99,11 @@ class MBR_Storage_Handler {
 	 * Delete relationship rows when a custom table row is deleted.
 	 * Only affects relationships whose model side uses this table.
 	 *
-	 * @param int    $object_id Row ID.
-	 * @param string $table     Custom table name.
+	 * @param int         $object_id Row ID.
+	 * @param string|null $table     Custom table name.
 	 */
-	public function delete_model_data( int $object_id, string $table ): void {
-		if ( ! $table || ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+	public function delete_model_data( int $object_id, $table = '' ): void {
+		if ( ! is_string( $table ) || ! $table || ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
 			return;
 		}
 
