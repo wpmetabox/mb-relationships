@@ -403,14 +403,6 @@ class MBR_Admin_Filter {
 		return $options;
 	}
 
-	private function get_model_label( int $id, string $model, string $item_title = '' ): string {
-		if ( ! $model ) {
-			return $id ? '#' . $id : '';
-		}
-
-		return ( new MBR_Model( $model, $item_title ) )->get_label( $id );
-	}
-
 	private function truncate_label_option( string $label = '' ): string {
 		return mb_strlen( $label ) > self::LIMIT_LABEL_OPTION ? mb_substr( $label, 0, self::LIMIT_LABEL_OPTION ) . '...' : $label;
 	}
