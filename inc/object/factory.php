@@ -25,7 +25,7 @@ class MBR_Object_Factory {
 	 *
 	 * @return MBR_Object_Interface
 	 */
-	public function build( $type, $args = [] ) {
+	public function build( $type, array $args = [] ) {
 		if ( 'model' === $type ) {
 			$model      = $args['field']['model'] ?? ( $args['model'] ?? '' );
 			$item_title = $args['field']['item_title'] ?? '';

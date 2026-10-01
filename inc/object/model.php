@@ -98,7 +98,7 @@ class MBR_Model implements MBR_Object_Interface {
 	 *
 	 * @return string
 	 */
-	public function get_link( $id ) {
+	public function get_link( $id ): string {
 		return sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( $this->get_edit_url( $id ) ),
@@ -111,10 +111,8 @@ class MBR_Model implements MBR_Object_Interface {
 	 *
 	 * @param mixed $item Model row (object/array) or ID.
 	 * @param array $atts Shortcode attributes.
-	 *
-	 * @return string
 	 */
-	public function render( $item, $atts ) {
+	public function render( $item, $atts ): string {
 		$id   = $this->get_item_id( $item );
 		$text = $this->get_label( $id );
 
@@ -134,10 +132,8 @@ class MBR_Model implements MBR_Object_Interface {
 	 *
 	 * @param mixed $item   Model row (object/array) or ID.
 	 * @param array $config Admin column config.
-	 *
-	 * @return string
 	 */
-	public function render_admin( $item, $config ) {
+	public function render_admin( $item, $config ): string {
 		$id   = $this->get_item_id( $item );
 		$text = $this->get_label( $id );
 

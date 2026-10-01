@@ -41,7 +41,7 @@ class MBR_Query_Model {
 	 *
 	 * @return array
 	 */
-	public function query( $args, $query_vars, $relationship ): array {
+	public function query( array $args, array $query_vars, MBR_Relationship $relationship ): array {
 		global $wpdb;
 
 		$this->normalizer->normalize( $args );

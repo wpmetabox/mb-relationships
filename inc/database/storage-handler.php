@@ -102,7 +102,7 @@ class MBR_Storage_Handler {
 	 * @param int    $object_id Row ID.
 	 * @param string $table     Custom table name.
 	 */
-	public function delete_model_data( $object_id, $table ) {
+	public function delete_model_data( int $object_id, string $table ): void {
 		if ( ! $table || ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
 			return;
 		}
