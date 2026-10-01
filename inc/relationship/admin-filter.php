@@ -335,14 +335,18 @@ class MBR_Admin_Filter {
 	}
 
 	private function get_model_selected_item( int $id, string $model, string $item_title = '' ): array {
-		$label = $this->get_model_label( $id, $model, $item_title );
-		if ( ! $label ) {
+		if ( ! $model ) {
+			return [];
+		}
+
+		$items = MBR_Model::query_items( $id, $model, $item_title );
+		if ( empty( $items[ $id ] ) ) {
 			return [];
 		}
 
 		return [
 			'id'   => $id,
-			'text' => $this->truncate_label_option( $label ),
+			'text' => $this->truncate_label_option( $items[ $id ]['label'] ),
 		];
 	}
 
