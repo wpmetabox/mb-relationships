@@ -9,4 +9,3 @@ jobs:
       contents: write
       pull-requests: write
     uses: wpmetabox/meta-box/.github/workflows/dependabot-auto-merge.yml@master
-
