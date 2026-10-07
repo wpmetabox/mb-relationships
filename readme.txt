@@ -2,7 +2,7 @@
 Contributors: metabox, rilwis, truongwp, hsimah, anhdoanmis
 Donate link: https://metabox.io/pricing/
 Tags: relationships, connections, posts to posts
-Requires at least: 6.6
+Requires at least: 6.7
 Tested up to: 7.1
 Stable tag: 1.14.0
 Requires PHP: 7.4
@@ -105,11 +105,11 @@ Install **MB Relationships** extension
 
 == Changelog ==
 
-### 1.14.0 - 2026-09-25
+= 1.14.0 - 2026-10-07 =
 
 - Add support for custom table models (`object_type => model`)
 
-### 1.13.0 - 2026-07-16
+= 1.13.0 - 2026-07-16 =
 
 **Highlight:**
 
