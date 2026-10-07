@@ -7,7 +7,7 @@ class MBR_Admin_Filter {
 
 	const LIMIT              = 20;
 	const LIMIT_LABEL_OPTION = 50;
-	private $post_type = '';
+	private $post_type       = '';
 
 	public function __construct() {
 		if ( ! is_admin() ) {
@@ -66,6 +66,7 @@ class MBR_Admin_Filter {
 			? [
 				'object_type'  => $to['object_type'],
 				'type'         => $this->get_type( $to ),
+				'item_title'   => Arr::get( $to, 'field.item_title', '' ),
 				'relation'     => 'to',
 				'label'        => $from['meta_box']['title'],
 				'admin_filter' => Arr::get( $from, 'admin_filter', false ),
@@ -73,6 +74,7 @@ class MBR_Admin_Filter {
 			: [
 				'object_type'  => $from['object_type'],
 				'type'         => $this->get_type( $from ),
+				'item_title'   => Arr::get( $from, 'field.item_title', '' ),
 				'relation'     => 'from',
 				'label'        => $to['meta_box']['title'],
 				'admin_filter' => Arr::get( $to, 'admin_filter', false ),
@@ -82,19 +84,32 @@ class MBR_Admin_Filter {
 			return;
 		}
 
-		$selected = $this->get_selected_item( $relationship->id, $data['object_type'] );
+		$selected = $this->get_selected_item( $relationship->id, $data['object_type'], $data['type'], $data['item_title'] );
+
+		$select_attrs = sprintf(
+			'class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s" data-placeholder="%s"',
+			esc_attr( $relationship->id ),
+			esc_attr( $data['object_type'] ),
+			esc_attr( $data['type'] ),
+			esc_attr( $data['label'] )
+		);
+		if ( $data['object_type'] === 'model' ) {
+			$select_attrs .= sprintf(
+				' data-relationship_id="%s" data-from_to="%s"',
+				esc_attr( $relationship->id ),
+				esc_attr( $data['relation'] )
+			);
+		}
+
 		printf(
 			'<input type="hidden" name="relationships[%s][from_to]" value="%s" />
-			<select class="mb_related_filter" name="relationships[%s][ID]" data-object_type="%s" data-type="%s" data-placeholder="%s">
+			<select %s>
 				<option value="">%s</option>
 				%s
 			</select>',
 			esc_attr( $relationship->id ),
 			esc_attr( $data['relation'] ),
-			esc_attr( $relationship->id ),
-			esc_attr( $data['object_type'] ),
-			esc_attr( $data['type'] ),
-			esc_attr( $data['label'] ),
+			$select_attrs,
 			esc_html( $data['label'] ),
 			$selected ? '<option value="' . esc_attr( $selected['id'] ) . '" selected>' . esc_html( $selected['text'] ) . '</option>' : ''
 		);
@@ -107,6 +122,10 @@ class MBR_Admin_Filter {
 
 		if ( $side['object_type'] === 'term' ) {
 			return $side['field']['taxonomy'];
+		}
+
+		if ( $side['object_type'] === 'model' ) {
+			return $side['field']['model'] ?? '';
 		}
 
 		return '';
@@ -203,11 +222,47 @@ class MBR_Admin_Filter {
 		$q           = sanitize_text_field( wp_unslash( $_GET['q'] ) );
 		$object_type = sanitize_text_field( wp_unslash( $_GET['object_type'] ) );
 		$type        = sanitize_text_field( wp_unslash( $_GET['type'] ?? '' ) );
-		$options     = $this->get_data_options( $q, $object_type, $type );
+		$item_title  = '';
+
+		// Model labels/templates must come from registered settings, not the client.
+		if ( $object_type === 'model' ) {
+			$resolved = $this->resolve_model_filter_args();
+			if ( ! $resolved ) {
+				wp_send_json_error( [] );
+			}
+			[ $type, $item_title ] = $resolved;
+		}
+
+		$options = $this->get_data_options( $q, $object_type, $type, $item_title );
 		wp_send_json_success( $options );
 	}
 
-	private function get_selected_item( string $relationship_id, string $object_type ): array {
+	/**
+	 * Resolve model name and item_title from relationship settings for admin filter AJAX.
+	 *
+	 * @return array{0: string, 1: string}|null
+	 */
+	private function resolve_model_filter_args(): ?array {
+		$relationship_id = sanitize_text_field( wp_unslash( $_GET['relationship_id'] ?? '' ) );
+		$side            = sanitize_text_field( wp_unslash( $_GET['from_to'] ?? '' ) );
+		if ( ! $relationship_id || ! in_array( $side, [ 'from', 'to' ], true ) ) {
+			return null;
+		}
+
+		$settings = MB_Relationships_API::get_relationship_settings( $relationship_id );
+		if ( ! $settings || ( $settings[ $side ]['object_type'] ?? '' ) !== 'model' ) {
+			return null;
+		}
+
+		$model = $settings[ $side ]['field']['model'] ?? '';
+		if ( ! $model ) {
+			return null;
+		}
+
+		return [ $model, $settings[ $side ]['field']['item_title'] ?? '' ];
+	}
+
+	private function get_selected_item( string $relationship_id, string $object_type, string $type = '', string $item_title = '' ): array {
 		$nonce = sanitize_text_field( wp_unslash( $_GET['mbr_filter_nonce'] ?? '' ) );
 		if ( ! wp_verify_nonce( $nonce, 'filter_by_relationships' ) ) {
 			return [];
@@ -246,16 +301,24 @@ class MBR_Admin_Filter {
 			];
 		}
 
+		if ( $object_type === 'model' ) {
+			return $this->get_model_selected_item( $id, $type, $item_title );
+		}
+
 		return [];
 	}
 
-	private function get_data_options( string $q, string $object_type, string $type ): array {
+	private function get_data_options( string $q, string $object_type, string $type, string $item_title = '' ): array {
 		if ( $object_type === 'term' ) {
 			return $this->get_term_options( $q, $type );
 		}
 
 		if ( $object_type === 'user' ) {
 			return $this->get_user_options( $q );
+		}
+
+		if ( $object_type === 'model' ) {
+			return $this->get_model_options( $q, $type, $item_title );
 		}
 
 		// Data Post
@@ -312,6 +375,39 @@ class MBR_Admin_Filter {
 			$options[] = [
 				'id'   => $post->ID,
 				'text' => $this->truncate_label_option( $post->post_title ),
+			];
+		}
+
+		return $options;
+	}
+
+	private function get_model_selected_item( int $id, string $model, string $item_title = '' ): array {
+		if ( ! $model ) {
+			return [];
+		}
+
+		$items = MBR_Model::query_items( $id, $model, $item_title );
+		if ( empty( $items[ $id ] ) ) {
+			return [];
+		}
+
+		return [
+			'id'   => $id,
+			'text' => $this->truncate_label_option( $items[ $id ]['label'] ),
+		];
+	}
+
+	private function get_model_options( string $q, string $model, string $item_title = '' ): array {
+		$items = MBR_Model::query_items( null, $model, $item_title, [
+			's'     => $q,
+			'limit' => self::LIMIT,
+		] );
+
+		$options = [];
+		foreach ( $items as $item ) {
+			$options[] = [
+				'id'   => $item['value'],
+				'text' => $this->truncate_label_option( $item['label'] ),
 			];
 		}
 

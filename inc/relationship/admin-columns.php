@@ -71,6 +71,14 @@ class MBR_Admin_Columns {
 				add_filter( 'manage_users_columns', [ $this, "{$side}_columns" ] );
 				add_filter( 'manage_users_custom_column', [ $this, "{$side}_column_data" ], 10, 3 );
 				break;
+
+			case 'model':
+				$model = $settings['field']['model'] ?? '';
+				if ( $model ) {
+					add_filter( "mbct_{$model}_columns", [ $this, "{$side}_columns" ] );
+					add_filter( "mbct_{$model}_column_output", [ $this, "model_{$side}_column_data" ], 10, 3 );
+				}
+				break;
 		}
 	}
 
@@ -135,6 +143,46 @@ class MBR_Admin_Columns {
 		}
 
 		echo wp_kses_post( $this->get_column_data( $object_id, $this->from['object_type'], 'to' ) );
+	}
+
+	/**
+	 * Display column data for models on 'from' side.
+	 *
+	 * @param  string $content     Content of the column.
+	 * @param  string $column_name Column ID.
+	 * @param  array  $item        Model row.
+	 * @return string
+	 */
+	public function model_from_column_data( $content, $column_name, $item ) {
+		if ( $this->id . '_to' !== $column_name ) {
+			return $content;
+		}
+
+		$object_id = (int) ( $item['ID'] ?? 0 );
+		if ( ! $object_id ) {
+			return $content;
+		}
+		return $this->get_column_data( $object_id, $this->to['object_type'], 'from' );
+	}
+
+	/**
+	 * Display column data for models on 'to' side.
+	 *
+	 * @param  string $content     Content of the column.
+	 * @param  string $column_name Column ID.
+	 * @param  array  $item        Model row.
+	 * @return string
+	 */
+	public function model_to_column_data( $content, $column_name, $item ) {
+		if ( $this->id . '_from' !== $column_name ) {
+			return $content;
+		}
+
+		$object_id = (int) ( $item['ID'] ?? 0 );
+		if ( ! $object_id ) {
+			return $content;
+		}
+		return $this->get_column_data( $object_id, $this->from['object_type'], 'to' );
 	}
 
 	/**
@@ -226,7 +274,8 @@ class MBR_Admin_Columns {
 			return '';
 		}
 
-		$object = $this->object_factory->build( $object_type );
+		$target = 'from' === $direction ? 'to' : 'from';
+		$object = $this->object_factory->build( $object_type, $this->$target );
 		$items  = array_map(
 			function ( $item ) use ( $object, $config ) {
 				return $object->render_admin( $item, $config );
@@ -276,6 +325,15 @@ class MBR_Admin_Columns {
 					'id'       => $this->settings['id'],
 					$direction => $object_id,
 				],
+			]
+		);
+	}
+
+	private function get_model_items( $object_id, $direction ) {
+		return MB_Relationships_API::get_connected(
+			[
+				'id'       => $this->settings['id'],
+				$direction => $object_id,
 			]
 		);
 	}

@@ -171,6 +171,7 @@ class MBR_Relationship_Factory {
 		$settings['field']    = array_merge( $default['field'], $settings['field'] );
 
 		$this->migrate_syntax( $settings );
+		$this->normalize_model( $settings );
 
 		// Fixed settings.
 		$settings['field']['clone']        = true;
@@ -182,6 +183,57 @@ class MBR_Relationship_Factory {
 		$this->set_default_field_label( $settings['field'] );
 
 		return $settings;
+	}
+
+	/**
+	 * Normalize model side settings (new feature — not legacy migrate_syntax).
+	 *
+	 * @param array $settings Relationship settings for a side.
+	 */
+	private function normalize_model( &$settings ): void {
+		if ( 'model' !== ( $settings['object_type'] ?? '' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( \MetaBox\CustomTable\ModelField::class ) ) {
+			$this->invalidate_model_side(
+				$settings,
+				__( 'Relationship side with object_type "model" requires the MB Custom Table extension.', 'mb-relationships' )
+			);
+			return;
+		}
+
+		$model = $settings['model'] ?? ( $settings['field']['model'] ?? '' );
+		if ( ! $model ) {
+			$this->invalidate_model_side(
+				$settings,
+				__( 'Relationship side with object_type "model" requires a model name.', 'mb-relationships' )
+			);
+			return;
+		}
+
+		if ( isset( $settings['item_title'] ) ) {
+			$settings['field']['item_title'] = $settings['item_title'];
+			unset( $settings['item_title'] );
+		}
+
+		$settings['field']['type']      = 'model';
+		$settings['field']['model']     = $model;
+		$settings['meta_box']['models'] = [ $model ];
+
+		unset( $settings['model'], $settings['field']['post_type'], $settings['meta_box']['post_types'] );
+	}
+
+	/**
+	 * Mark a model side as invalid so meta boxes are not registered.
+	 *
+	 * Uses an internal `invalid` flag instead of overloading public `meta_box.hidden`.
+	 */
+	private function invalidate_model_side( array &$settings, string $message ): void {
+		_doing_it_wrong( __METHOD__, $message, '1.14.0' );
+		$settings['invalid']       = true;
+		$settings['field']['type'] = '';
+		unset( $settings['field']['post_type'], $settings['meta_box']['post_types'], $settings['model'] );
 	}
 
 	/**
@@ -264,6 +316,17 @@ class MBR_Relationship_Factory {
 			}
 			$field['name'] = $taxonomy_object->labels->name;
 			return;
+		}
+
+		if ( $field['type'] === 'model' ) {
+			if ( ! class_exists( \MetaBox\CustomTable\Model\Factory::class ) ) {
+				return;
+			}
+			$model = \MetaBox\CustomTable\Model\Factory::get( $field['model'] ?? '' );
+			if ( ! $model ) {
+				return;
+			}
+			$field['name'] = $model->labels['name'] ?? $model->labels['singular_name'] ?? '';
 		}
 	}
 }

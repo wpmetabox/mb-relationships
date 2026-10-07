@@ -37,11 +37,14 @@ class MBR_Loader {
 		$term_query->init();
 		$user_query = new MBR_Query_User( $normalizer );
 		$user_query->init();
+		$model_query = new MBR_Query_Model( $normalizer );
+		$model_query->init();
 
 		MB_Relationships_API::set_relationship_factory( $rel_factory );
 		MB_Relationships_API::set_post_query( $post_query );
 		MB_Relationships_API::set_term_query( $term_query );
 		MB_Relationships_API::set_user_query( $user_query );
+		MB_Relationships_API::set_model_query( $model_query );
 
 		new MBR_Admin_Filter();
 		$shortcodes = new MBR_Shortcodes( $rel_factory, $obj_factory );
@@ -76,6 +79,7 @@ class MBR_Loader {
 		require __DIR__ . '/object/post.php';
 		require __DIR__ . '/object/term.php';
 		require __DIR__ . '/object/user.php';
+		require __DIR__ . '/object/model.php';
 		require __DIR__ . '/object/factory.php';
 
 		require __DIR__ . '/query/query.php';
@@ -83,6 +87,7 @@ class MBR_Loader {
 		require __DIR__ . '/query/post.php';
 		require __DIR__ . '/query/term.php';
 		require __DIR__ . '/query/user.php';
+		require __DIR__ . '/query/model.php';
 
 		require __DIR__ . '/relationship/factory.php';
 		require __DIR__ . '/relationship/relationship.php';
