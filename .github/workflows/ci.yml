@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: ["**"]
+    branches: [master]
   pull_request:
   workflow_dispatch:
 jobs:
@@ -10,6 +10,3 @@ jobs:
     with:
       php_min: "7.4"
       requires: "meta-box"
-  phpunit:
-    uses: wpmetabox/meta-box/.github/workflows/phpunit.yml@master
-    secrets: inherit
